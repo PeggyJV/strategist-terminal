@@ -2785,6 +2785,7 @@ dependencies = [
 [[package]]
 name = "steward-proto"
 version = "4.2.0"
+source = "git+https://github.com/PeggyJV/steward/#444dec4aec688c71af95a34fc06db6d7cbd352d1"
 dependencies = [
  "prost",
  "serde",

@@ -27,8 +27,7 @@ fn schedule(request_bytes: Vec<u8>) -> Result<(), String> {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![version])
-        .invoke_handler(tauri::generate_handler![schedule])
+        .invoke_handler(tauri::generate_handler![version, schedule])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

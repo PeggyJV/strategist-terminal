@@ -9,6 +9,7 @@ use tracing::{debug, error, info};
 use crate::app::{self, get_channel, AppContext};
 
 pub(crate) fn handle() {
+    println!("version command");
     futures::executor::block_on(async move {
         let app_context = app::get_app_context().await;
 
