@@ -25,7 +25,7 @@
   "type": "module",
   "dependencies": {
     "@tauri-apps/api": "^1.5.3",
-    "steward-proto-ts": "github:peggyjv/steward-proto-ts",
+    "steward-proto-ts": "https://github.com/PeggyJV/steward-proto-ts",
     "tauri": "^0.15.0"
   }
 }
