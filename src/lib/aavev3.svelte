@@ -1,6 +1,6 @@
 <script>
     import { invoke } from "@tauri-apps/api/tauri";
-    import AaveV3ATokenAdaptorV1 from "steward-proto-ts";
+    import * as steward from "steward-proto-ts";
     export let tokenId = "";
     export let amount = "";
 </script>
@@ -11,10 +11,9 @@
 
 <button
     on:click={async () => {
-        let deposit = AaveV3ATokenAdaptorV1.depositToAave({
-            tokenId: tokenId,
-            amount: amount,
-        });
+        let deposit = new steward.AaveV3ATokenAdaptorV1.DepositToAave();
+        deposit.setToken(tokenId);
+        deposit.setAmount(amount);
         console.log(deposit);
     }}>Deposit</button
 >
