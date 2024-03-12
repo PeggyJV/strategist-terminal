@@ -1,8 +1,12 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import Aavev3 from "$lib/aavev3.svelte";
+    import Aavev3Deposit from "$lib/aavev3Deposit.svelte";
+    import Config from "$lib/config.svelte";
 
     let version = "";
+
+    let config = true;
+    let aavev3 = true;
 
     async function status() {
         version = await invoke("version", {});
@@ -13,7 +17,11 @@
 <p>
     Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
 </p>
-<Aavev3 />
 
-<div>Message from backend: {version}</div>
-<button on:click={status}>Get Version</button>
+{#if config}
+    <Config />
+{/if}
+
+{#if aavev3}
+    <Aavev3Deposit />
+{/if}

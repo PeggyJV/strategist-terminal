@@ -11,16 +11,17 @@ use tracing::debug;
 const DEFAULT_GRPC_ENDPOINT: &str = "https://sommelier-grpc.polkachu.com:14190";
 
 lazy_static! {
-    static ref APP_CONTEXT: Arc<RwLock<AppContext>> = Arc::new(RwLock::new(AppContext::default()));
+    pub(crate) static ref APP_CONTEXT: Arc<RwLock<AppContext>> =
+        Arc::new(RwLock::new(AppContext::default()));
 }
 
 // TODO: front end needs to ask the user to supply domain and cert data
 #[derive(Default, Deserialize, Serialize)]
-struct AppConfig {
-    grpc_endpoint: Option<String>,
-    publisher_domain: Option<String>,
-    client_cert_path: Option<String>,
-    client_cert_key_path: Option<String>,
+pub(crate) struct AppConfig {
+    pub grpc_endpoint: Option<String>,
+    pub publisher_domain: Option<String>,
+    pub client_cert_path: Option<String>,
+    pub client_cert_key_path: Option<String>,
 }
 
 fn load_config<P: AsRef<Path>>(config_path: P) -> Result<AppConfig> {
@@ -38,7 +39,7 @@ pub(crate) struct AppContext {
     pub subscribers: Option<Vec<Subscriber>>,
 }
 
-fn initialize_app_context(config: AppConfig) -> Result<()> {
+pub(crate) fn initialize_app_context(config: AppConfig) -> Result<()> {
     let mut app_context = futures::executor::block_on(APP_CONTEXT.write());
     let grpc_endpoint = config
         .grpc_endpoint
@@ -74,7 +75,7 @@ fn get_publisher_identity(cert_path: String, cert_key_path: String) -> Result<Id
     Ok(Identity::from_pem(client_cert, client_key))
 }
 
-async fn get_subscribers(grpc_endpoint: &str) -> Result<Vec<Subscriber>> {
+pub(crate) async fn get_subscribers(grpc_endpoint: &str) -> Result<Vec<Subscriber>> {
     let mut client =
         somm_proto::pubsub::query_client::QueryClient::connect(grpc_endpoint.to_string()).await?;
     let request = somm_proto::pubsub::QuerySubscribersRequest {};
@@ -85,7 +86,7 @@ async fn get_subscribers(grpc_endpoint: &str) -> Result<Vec<Subscriber>> {
     Ok(response.into_inner().subscribers)
 }
 
-async fn refresh_subscriber_cache(grpc_endpoint: &str) -> Result<()> {
+pub(crate) async fn refresh_subscriber_cache(grpc_endpoint: &str) -> Result<()> {
     debug!("refreshing subscriber cache");
     let subscribers = get_subscribers(grpc_endpoint).await?;
     let mut app_context = APP_CONTEXT.write().await;
