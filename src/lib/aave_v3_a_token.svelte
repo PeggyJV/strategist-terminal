@@ -6,23 +6,39 @@
         chainId,
         deadline,
     } from "$stores/scheduleRequestStore";
+    import { queue, CellarCall } from "$stores/AdapterQueue";
 
     export let token = "";
     export let amount = "";
     export let asset = "";
     export let use_as_collateral = false;
     export let category_id = 0;
+    export let cellar_address = "";
 
     /// async functions communicating with protos
 
     async function scheduleDeposit() {
-        const result = await invoke("DepositToAave", { token, amount });
-        console.log(result);
+        queue.update((call_queue) => {
+            call_queue.push(
+                new CellarCall(cellar_address, "DepositToAave", {
+                    token,
+                    amount,
+                }),
+            );
+            return call_queue;
+        });
     }
 
     async function scheduleWithdraw() {
-        const result = await invoke("WithdrawFromAave", { token, amount });
-        console.log(result);
+        queue.update((call_queue) => {
+            call_queue.push(
+                new CellarCall(cellar_address, "WithdrawFromAave", {
+                    token,
+                    amount,
+                }),
+            );
+            return call_queue;
+        });
     }
 
     async function AdjustIsolationModeAssetAsCollateral() {
@@ -42,6 +58,17 @@
 <!-- Aave V3 Deposit -->
 
 <h1>1. Aave V3 Deposit</h1>
+<div>
+    <label for="address" title="Enter the address of Aave V3"
+        >ERC-20 Token Contract Address:</label
+    >
+    <input
+        type="text"
+        id="token"
+        bind:value={cellar_address}
+        placeholder="0xcellar"
+    />
+</div>
 <div>
     <label
         for="token"
@@ -64,6 +91,18 @@
 
 <h1>2. Aave V3 Withdraw</h1>
 <div>
+    <label for="address" title="Enter the address of Aave V3"
+        >ERC-20 Token Contract Address:</label
+    >
+    <input
+        type="text"
+        id="token"
+        bind:value={cellar_address}
+        placeholder="0xcellar"
+    />
+</div>
+
+<div>
     <label
         for="token"
         title="Enter the ERC-20 token contract address as a string."
@@ -84,6 +123,18 @@
 <!-- Adjust Isolation Mode Asset As Collateral -->
 
 <h1>3. Adjust Isolation Mode Asset As Collateral</h1>
+
+<div>
+    <label for="address" title="Enter the address of Aave V3"
+        >ERC-20 Token Contract Address:</label
+    >
+    <input
+        type="text"
+        id="token"
+        bind:value={cellar_address}
+        placeholder="0xcellar"
+    />
+</div>
 <div>
     <label
         for="asset"
@@ -112,6 +163,17 @@
 <!-- Change EMode -->
 
 <h1>4. Change EMode</h1>
+<div>
+    <label for="address" title="Enter the address of Aave V3"
+        >ERC-20 Token Contract Address:</label
+    >
+    <input
+        type="text"
+        id="token"
+        bind:value={cellar_address}
+        placeholder="0xcellar"
+    />
+</div>
 <div>
     <label for="category_id" title="Enter the categoryId as a uint32"
         >Category ID:</label
