@@ -1,12 +1,74 @@
+use std::str::FromStr;
+
+use alloy_primitives::Address;
 use eyre::{bail, Result};
+use serde::{Deserialize, Serialize};
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
-    contract_call_service_client::ContractCallServiceClient, ScheduleRequest, ScheduleResponse,
+    cellar_v2_5::{function_call, CallOnAdaptor, CallType, FunctionCall},
+    contract_call_service_client::ContractCallServiceClient,
+    schedule_request::CallData,
+    AdaptorCall, CellarV25, ScheduleRequest, ScheduleResponse,
 };
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
 use crate::app::{self, get_channel, AppContext};
+
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[serde(default, rename_all = "camelCase")]
+pub(crate) struct RequestData {
+    pub adaptor_id: String,
+    pub chain_id: u64,
+    pub cellar_id: String,
+    pub block_height: u64,
+    pub deadline: u64,
+    pub adaptor_call: AdaptorCall,
+}
+
+pub(crate) fn validate_data(data: &Option<RequestData>) -> Result<()> {
+    let Some(data) = data else {
+        bail!("request data is empty");
+    };
+
+    if data.adaptor_id.is_empty() {
+        bail!("adaptor id is empty");
+    }
+
+    if Address::from_str(&data.adaptor_id).is_err() {
+        bail!("invalid adaptor address");
+    }
+
+    if Address::from_str(&data.cellar_id).is_err() {
+        bail!("invalid cellar address");
+    }
+
+    if data.chain_id == 0 {
+        bail!("invalid chain id");
+    }
+
+    Ok(())
+}
+
+pub(crate) fn build_request(data: RequestData) -> Result<ScheduleRequest> {
+    let call_data = Some(CallData::CellarV25(CellarV25 {
+        call_type: Some(CallType::FunctionCall(FunctionCall {
+            function: Some(function_call::Function::CallOnAdaptor(CallOnAdaptor {
+                data: vec![data.adaptor_call],
+            })),
+        })),
+    }));
+
+    let request = ScheduleRequest {
+        cellar_id: data.cellar_id,
+        chain_id: data.chain_id,
+        block_height: data.block_height,
+        deadline: data.deadline,
+        call_data,
+    };
+
+    Ok(request)
+}
 
 pub(crate) fn handle(request: ScheduleRequest) {
     futures::executor::block_on(async move {
@@ -84,6 +146,53 @@ mod tests {
     use tokio::task::JoinSet;
 
     use super::*;
+
+    #[tokio::test]
+    async fn test_validate_data() {
+        let valid_data = RequestData {
+            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            chain_id: 42161,
+            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            block_height: 12345689,
+            deadline: 12345689101112,
+            adaptor_call: AdaptorCall::default(),
+        };
+        let invalid_data1 = RequestData {
+            adaptor_id: "".to_string(),
+            chain_id: 42161,
+            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            block_height: 12345689,
+            deadline: 12345689101112,
+            adaptor_call: AdaptorCall::default(),
+        };
+        let invalid_data2 = RequestData {
+            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            chain_id: 0,
+            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            block_height: 12345689,
+            deadline: 12345689101112,
+            adaptor_call: AdaptorCall::default(),
+        };
+        let invalid_data3 = RequestData {
+            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+            chain_id: 42161,
+            cellar_id: "".to_string(),
+            block_height: 12345689,
+            deadline: 12345689101112,
+            adaptor_call: AdaptorCall::default(),
+        };
+
+        assert!(validate_data(&Some(valid_data.clone())).is_ok());
+        let result = validate_data(&Some(invalid_data1.clone()));
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "adaptor id is empty");
+        let result = validate_data(&Some(invalid_data2.clone()));
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "invalid chain id");
+        let result = validate_data(&Some(invalid_data3.clone()));
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err().to_string(), "invalid cellar address");
+    }
 
     #[tokio::test]
     async fn test_get_channel() {

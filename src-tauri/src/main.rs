@@ -3,6 +3,7 @@
 
 use app::AppConfig;
 use prost::Message;
+use schedule::{build_request, validate_data, RequestData};
 use steward_proto::proto::ScheduleRequest;
 use tracing::info;
 
@@ -17,11 +18,12 @@ fn version() {
 }
 
 #[tauri::command]
-fn schedule(request_bytes: Vec<u8>) -> Result<(), String> {
-    let request = ScheduleRequest::decode(request_bytes.as_slice())
-        .map_err(|e| format!("failed to deserialized request: {e:?}"))?;
+fn schedule(data: Option<RequestData>) -> Result<(), String> {
+    validate_data(&data);
 
-    schedule::handle(request);
+    //let request = build_request(data.unwrap());
+
+    //schedule::handle(request);
 
     // TODO: return results to frontend
     Ok(())

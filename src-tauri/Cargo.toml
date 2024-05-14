@@ -28,6 +28,8 @@ tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 lazy_static = "1.4.0"
 futures = "0.3.30"
 toml = "0.8.10"
+alloy-rs = "0.2.1"
+alloy-primitives = "0.7.2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
