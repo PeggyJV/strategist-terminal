@@ -13,9 +13,12 @@ use steward_proto::proto::{
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
-use crate::app::{self, get_channel, AppContext};
+use crate::{
+    app::{self, get_channel, AppContext},
+    cellar_call::CellarCall,
+};
 
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub(crate) struct RequestData {
     pub adaptor_id: String,
@@ -23,7 +26,7 @@ pub(crate) struct RequestData {
     pub cellar_id: String,
     pub block_height: u64,
     pub deadline: u64,
-    pub adaptor_call: AdaptorCall,
+    pub cellar_call: CellarCall,
 }
 
 pub(crate) fn validate_data(data: &Option<RequestData>) -> Result<()> {
@@ -48,26 +51,6 @@ pub(crate) fn validate_data(data: &Option<RequestData>) -> Result<()> {
     }
 
     Ok(())
-}
-
-pub(crate) fn build_request(data: RequestData) -> Result<ScheduleRequest> {
-    let call_data = Some(CallData::CellarV25(CellarV25 {
-        call_type: Some(CallType::FunctionCall(FunctionCall {
-            function: Some(function_call::Function::CallOnAdaptor(CallOnAdaptor {
-                data: vec![data.adaptor_call],
-            })),
-        })),
-    }));
-
-    let request = ScheduleRequest {
-        cellar_id: data.cellar_id,
-        chain_id: data.chain_id,
-        block_height: data.block_height,
-        deadline: data.deadline,
-        call_data,
-    };
-
-    Ok(request)
 }
 
 pub(crate) fn handle(request: ScheduleRequest) {
@@ -155,7 +138,7 @@ mod tests {
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            adaptor_call: AdaptorCall::default(),
+            cellar_call: CellarCall::default(),
         };
         let invalid_data1 = RequestData {
             adaptor_id: "".to_string(),
@@ -163,7 +146,7 @@ mod tests {
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            adaptor_call: AdaptorCall::default(),
+            cellar_call: CellarCall::default(),
         };
         let invalid_data2 = RequestData {
             adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
@@ -171,7 +154,7 @@ mod tests {
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            adaptor_call: AdaptorCall::default(),
+            cellar_call: CellarCall::default(),
         };
         let invalid_data3 = RequestData {
             adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
@@ -179,7 +162,7 @@ mod tests {
             cellar_id: "".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            adaptor_call: AdaptorCall::default(),
+            cellar_call: CellarCall::default(),
         };
 
         assert!(validate_data(&Some(valid_data.clone())).is_ok());

@@ -3,11 +3,13 @@
 
 use app::AppConfig;
 use prost::Message;
-use schedule::{build_request, validate_data, RequestData};
+use schedule::{validate_data, RequestData};
 use steward_proto::proto::ScheduleRequest;
 use tracing::info;
 
+mod adaptors;
 mod app;
+mod cellar_call;
 mod schedule;
 mod version;
 
