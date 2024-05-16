@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use app::AppConfig;
+use cellar_call::CellarCall;
 use prost::Message;
 use schedule::{validate_data, RequestData};
 use steward_proto::proto::ScheduleRequest;
@@ -20,8 +21,8 @@ fn version() {
 }
 
 #[tauri::command]
-fn schedule(data: Option<RequestData>) -> Result<(), String> {
-    validate_data(&data);
+fn schedule(data: Option<CellarCall>) -> Result<(), String> {
+    //validate_data(&data);
 
     //let request = build_request(data.unwrap());
 
