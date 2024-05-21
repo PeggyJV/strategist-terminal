@@ -18,6 +18,7 @@
             deadline,
             queue,
         });
+        queue.set([]);
     }
 </script>
 
