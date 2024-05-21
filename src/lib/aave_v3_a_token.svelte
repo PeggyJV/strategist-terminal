@@ -20,7 +20,7 @@
     async function scheduleDeposit() {
         queue.update((call_queue) => {
             call_queue.push(
-                new CellarCall(cellar_address, "DepositToAave", {
+                new CellarCall("DepositToAave", {
                     token,
                     amount,
                 }),
@@ -32,7 +32,7 @@
     async function scheduleWithdraw() {
         queue.update((call_queue) => {
             call_queue.push(
-                new CellarCall(cellar_address, "WithdrawFromAave", {
+                new CellarCall("WithdrawFromAave", {
                     token,
                     amount,
                 }),

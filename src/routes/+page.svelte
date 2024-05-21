@@ -31,7 +31,7 @@
     <Config />
 {/if}
 
-<ScheduleRequest bind:cellar_id bind:block_height bind:chain_id bind:deadline />
+<ScheduleRequest />
 
 {#if aavev3}
     <Aavev3Deposit

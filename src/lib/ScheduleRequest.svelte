@@ -1,10 +1,24 @@
 <script>
+    import { invoke } from "@tauri-apps/api/tauri";
+
     import {
         cellarId,
         blockHeight,
         chainId,
         deadline,
     } from "$stores/scheduleRequestStore";
+
+    import { queue, CellarCall } from "$stores/AdapterQueue";
+
+    async function scheduleRequest() {
+        const result = await invoke("ScheduleRequest", {
+            cellarId,
+            blockHeight,
+            chainId,
+            deadline,
+            queue,
+        });
+    }
 </script>
 
 <h1>Schedule Request</h1>
@@ -53,3 +67,5 @@
         placeholder="Deadline"
     />
 </div>
+
+<button on:click={scheduleRequest}>Schedule Request</button>
