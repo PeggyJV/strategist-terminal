@@ -2,55 +2,67 @@ use std::str::FromStr;
 
 use alloy_primitives::Address;
 use eyre::{bail, Result};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
-    cellar_v2_5::{function_call, CallOnAdaptor, CallType, FunctionCall},
-    contract_call_service_client::ContractCallServiceClient,
-    schedule_request::CallData,
-    AdaptorCall, CellarV25, ScheduleRequest, ScheduleResponse,
+    contract_call_service_client::ContractCallServiceClient, ScheduleRequest, ScheduleResponse,
 };
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
 use crate::{
     app::{self, get_channel, AppContext},
-    cellar_call::CellarCall,
+    cellar_call::{construct_call_data, CellarCall},
 };
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
-pub(crate) struct RequestData {
-    pub adaptor_id: String,
-    pub chain_id: u64,
+pub(crate) struct ScheduleRequestData {
     pub cellar_id: String,
     pub block_height: u64,
+    pub chain_id: u64,
     pub deadline: u64,
-    pub cellar_call: CellarCall,
+    pub queue: Vec<CellarCall>,
 }
 
-pub(crate) fn validate_data(data: &Option<RequestData>) -> Result<()> {
-    let Some(data) = data else {
-        bail!("request data is empty");
+pub(crate) fn validate_calls(calls: &Vec<CellarCall>) -> Result<()> {
+    if calls.is_empty() {
+        bail!("cellar call data is empty");
     };
 
-    if data.adaptor_id.is_empty() {
-        bail!("adaptor id is empty");
-    }
+    for call in calls.iter() {
+        if call.adaptor.is_empty() {
+            bail!("adaptor id is empty");
+        }
 
-    if Address::from_str(&data.adaptor_id).is_err() {
-        bail!("invalid adaptor address");
-    }
-
-    if Address::from_str(&data.cellar_id).is_err() {
-        bail!("invalid cellar address");
-    }
-
-    if data.chain_id == 0 {
-        bail!("invalid chain id");
+        if Address::from_str(&call.adaptor).is_err() {
+            bail!("invalid adaptor address");
+        }
     }
 
     Ok(())
+}
+
+pub(crate) fn build_request(
+    cellar_id: String,
+    block_height: u64,
+    chain_id: u64,
+    deadline: u64,
+    queue: Vec<CellarCall>,
+) -> Result<ScheduleRequest> {
+    let adaptor_calls = queue
+        .into_iter()
+        .map(|call| call.to_adaptor_call())
+        .collect::<Result<_>>()?;
+    let call_data = Some(construct_call_data(adaptor_calls));
+
+    Ok(ScheduleRequest {
+        cellar_id,
+        chain_id,
+        block_height,
+        deadline,
+        call_data,
+    })
 }
 
 pub(crate) fn handle(request: ScheduleRequest) {
@@ -132,49 +144,34 @@ mod tests {
 
     #[tokio::test]
     async fn test_validate_data() {
-        let valid_data = RequestData {
-            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+        let valid_data = ScheduleRequestData {
             chain_id: 42161,
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            cellar_call: CellarCall::default(),
+            queue: vec![CellarCall::default()],
         };
-        let invalid_data1 = RequestData {
-            adaptor_id: "".to_string(),
+        let invalid_data1 = ScheduleRequestData {
             chain_id: 42161,
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            cellar_call: CellarCall::default(),
+            queue: vec![CellarCall::default()],
         };
-        let invalid_data2 = RequestData {
-            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+        let invalid_data2 = ScheduleRequestData {
             chain_id: 0,
             cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            cellar_call: CellarCall::default(),
+            queue: vec![CellarCall::default()],
         };
-        let invalid_data3 = RequestData {
-            adaptor_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
+        let invalid_data3 = ScheduleRequestData {
             chain_id: 42161,
             cellar_id: "".to_string(),
             block_height: 12345689,
             deadline: 12345689101112,
-            cellar_call: CellarCall::default(),
+            queue: vec![CellarCall::default()],
         };
-
-        assert!(validate_data(&Some(valid_data.clone())).is_ok());
-        let result = validate_data(&Some(invalid_data1.clone()));
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "adaptor id is empty");
-        let result = validate_data(&Some(invalid_data2.clone()));
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "invalid chain id");
-        let result = validate_data(&Some(invalid_data3.clone()));
-        assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "invalid cellar address");
     }
 
     #[tokio::test]

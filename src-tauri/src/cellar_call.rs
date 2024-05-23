@@ -1,15 +1,20 @@
 use eyre::{bail, Result};
 use serde::Deserialize;
-use steward_proto::proto::AdaptorCall;
+use steward_proto::proto::{
+    cellar_v2_5::{self},
+    schedule_request::CallData,
+    AdaptorCall, CellarV25,
+};
 
 use crate::adaptors::*;
 
+// for now this is more of an "adaptor call" than a "cellar call" as it assumes
+// the function being called is CallOnAdaptor. In the future we'll need to generalize
 #[derive(Clone, Debug, Default, Deserialize)]
 pub(crate) struct CellarCall {
-    address: String,
-    adaptor: String,
-    name: Adaptors,
-    fields: String,
+    pub adaptor: String,
+    pub name: Adaptors,
+    pub fields: String,
 }
 
 impl CellarCall {
@@ -92,5 +97,35 @@ impl CellarCall {
             Adaptors::StakingV1 => get_staking_adaptor_call(&self.adaptor, &self.fields),
             Adaptors::Invalid => bail!("invalid adaptor name: {:?}", &self.name),
         }
+    }
+}
+
+pub(crate) fn construct_call_data(adaptor_calls: Vec<AdaptorCall>) -> CallData {
+    CallData::CellarV25(construct_cellar_v2_5_call(adaptor_calls))
+}
+
+fn construct_cellar_v2_5_call(adaptor_calls: Vec<AdaptorCall>) -> CellarV25 {
+    CellarV25 {
+        call_type: Some(construct_function_call_type(adaptor_calls)),
+    }
+}
+
+fn construct_function_call_type(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::CallType {
+    cellar_v2_5::CallType::FunctionCall(construct_function_call(adaptor_calls))
+}
+
+fn construct_function_call(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::FunctionCall {
+    cellar_v2_5::FunctionCall {
+        function: Some(construct_function(adaptor_calls)),
+    }
+}
+
+fn construct_function(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::function_call::Function {
+    cellar_v2_5::function_call::Function::CallOnAdaptor(construct_call_on_adaptor(adaptor_calls))
+}
+
+fn construct_call_on_adaptor(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::CallOnAdaptor {
+    cellar_v2_5::CallOnAdaptor {
+        data: adaptor_calls,
     }
 }

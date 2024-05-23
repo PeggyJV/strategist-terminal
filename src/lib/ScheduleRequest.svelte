@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
 
     import {
@@ -11,13 +11,18 @@
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
     async function scheduleRequest() {
-        const result = await invoke("ScheduleRequest", {
-            cellarId,
-            blockHeight,
-            chainId,
-            deadline,
-            queue,
-        });
+        let calls = $queue.map((call) => call.json_fields())
+
+        const result = await invoke("schedule_request", {
+            cellarId: $cellarId,
+            blockHeight: $blockHeight,
+            chainId: $chainId,
+            deadline: $deadline,
+            queue: calls,
+        })
+            .catch((error) => {
+                console.error(error);
+            });
         queue.set([]);
     }
 </script>

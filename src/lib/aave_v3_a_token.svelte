@@ -8,6 +8,7 @@
     } from "$stores/scheduleRequestStore";
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
+    export let aave_a_token_adaptor_address = "0x1111111111111111111111111111111111111111";
     export let token = "";
     export let amount = "";
     export let asset = "";
@@ -20,10 +21,10 @@
     async function scheduleDeposit() {
         queue.update((call_queue) => {
             call_queue.push(
-                new CellarCall("DepositToAave", {
+                new CellarCall(aave_a_token_adaptor_address, "AaveV3ATokenV1", { "DepositToAave": {
                     token,
                     amount,
-                }),
+                }}),
             );
             return call_queue;
         });
