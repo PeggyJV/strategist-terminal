@@ -1,12 +1,19 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::str::FromStr;
+
+use alloy_primitives::Address;
 use app::AppConfig;
-use prost::Message;
-use steward_proto::proto::ScheduleRequest;
+
+use cellar_call::CellarCall;
+use schedule::{build_request, validate_calls, ScheduleRequestData};
+
 use tracing::info;
 
+mod adaptors;
 mod app;
+mod cellar_call;
 mod schedule;
 mod version;
 
@@ -17,11 +24,49 @@ fn version() {
 }
 
 #[tauri::command]
-fn schedule(request_bytes: Vec<u8>) -> Result<(), String> {
-    let request = ScheduleRequest::decode(request_bytes.as_slice())
-        .map_err(|e| format!("failed to deserialized request: {e:?}"))?;
+fn schedule_request(
+    cellar_id: String,
+    block_height: String,
+    chain_id: String,
+    deadline: String,
+    queue: Vec<CellarCall>,
+) -> Result<(), String> {
+    // print all of the arguments
+    println!("cellar_id: {}", cellar_id);
+    println!("block_height: {}", block_height);
+    println!("chain_id: {}", chain_id);
+    println!("deadline: {}", deadline);
+    println!("queue: {:?}", queue);
 
-    schedule::handle(request);
+    // parse block_height, chain_id, and deadline as u64
+    let block_height = block_height.parse::<u64>().map_err(|e| e.to_string())?;
+    let chain_id = chain_id.parse::<u64>().map_err(|e| e.to_string())?;
+    let deadline = deadline.parse::<u64>().map_err(|e| e.to_string())?;
+
+    if Address::from_str(&cellar_id).is_err() {
+        return Err(String::from("invalid cellar address"));
+    }
+
+    if block_height == 0 {
+        return Err(String::from("block height cannot be zero"));
+    }
+
+    if chain_id == 0 {
+        return Err(String::from("invalid chain id"));
+    }
+
+    if deadline == 0 {
+        return Err(String::from("deadline cannot be zero"));
+    }
+
+    validate_calls(&queue).map_err(|e| e.to_string())?;
+
+    let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
+        .map_err(|e| e.to_string())?;
+
+    //schedule::handle(request);
+
+    println!("request: {:?}", request);
 
     // TODO: return results to frontend
     Ok(())
@@ -65,7 +110,11 @@ fn configure(
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![version, schedule, configure])
+        .invoke_handler(tauri::generate_handler![
+            version,
+            schedule_request,
+            configure
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

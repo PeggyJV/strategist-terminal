@@ -8,50 +8,61 @@
     } from "$stores/scheduleRequestStore";
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
+    export let aaveATokenAdaptorAddress = "0x1111111111111111111111111111111111111111";
     export let token = "";
     export let amount = "";
     export let asset = "";
-    export let use_as_collateral = false;
-    export let category_id = 0;
-    export let cellar_address = "";
+    export let useAsCollateral = false;
+    export let categoryId = 0;
+    export let cellarAddress = "";
 
     /// async functions communicating with protos
 
     async function scheduleDeposit() {
-        queue.update((call_queue) => {
-            call_queue.push(
-                new CellarCall("DepositToAave", {
+        queue.update((callQueue) => {
+            callQueue.push(
+                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", { "DepositToAave": {
                     token,
                     amount,
-                }),
+                }}),
             );
-            return call_queue;
+            return callQueue;
         });
     }
 
     async function scheduleWithdraw() {
-        queue.update((call_queue) => {
-            call_queue.push(
-                new CellarCall("WithdrawFromAave", {
+        queue.update((callQueue) => {
+            callQueue.push(
+                new CellarCall(aaveATokenAdaptorAddress, { "WithdrawFromAave", {
                     token,
                     amount,
-                }),
+                }}),
             );
-            return call_queue;
+            return callQueue;
         });
     }
 
     async function AdjustIsolationModeAssetAsCollateral() {
-        const result = await invoke("AdjustIsolationModeAssetAsCollateral", {
-            asset,
-            use_as_collateral,
-        });
-        console.log(result);
+        queue.update((callQueue) => {
+            callQueue.push(
+                new CellarCall(aaveATokenAdaptorAddress, { "AdjustIsolationModeAssetAsCollateral", {
+                    asset,
+                    useAsCollateral,
+                }}),
+            );
+            return callQueue;
+        }); 
     }
 
     async function ChangeEMode() {
-        const result = await invoke("ChangeEMode", { category_id });
-        console.log(result);
+        queue.update((callQueue) => {
+            callQueue.push(
+                new CellarCall(aaveATokenAdaptorAddress, { "ChangeEMode", {
+                    categoryId,
+                }}),
+            );
+            return callQueue;
+        });
     }
 </script>
 
@@ -65,7 +76,7 @@
     <input
         type="text"
         id="token"
-        bind:value={cellar_address}
+        bind:value={cellarAddress}
         placeholder="0xcellar"
     />
 </div>
@@ -97,7 +108,7 @@
     <input
         type="text"
         id="token"
-        bind:value={cellar_address}
+        bind:value={cellarAddress}
         placeholder="0xcellar"
     />
 </div>
@@ -131,7 +142,7 @@
     <input
         type="text"
         id="token"
-        bind:value={cellar_address}
+        bind:value={cellarAddress}
         placeholder="0xcellar"
     />
 </div>
@@ -145,14 +156,14 @@
 </div>
 <div>
     <label
-        for="use_as_collateral"
+        for="useAsCollateral"
         title="Whether to use the asset as collateral."
         >Use as Collateral:</label
     >
     <input
         type="boolean"
         id="amount"
-        bind:value={use_as_collateral}
+        bind:value={useAsCollateral}
         placeholder="false"
     />
 </div>
@@ -170,18 +181,18 @@
     <input
         type="text"
         id="token"
-        bind:value={cellar_address}
+        bind:value={cellarAddress}
         placeholder="0xcellar"
     />
 </div>
 <div>
-    <label for="category_id" title="Enter the categoryId as a uint32"
+    <label for="categoryId" title="Enter the categoryId as a uint32"
         >Category ID:</label
     >
     <input
         type="uint32"
-        id="category_id"
-        bind:value={category_id}
+        id="categoryId"
+        bind:value={categoryId}
         placeholder="0"
     />
 </div>
