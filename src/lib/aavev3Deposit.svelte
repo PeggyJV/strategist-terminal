@@ -2,6 +2,12 @@
     import { invoke } from "@tauri-apps/api/tauri";
     export let tokenId = "";
     export let amount = "";
+    import {
+        cellarId,
+        blockHeight,
+        chainId,
+        deadline,
+    } from "$stores/scheduleRequestStore";
 
     async function scheduleDeposit() {
         const result = await invoke("aavev3_deposit", { tokenId, amount });
