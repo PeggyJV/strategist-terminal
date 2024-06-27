@@ -8,7 +8,8 @@
     } from "$stores/scheduleRequestStore";
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    export let aaveATokenAdaptorAddress = "0x1111111111111111111111111111111111111111";
+    export let aaveATokenAdaptorAddress =
+        "0x1111111111111111111111111111111111111111";
     export let token = "";
     export let amount = "";
     export let asset = "";
@@ -21,10 +22,12 @@
     async function scheduleDeposit() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", { "DepositToAave": {
-                    token,
-                    amount,
-                }}),
+                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                    DepositToAave: {
+                        token,
+                        amount,
+                    },
+                }),
             );
             return callQueue;
         });
@@ -33,10 +36,12 @@
     async function scheduleWithdraw() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, { "WithdrawFromAave", {
-                    token,
-                    amount,
-                }}),
+                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                    WithdrawFromAave: {
+                        token,
+                        amount,
+                    },
+                }),
             );
             return callQueue;
         });
@@ -45,21 +50,25 @@
     async function AdjustIsolationModeAssetAsCollateral() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, { "AdjustIsolationModeAssetAsCollateral", {
-                    asset,
-                    useAsCollateral,
-                }}),
+                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                    AdjustIsolationModeAssetAsCollateral: {
+                        asset,
+                        useAsCollateral,
+                    },
+                }),
             );
             return callQueue;
-        }); 
+        });
     }
 
     async function ChangeEMode() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, { "ChangeEMode", {
-                    categoryId,
-                }}),
+                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                    ChangeEMode: {
+                        categoryId,
+                    },
+                }),
             );
             return callQueue;
         });
@@ -155,9 +164,7 @@
     <input type="text" id="asset" bind:value={asset} placeholder="0xtoken" />
 </div>
 <div>
-    <label
-        for="useAsCollateral"
-        title="Whether to use the asset as collateral."
+    <label for="useAsCollateral" title="Whether to use the asset as collateral."
         >Use as Collateral:</label
     >
     <input

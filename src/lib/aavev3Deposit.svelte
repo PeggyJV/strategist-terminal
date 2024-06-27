@@ -10,8 +10,8 @@
     } from "$stores/scheduleRequestStore";
 
     async function scheduleDeposit() {
-        const result = await invoke("aavev3_deposit", { tokenId, amount });
-        console.log(result);
+        // const result = await invoke("aavev3_deposit", { tokenId, amount });
+        // console.log(result);
     }
 </script>
 

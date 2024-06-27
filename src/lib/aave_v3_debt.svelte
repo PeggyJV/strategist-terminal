@@ -13,21 +13,21 @@
     /// async functions communicating with protos
 
     async function scheduleBorrow() {
-        const result = await invoke("BorrowFromAave", { token, amount });
-        console.log(result);
+        // const result = await invoke("BorrowFromAave", { token, amount });
+        // console.log(result);
     }
 
     async function scheduleRepayDebt() {
-        const result = await invoke("RepayAaveDebt", { token, amount });
-        console.log(result);
+        // const result = await invoke("RepayAaveDebt", { token, amount });
+        // console.log(result);
     }
 
     async function scheduleRepayWithATokens() {
-        const result = await invoke("RepayWithATokens", {
-            underlying_token,
-            amount,
-        });
-        console.log(result);
+        // const result = await invoke("RepayWithATokens", {
+        //     underlying_token,
+        //     amount,
+        // });
+        // console.log(result);
     }
 </script>
 
