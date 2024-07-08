@@ -8,6 +8,7 @@
     import AaveATokenV1 from "$lib/adaptors/AaveATokenV1.svelte"
     import AaveDebtTokenV1 from "$lib/adaptors/AaveDebtTokenV1.svelte"
     import CompoundCTokenV2 from "$lib/adaptors/CompoundCTokenV2.svelte"
+    import AaveATokenV2 from "$lib/adaptors/AaveATokenV2.svelte"
 
     let version = "";
 
@@ -27,7 +28,8 @@
         "Aavev3Debt": Aavev3Debt,
         "AaveATokenV1": AaveATokenV1,
         "AaveDebtTokenV1": AaveDebtTokenV1,
-        "CompoundCTokenV2": CompoundCTokenV2
+        "CompoundCTokenV2": CompoundCTokenV2,
+        "AaveATokenV2": AaveATokenV2
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];

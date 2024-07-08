@@ -3,13 +3,13 @@
   export let token = "";
   export let amount = "";
 
-  const AaveATokenV1Address = "";
+  const AaveATokenV2Address = "";
 
 
   async function scheduleDeposit() {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(AaveATokenV1Address, "AaveATokenV1", {
+        new CellarCall(AaveATokenV2Address, "AaveATokenV2", {
           DepositToAave: {
             token,
             amount,
@@ -23,7 +23,7 @@
   async function scheduleWithdraw() {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(AaveATokenV1Address, "AaveATokenV1", {
+        new CellarCall(AaveATokenV2Address, "AaveATokenV2", {
           WithdrawFromAave: {
             token,
             amount,
