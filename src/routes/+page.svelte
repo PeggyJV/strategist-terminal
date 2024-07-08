@@ -1,10 +1,11 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import Aavev3Deposit from "$lib/aavev3Deposit.svelte";
+    import Aavev3Deposit from "$lib/adaptors/aavev3Deposit.svelte";
     import Config from "$lib/config.svelte";
-    import AaveV3AToken from "$lib/aave_v3_a_token.svelte";
-    import Aavev3Debt from "$lib/aave_v3_debt.svelte";
+    import AaveV3AToken from "$lib/adaptors/aave_v3_a_token.svelte";
+    import Aavev3Debt from "$lib/adaptors/aave_v3_debt.svelte";
     import ScheduleRequest from "$lib/ScheduleRequest.svelte";
+
     let version = "";
 
     let config = true;
@@ -17,10 +18,45 @@
     let chain_id = "";
     let deadline = "";
 
+    const map: {  [key: string]: ConstructorOfATypedSvelteComponent} = {
+        "Aavev3Deposit": Aavev3Deposit,
+        "AaveV3AToken": AaveV3AToken,
+        "Aavev3Debt": Aavev3Debt
+    }
+    let displayedAdaptor = Object.values(map)[0]
+    let activeButton = Object.keys(map)[0];
+
     async function status() {
         version = await invoke("version", {});
     }
+
+    function selectAdaptor(event: MouseEvent) {
+        const target = event.target as HTMLButtonElement;
+        activeButton = target.innerText;
+        displayedAdaptor = map[target.innerText];
+    }
+
+
 </script>
+
+<style>
+    .horizontal-list {
+        display: flex;
+        gap: 10px;
+        margin: 30px;
+    }
+    .horizontal-list button {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+    .horizontal-list button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
 
 <h1>Welcome to SvelteKit</h1>
 <p>
@@ -33,19 +69,13 @@
 
 <ScheduleRequest />
 
-{#if aavev3}
-    <Aavev3Deposit
-        cellarId={cellar_id}
-        blockHeight={block_height}
-        chainId={chain_id}
-        {deadline}
-    /> />
-{/if}
+<div class="horizontal-list">
+    {#each Object.keys(map) as item}
+        <button
+          on:click={selectAdaptor}
+          class:active={item === activeButton}
+        >{item}</button>
+    {/each}
+</div>
 
-{#if aavev3a}
-    <AaveV3AToken />
-{/if}
-
-{#if aavev3debt}
-    <Aavev3Debt />
-{/if}
+<svelte:component this={displayedAdaptor} />
