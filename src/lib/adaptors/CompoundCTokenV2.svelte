@@ -53,7 +53,7 @@
   <label
     for="market"
     title=""
-  >ERC-20 Token Contract Address:</label
+  >Market:</label
   >
   <input type="text" id="market" bind:value={market} placeholder="market" />
 </div>
@@ -74,7 +74,7 @@
   <label
     for="market"
     title="Enter the ERC-20 token contract address as a string."
-  >ERC-20 Token Contract Address:</label
+  >Market:</label
   >
   <input type="text" id="market" bind:value={market} placeholder="market" />
 </div>
