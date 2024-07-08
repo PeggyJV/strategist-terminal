@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
   export let token = "";
   export let amount = "";
   export let token_in = ""
   export let token_to_repay = ""
-  export let exchange = 0;
+  export let exchange: number | null = null;
 
   const AaveDebtTokenV1Address = "";
 

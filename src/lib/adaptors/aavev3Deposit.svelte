@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     export let tokenId = "";
     export let amount = "";
     const aaveDepositAdaptorAddress = "";

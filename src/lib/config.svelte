@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     let somm_node_grpc = "https://sommelier-grpc.polkachu.com:14190";
     let publisher_domain = "https://smart-strategies.xyz";

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
   export let token_in = "";

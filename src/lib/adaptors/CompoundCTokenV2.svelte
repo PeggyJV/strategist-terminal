@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
   export let market = ""
   export let amount_to_deposit = ""
