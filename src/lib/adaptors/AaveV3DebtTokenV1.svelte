@@ -1,33 +1,53 @@
 <script>
-    import { invoke } from "@tauri-apps/api/tauri";
+    import { CellarCall, queue } from "$stores/AdapterQueue.js"
     export let token = "";
     export let amount = "";
     export let underlying_token = "";
-    import {
-        cellarId,
-        blockHeight,
-        chainId,
-        deadline,
-    } from "$stores/scheduleRequestStore";
+
+    const AaveV3DebtTokenV1Address = "";
 
     /// async functions communicating with protos
 
     async function scheduleBorrow() {
-        // const result = await invoke("BorrowFromAave", { token, amount });
-        // console.log(result);
+        queue.update((callQueue) => {
+            callQueue.push(
+              new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {
+                  BorrowFromAave: {
+                      token,
+                      amount,
+                  },
+              }),
+            );
+            return callQueue;
+        })
     }
 
     async function scheduleRepayDebt() {
-        // const result = await invoke("RepayAaveDebt", { token, amount });
-        // console.log(result);
+        queue.update((callQueue) => {
+            callQueue.push(
+              new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {
+                  RepayAaveDebt: {
+                      token,
+                      amount,
+                  },
+              }),
+            );
+            return callQueue;
+        })
     }
 
     async function scheduleRepayWithATokens() {
-        // const result = await invoke("RepayWithATokens", {
-        //     underlying_token,
-        //     amount,
-        // });
-        // console.log(result);
+        queue.update((callQueue) => {
+            callQueue.push(
+              new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {
+                  RepayWithATokens: {
+                      underlying_token,
+                      amount,
+                  },
+              }),
+            );
+            return callQueue;
+        })
     }
 </script>
 

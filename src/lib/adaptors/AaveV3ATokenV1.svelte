@@ -1,15 +1,6 @@
 <script>
-    import { invoke } from "@tauri-apps/api/tauri";
-    import {
-        cellarId,
-        blockHeight,
-        chainId,
-        deadline,
-    } from "$stores/scheduleRequestStore";
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    export let aaveATokenAdaptorAddress =
-        "0x1111111111111111111111111111111111111111";
     export let token = "";
     export let amount = "";
     export let asset = "";
@@ -17,12 +8,15 @@
     export let categoryId = 0;
     export let cellarAddress = "";
 
+    const AaveV3ATokenV1Address =
+      "0x1111111111111111111111111111111111111111";
+
     /// async functions communicating with protos
 
     async function scheduleDeposit() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     DepositToAave: {
                         token,
                         amount,
@@ -36,7 +30,7 @@
     async function scheduleWithdraw() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     WithdrawFromAave: {
                         token,
                         amount,
@@ -50,7 +44,7 @@
     async function AdjustIsolationModeAssetAsCollateral() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     AdjustIsolationModeAssetAsCollateral: {
                         asset,
                         useAsCollateral,
@@ -64,7 +58,7 @@
     async function ChangeEMode() {
         queue.update((callQueue) => {
             callQueue.push(
-                new CellarCall(aaveATokenAdaptorAddress, "AaveV3ATokenV1", {
+                new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     ChangeEMode: {
                         categoryId,
                     },

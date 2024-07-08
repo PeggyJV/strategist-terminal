@@ -1,17 +1,25 @@
 <script>
-    import { invoke } from "@tauri-apps/api/tauri";
     export let tokenId = "";
     export let amount = "";
-    import {
-        cellarId,
-        blockHeight,
-        chainId,
-        deadline,
-    } from "$stores/scheduleRequestStore";
+    const aaveDepositAdaptorAddress = "";
+
+    import { CellarCall, queue } from "$stores/AdapterQueue.js"
 
     async function scheduleDeposit() {
         // const result = await invoke("aavev3_deposit", { tokenId, amount });
         // console.log(result);
+
+      queue.update((callQueue) => {
+        callQueue.push(
+          new CellarCall(aaveDepositAdaptorAddress, "AaveATokenAdaptorV1", {
+            DepositToAave: {
+              tokenId,
+              amount,
+            },
+          }),
+        );
+        return callQueue;
+      });
     }
 </script>
 

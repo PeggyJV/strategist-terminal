@@ -2,8 +2,8 @@
     import { invoke } from "@tauri-apps/api/tauri";
     import Aavev3Deposit from "$lib/adaptors/aavev3Deposit.svelte";
     import Config from "$lib/config.svelte";
-    import AaveV3AToken from "$lib/adaptors/aave_v3_a_token.svelte";
-    import Aavev3Debt from "$lib/adaptors/aave_v3_debt.svelte";
+    import AaveV3AToken from "$lib/adaptors/AaveV3ATokenV1.svelte";
+    import Aavev3Debt from "$lib/adaptors/AaveV3DebtTokenV1.svelte";
     import ScheduleRequest from "$lib/ScheduleRequest.svelte";
 
     let version = "";
