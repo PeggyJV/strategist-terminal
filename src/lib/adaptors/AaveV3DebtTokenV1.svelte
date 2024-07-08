@@ -1,5 +1,5 @@
 <script>
-    import { CellarCall, queue } from "$stores/AdapterQueue.js"
+    import { queue, CellarCall } from "$stores/AdapterQueue";
     export let token = "";
     export let amount = "";
     export let underlying_token = "";

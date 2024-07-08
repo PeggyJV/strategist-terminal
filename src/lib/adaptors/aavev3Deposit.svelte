@@ -3,7 +3,7 @@
     export let amount = "";
     const aaveDepositAdaptorAddress = "";
 
-    import { CellarCall, queue } from "$stores/AdapterQueue.js"
+    import { queue, CellarCall } from "$stores/AdapterQueue";
 
     async function scheduleDeposit() {
         // const result = await invoke("aavev3_deposit", { tokenId, amount });

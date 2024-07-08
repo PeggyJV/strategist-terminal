@@ -5,6 +5,8 @@
     import AaveV3AToken from "$lib/adaptors/AaveV3ATokenV1.svelte";
     import Aavev3Debt from "$lib/adaptors/AaveV3DebtTokenV1.svelte";
     import ScheduleRequest from "$lib/ScheduleRequest.svelte";
+    import AaveATokenV1 from "$lib/adaptors/AaveATokenV1.svelte"
+    import AaveDebtTokenV1 from "$lib/adaptors/AaveDebtTokenV1.svelte"
 
     let version = "";
 
@@ -21,7 +23,9 @@
     const map: {  [key: string]: ConstructorOfATypedSvelteComponent} = {
         "Aavev3Deposit": Aavev3Deposit,
         "AaveV3AToken": AaveV3AToken,
-        "Aavev3Debt": Aavev3Debt
+        "Aavev3Debt": Aavev3Debt,
+        "AaveATokenV1": AaveATokenV1,
+        "AaveDebtTokenV1": AaveDebtTokenV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
