@@ -11,6 +11,7 @@
     import AaveATokenV2 from "$lib/adaptors/AaveATokenV2.svelte"
     import AaveDebtTokenV2 from "$lib/adaptors/AaveDebtTokenV2.svelte"
     import OneInchV1 from "$lib/adaptors/OneInchV1.svelte"
+    import FeesAndReservesV1 from "$lib/adaptors/FeesAndReservesV1.svelte"
 
     let version = "";
 
@@ -33,7 +34,8 @@
         "CompoundCTokenV2": CompoundCTokenV2,
         "AaveATokenV2": AaveATokenV2,
         "AaveDebtTokenV2": AaveDebtTokenV2,
-        "OneInchV1": OneInchV1
+        "OneInchV1": OneInchV1,
+        "FeesAndReservesV1": FeesAndReservesV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
