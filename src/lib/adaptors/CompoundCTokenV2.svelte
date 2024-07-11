@@ -52,10 +52,10 @@
 <div>
   <label
     for="market"
-    title=""
+    title="Enter the compound market, as a string."
   >Market:</label
   >
-  <input type="text" id="market" bind:value={market} placeholder="market" />
+  <input type="text" id="market" bind:value={market} placeholder="Enter the Compound market address" />
 </div>
 <div>
   <label
@@ -63,7 +63,7 @@
     title="Enter the amount of the ERC-20 asset to deposit as a string."
   >Amount of ERC-20 Asset:</label
   >
-  <input type="text" id="amount_to_deposit" bind:value={amount_to_deposit} placeholder="Amount" />
+  <input type="text" id="amount_to_deposit" bind:value={amount_to_deposit} placeholder="Enter amount to deposit" />
 </div>
 <button on:click={scheduleDeposit}>Deposit</button>
 
@@ -73,10 +73,10 @@
 <div>
   <label
     for="market"
-    title="Enter the ERC-20 token contract address as a string."
+    title="Enter the compound market, as a string."
   >Market:</label
   >
-  <input type="text" id="market" bind:value={market} placeholder="market" />
+  <input type="text" id="market" bind:value={market} placeholder="Enter the Compound market address" />
 </div>
 <div>
   <label
@@ -84,7 +84,7 @@
     title="Enter the amount of the ERC-20 asset to withdraw as a string."
   >Amount of ERC-20 Asset:</label
   >
-  <input type="text" id="amount_to_withdraw" bind:value={amount_to_withdraw} placeholder="Amount" />
+  <input type="text" id="amount_to_withdraw" bind:value={amount_to_withdraw} placeholder="Enter amount to withdraw" />
 </div>
 <button on:click={scheduleWithdraw}>Withdraw</button>
 

@@ -66,14 +66,14 @@
 <div>
   <label
     for="swap_call_data"
-    title="Enter number."
-  >swapCallData in bytes</label
+    title="Enter the swap_call_dataas a bytes32."
+  >Swap Calldata:</label
   >
   <input
-    type="number"
+    type="text"
     id="swap_call_data"
     bind:value={swap_call_data}
-    placeholder="swap_call_data"
+    placeholder="Swap Calldata"
   />
 </div>
 
