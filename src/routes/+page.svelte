@@ -23,6 +23,7 @@
     import MorphoAaveV3ATokenCollateralV1 from "$lib/adaptors/MorphoAaveV3ATokenCollateralV1.svelte"
     import MorphoAaveV3ATokenP2pV1 from "$lib/adaptors/MorphoAaveV3ATokenP2pV1.svelte"
     import MorphoAaveV3DebtTokenV1 from "$lib/adaptors/MorphoAaveV3DebtTokenV1.svelte"
+    import BalancerPoolV1 from "$lib/adaptors/BalancerPoolV1.svelte"
 
     let version = "";
 
@@ -57,7 +58,8 @@
         "MorphoAaveV2DebtTokenV1": MorphoAaveV2DebtTokenV1,
         "MorphoAaveV3ATokenCollateralV1": MorphoAaveV3ATokenCollateralV1,
         "MorphoAaveV3ATokenP2pV1": MorphoAaveV3ATokenP2pV1,
-        "MorphoAaveV3DebtTokenV1": MorphoAaveV3DebtTokenV1
+        "MorphoAaveV3DebtTokenV1": MorphoAaveV3DebtTokenV1,
+        "BalancerPoolV1": BalancerPoolV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];

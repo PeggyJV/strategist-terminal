@@ -5,7 +5,7 @@
   let amount = "";
   let token_in = ""
   let token_to_repay = ""
-  let exchange: number | null = null;
+  let exchange = ""
 
   const AaveDebtTokenV1Address = "";
 
@@ -142,7 +142,7 @@
   >The exchange to make the swap on</label
   >
   <input
-    type="number"
+    type="text"
     id="exchange"
     bind:value={exchange}
     placeholder="Exchange"
