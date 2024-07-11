@@ -60,6 +60,7 @@
 <style>
     .horizontal-list {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         margin: 30px;
     }
