@@ -1,11 +1,11 @@
 <script lang="ts">
-    export let tokenId = "";
-    export let amount = "";
-    const aaveDepositAdaptorAddress = "";
-
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    async function scheduleDeposit() {
+    let tokenId = "";
+    let amount = "";
+    const aaveDepositAdaptorAddress = "";
+
+    function scheduleDeposit() {
         // const result = await invoke("aavev3_deposit", { tokenId, amount });
         // console.log(result);
 

@@ -1,14 +1,14 @@
 <script lang="ts">
     import { queue, CellarCall } from "$stores/AdapterQueue";
-    export let token = "";
-    export let amount = "";
-    export let underlying_token = "";
+    let token = "";
+    let amount = "";
+    let underlying_token = "";
 
     const AaveV3DebtTokenV1Address = "";
 
     /// async functions communicating with protos
 
-    async function scheduleBorrow() {
+    function scheduleBorrow() {
         queue.update((callQueue) => {
             callQueue.push(
               new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {
@@ -22,7 +22,7 @@
         })
     }
 
-    async function scheduleRepayDebt() {
+    function scheduleRepayDebt() {
         queue.update((callQueue) => {
             callQueue.push(
               new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {
@@ -36,7 +36,7 @@
         })
     }
 
-    async function scheduleRepayWithATokens() {
+    function scheduleRepayWithATokens() {
         queue.update((callQueue) => {
             callQueue.push(
               new CellarCall(AaveV3DebtTokenV1Address, "AaveV3DebtTokenV1", {

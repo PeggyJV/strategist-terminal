@@ -1,14 +1,15 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
-  export let token = "";
-  export let amount = "";
-  export let token_in = ""
-  export let token_to_repay = ""
-  export let exchange: number | null = null;
+
+  let token = "";
+  let amount = "";
+  let token_in = ""
+  let token_to_repay = ""
+  let exchange: number | null = null;
 
   const AaveDebtTokenV1Address = "";
 
-  async function scheduleBorrow() {
+  function scheduleBorrow() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveDebtTokenV1Address, "AaveDebtTokenV1", {
@@ -22,7 +23,7 @@
     })
   }
 
-  async function scheduleRepayDebt() {
+  function scheduleRepayDebt() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveDebtTokenV1Address, "AaveDebtTokenV1", {
@@ -36,7 +37,7 @@
     })
   }
 
-  async function scheduleSwapAndRepay() {
+  function scheduleSwapAndRepay() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveDebtTokenV1Address, "AaveDebtTokenV1", {

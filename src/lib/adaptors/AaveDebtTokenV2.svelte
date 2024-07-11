@@ -1,11 +1,11 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
-  export let token = "";
-  export let amount = "";
+  let token = "";
+  let amount = "";
 
   const AaveDebtTokenV2Address = "";
 
-  async function scheduleBorrow() {
+  function scheduleBorrow() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveDebtTokenV2Address, "AaveDebtTokenV2", {
@@ -19,7 +19,7 @@
     })
   }
 
-  async function scheduleRepayDebt() {
+  function scheduleRepayDebt() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveDebtTokenV2Address, "AaveDebtTokenV2", {

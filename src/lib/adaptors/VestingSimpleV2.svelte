@@ -5,15 +5,15 @@
   let vesting_contract = "";
   let deposit_id = "";
   let amount = "";
-  export let vesting_contract_withdraw_all = "";
-  export let withdraw_amount = "";
-  export let vesting_contract_any = "";
-  export let withdraw_amount_any = "";
+  let vesting_contract_withdraw_all = "";
+  let withdraw_amount = "";
+  let vesting_contract_any = "";
+  let withdraw_amount_any = "";
 
   const VestingSimpleV2Address = "";
 
 
-  async function scheduleDeposit() {
+  function scheduleDeposit() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
@@ -29,7 +29,7 @@
 
 
   // Function to handle the withdrawal from the vesting contract
-  async function scheduleWithdraw() {
+  function scheduleWithdraw() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
@@ -45,7 +45,7 @@
   }
 
   // Function to handle the withdrawal from any deposit in the vesting contract
-  async function scheduleWithdrawAny() {
+  function scheduleWithdrawAny() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
@@ -59,7 +59,7 @@
     });
   }
 
-  async function scheduleWithdrawAll() {
+  function scheduleWithdrawAll() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {

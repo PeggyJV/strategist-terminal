@@ -1,13 +1,13 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  export let token_in = "";
-  export let token_out = "";
-  export let amount = "";
-  export let swap_call_data = "";
+  let token_in = "";
+  let token_out = "";
+  let amount = "";
+  let swap_call_data = "";
   const OneInchV1Address = "";
 
-  async function scheduleSwap() {
+  function scheduleSwap() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(OneInchV1Address, "OneInchV1", {

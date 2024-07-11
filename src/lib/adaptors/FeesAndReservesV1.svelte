@@ -1,14 +1,14 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  export let performance_fee: number | null = null;
-  export let management_fee: number | null = null;
-  export let new_frequency: number | null = null;
-  export let new_max_gas: number | null = null;
+  let performance_fee: number | null = null;
+  let management_fee: number | null = null;
+  let new_frequency: number | null = null;
+  let new_max_gas: number | null = null;
 
   const FeesAndReservesV1Address = "";
 
-  async function scheduleUpdatePerformanceFees() {
+  function scheduleUpdatePerformanceFees() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
@@ -21,7 +21,7 @@
     });
   }
 
-  async function scheduleUpdateManagementFees() {
+  function scheduleUpdateManagementFees() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
@@ -34,7 +34,7 @@
     });
   }
 
-  async function scheduleChangeUpkeepFrequency() {
+  function scheduleChangeUpkeepFrequency() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
@@ -47,7 +47,7 @@
     });
   }
 
-  async function scheduleChangeUpkeepMaxGas() {
+  function scheduleChangeUpkeepMaxGas() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
@@ -60,7 +60,7 @@
     });
   }
 
-  async function scheduleSetupMetaData() {
+  function scheduleSetupMetaData() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {

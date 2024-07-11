@@ -1,13 +1,13 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  export let path = "";
-  export let amount = "";
-  export let amount_out_min = "";
-  export let pool_fees = "";
+  let path = "";
+  let amount = "";
+  let amount_out_min = "";
+  let pool_fees = "";
   const SwapWithUniswapV1Address = "";
 
-  async function scheduleSwapV2() {
+  function scheduleSwapV2() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(SwapWithUniswapV1Address, "SwapWithUniswapV1", {
@@ -22,7 +22,7 @@
     });
   }
 
-  async function scheduleSwapV3() {
+  function scheduleSwapV3() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(SwapWithUniswapV1Address, "SwapWithUniswapV1", {

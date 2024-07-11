@@ -20,7 +20,7 @@
 
   // Functions for operations
 
-  async function scheduleOpenPosition() {
+  function scheduleOpenPosition() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -31,7 +31,7 @@
     });
   }
 
-  async function scheduleClosePosition() {
+  function scheduleClosePosition() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -42,7 +42,7 @@
     });
   }
 
-  async function scheduleAddToPosition() {
+  function scheduleAddToPosition() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -53,7 +53,7 @@
     });
   }
 
-  async function scheduleTakeFromPosition() {
+  function scheduleTakeFromPosition() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -64,7 +64,7 @@
     });
   }
 
-  async function scheduleCollectFees() {
+  function scheduleCollectFees() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -75,7 +75,7 @@
     });
   }
 
-  async function schedulePurgeAllZeroLiquidityPositions() {
+  function schedulePurgeAllZeroLiquidityPositions() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -86,7 +86,7 @@
     });
   }
 
-   async function schedulePurgeSinglePosition() {
+   function schedulePurgeSinglePosition() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {
@@ -97,7 +97,7 @@
     });
   }
 
-  async function scheduleRemoveUnownedPositionFromTracker() {
+  function scheduleRemoveUnownedPositionFromTracker() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(UniswapV3V2Address, "UniswapV3V2", {

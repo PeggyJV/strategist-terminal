@@ -5,7 +5,7 @@
   let use_as_collateral = false;
   const AaveV2EnableAssetAsCollateralV1Address = "";
 
-  async function scheduleSetUserUseReserveAsCollateral() {
+  function scheduleSetUserUseReserveAsCollateral() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(AaveV2EnableAssetAsCollateralV1Address, "AaveV2EnableAssetAsCollateralV1", {

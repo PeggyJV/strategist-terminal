@@ -1,19 +1,17 @@
 <script lang="ts">
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    export let token = "";
-    export let amount = "";
-    export let asset = "";
-    export let useAsCollateral = false;
-    export let categoryId = 0;
-    export let cellarAddress = "";
+    let token = "";
+    let amount = "";
+    let asset = "";
+    let useAsCollateral = false;
+    let categoryId = 0;
+    let cellarAddress = "";
 
     const AaveV3ATokenV1Address =
       "0x1111111111111111111111111111111111111111";
 
-    /// async functions communicating with protos
-
-    async function scheduleDeposit() {
+    function scheduleDeposit() {
         queue.update((callQueue) => {
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
@@ -27,7 +25,7 @@
         });
     }
 
-    async function scheduleWithdraw() {
+    function scheduleWithdraw() {
         queue.update((callQueue) => {
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
@@ -41,7 +39,7 @@
         });
     }
 
-    async function AdjustIsolationModeAssetAsCollateral() {
+    function AdjustIsolationModeAssetAsCollateral() {
         queue.update((callQueue) => {
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
@@ -55,7 +53,7 @@
         });
     }
 
-    async function ChangeEMode() {
+    function ChangeEMode() {
         queue.update((callQueue) => {
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {

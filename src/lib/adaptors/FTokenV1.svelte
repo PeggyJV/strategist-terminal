@@ -5,7 +5,7 @@
   let amount_to_deposit = "";
   const FTokenV1Address = "";
 
-  async function scheduleLendFrax() {
+  function scheduleLendFrax() {
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(FTokenV1Address, "FTokenV1", {
