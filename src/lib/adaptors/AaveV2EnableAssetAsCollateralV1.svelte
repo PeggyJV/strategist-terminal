@@ -1,8 +1,8 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  export let asset = "";
-  export let use_as_collateral = false;
+  let asset = "";
+  let use_as_collateral = false;
   const AaveV2EnableAssetAsCollateralV1Address = "";
 
   async function scheduleSetUserUseReserveAsCollateral() {
@@ -21,7 +21,7 @@
 
 </script>
 
-<h1>1. SwapWith0x</h1>
+<h1>1. AaveV2EnableAssetAsCollateralV1</h1>
 <div>
   <label for="asset" title="The address of the asset to set as collateral">The address of the asset to set as collateral:</label>
   <input type="text" id="asset" bind:value={asset} placeholder="Address" />
