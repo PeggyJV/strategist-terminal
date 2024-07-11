@@ -25,7 +25,7 @@
 
 </script>
 
-<h1>1. SwapWithOneInch</h1>
+<h1>1. SwapWith0x</h1>
 <div>
   <label for="tokenIn" title="Enter the ERC-20 token contract address to swap from, as a string.">Token In (ERC-20 Contract Address):</label>
   <input type="text" id="tokenIn" bind:value={token_in} placeholder="0xTokenInAddress" />
