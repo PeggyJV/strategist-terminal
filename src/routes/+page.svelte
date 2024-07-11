@@ -14,6 +14,7 @@
     import FeesAndReservesV1 from "$lib/adaptors/FeesAndReservesV1.svelte"
     import ZeroXV1 from "$lib/adaptors/ZeroXV1.svelte"
     import SwapWithUniswapV1 from "$lib/adaptors/SwapWithUniswapV1.svelte"
+    import VestingSimpleV2 from "$lib/adaptors/VestingSimpleV2.svelte"
 
     let version = "";
 
@@ -39,7 +40,8 @@
         "OneInchV1": OneInchV1,
         "FeesAndReservesV1": FeesAndReservesV1,
         "ZeroXV1": ZeroXV1,
-        "SwapWithUniswapV1": SwapWithUniswapV1
+        "SwapWithUniswapV1": SwapWithUniswapV1,
+        "VestingSimpleV2": VestingSimpleV2
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
