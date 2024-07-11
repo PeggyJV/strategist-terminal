@@ -93,20 +93,3 @@
 <h1>3. Claim COMP rewards</h1>
 
 <button on:click={scheduleClaimComp}>Claim</button>
-
-<!-- Additional text information at the bottom of the page -->
-<div>
-  <h2>Specific Strategist Information</h2>
-  <p>
-    A. Keep in mind regarding isolated markets. If they are isolated, then
-    they may not be usable as collateral for other borrow positions.
-  </p>
-  <p>
-    B. See the <a
-    href="https://sommelier-finance.gitbook.io/sommelier-documentation/smart-contracts/protocol-v2-contract-architecture"
-  >docs</a
-  > for more information pertaining to this adaptor.
-  </p>
-  <!-- Empty lines of spaces -->
-  <br /><br /><br />
-</div>
