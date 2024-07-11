@@ -18,6 +18,7 @@
     import UniswapV3V2 from "$lib/adaptors/UniswapV3V2.svelte"
     import AaveV2EnableAssetAsCollateralV1 from "$lib/adaptors/AaveV2EnableAssetAsCollateralV1.svelte"
     import FTokenV1 from "$lib/adaptors/FTokenV1.svelte"
+    import MorphoAaveV2ATokenV1 from "$lib/adaptors/MorphoAaveV2ATokenV1.svelte"
 
     let version = "";
 
@@ -47,7 +48,8 @@
         "VestingSimpleV2": VestingSimpleV2,
         "UniswapV3V2": UniswapV3V2,
         "AaveV2EnableAssetAsCollateralV1": AaveV2EnableAssetAsCollateralV1,
-        "FTokenV1": FTokenV1
+        "FTokenV1": FTokenV1,
+        "MorphoAaveV2ATokenV1": MorphoAaveV2ATokenV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
