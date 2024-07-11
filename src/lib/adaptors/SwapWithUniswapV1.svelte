@@ -60,7 +60,7 @@
 
 <button on:click={scheduleSwapV2}>Swap assets</button>
 
-<h1>1. SwapWithUniV3</h1>
+<h1>2. SwapWithUniV3</h1>
 <div>
   <label for="path" title="Enter address as a string.">Address:</label>
   <input type="text" id="path" bind:value={path} placeholder="Address" />

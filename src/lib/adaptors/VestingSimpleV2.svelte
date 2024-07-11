@@ -76,7 +76,7 @@
 </script>
 
 <!-- Deposit To Vesting -->
-<h1>Deposit To Vesting</h1>
+<h1>1. Deposit To Vesting</h1>
 <div>
   <label for="vesting_contract" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
   <input type="text" id="vesting_contract" bind:value={vesting_contract} placeholder="Vesting contract address">
@@ -88,7 +88,7 @@
 <button on:click={scheduleDeposit}>Deposit</button>
 
 <!-- UI for WithdrawFromVesting Operation -->
-<h1>Withdraw From Vesting</h1>
+<h1>2. Withdraw From Vesting</h1>
 
 <div>
   <label for="vesting_contract" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
@@ -108,7 +108,7 @@
 <button on:click={scheduleWithdraw}>Withdraw</button>
 
 <!-- UI for WithdrawAnyFromVesting Operation -->
-<h1>Withdraw Any From Vesting</h1>
+<h1>3. Withdraw Any From Vesting</h1>
 
 <div>
   <label for="vesting_contract_any" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
@@ -123,7 +123,7 @@
 <button on:click={scheduleWithdrawAny}>Withdraw Any</button>
 
 <!-- UI for WithdrawAllFromVesting Operation -->
-<h1>Withdraw All From Vesting</h1>
+<h1>4. Withdraw All From Vesting</h1>
 
 <div>
   <label for="vesting_contract_withdraw_all" title="Enter the vesting contract address from which to withdraw all.">Vesting Contract Address:</label>

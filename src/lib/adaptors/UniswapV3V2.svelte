@@ -111,7 +111,7 @@
 </script>
 
 <!-- UI for OpenPosition -->
-<h2>Open Position</h2>
+<h1>1. Open Position</h1>
 <div>
   <label for="op_token_0" title="Enter the Open Position #0 ERC-20 token contract address as a string.">Token 0:</label>
   <input type="text" id="op_token_0" bind:value={token_0} placeholder="Enter Token 0 Address">
@@ -152,7 +152,7 @@
 
 
 <!-- UI for ClosePosition -->
-<h2>Close Position</h2>
+<h1>2. Close Position</h1>
 <div>
   <label for="cp_token_id" title="Enter the UniV3 LP NFT tokenId to close." >Token ID:</label>
   <input type="text" id="cp_token_id" bind:value={token_id} placeholder="Enter Token ID">
@@ -168,7 +168,7 @@
 <button on:click={scheduleClosePosition}>Close Position</button>
 
 <!-- UI for AddToPosition -->
-<h2>Add To Position</h2>
+<h1>3. Add To Position</h1>
 <div>
   <label for="atp_token_id" title="Enter the UniV3 LP NFT id to add liquidity to.">Token ID:</label>
   <input type="text" id="atp_token_id" bind:value={token_id} placeholder="Enter Token ID">
@@ -192,7 +192,7 @@
 <button on:click={scheduleAddToPosition}>Add To Position</button>
 
 <!-- UI for TakeFromPosition -->
-<h2>Take From Position</h2>
+<h1>4. Take From Position</h1>
 <div>
   <label for="tfp_token_id" title="Enter the UniV3 LP NFT tokenId to take from.">Token ID:</label>
   <input type="text" id="tfp_token_id" bind:value={token_id} placeholder="Enter Token ID">
@@ -216,7 +216,7 @@
 <button on:click={scheduleTakeFromPosition}>Take From Position</button>
 
 <!-- UI for CollectFees -->
-<h2>Collect Fees</h2>
+<h1>5. Collect Fees</h1>
 <div>
   <label for="cf_token_id" title="Enter the UniV3 LP NFT id to collect fees from.">Token ID:</label>
   <input type="text" id="cf_token_id" bind:value={token_id} placeholder="Enter Token ID">
@@ -232,7 +232,7 @@
 <button on:click={scheduleCollectFees}>Collect Fees</button>
 
 <!-- UI for PurgeAllZeroLiquidityPositions -->
-<h2>Purge All Zero Liquidity Positions</h2>
+<h1>6. Purge All Zero Liquidity Positions</h1>
 <div>
   <label for="pazlp_token_0" title="Enter the `token0` address that are part of the positions you would like to purge, as a string.">Token 0:</label>
   <input type="text" id="pazlp_token_0" bind:value={token_0} placeholder="Enter Token 0 Address">
@@ -244,7 +244,7 @@
 <button on:click={schedulePurgeAllZeroLiquidityPositions}>Purge All Zero Liquidity Positions</button>
 
 <!-- UI for PurgeSinglePosition -->
-<h2>Purge Single Position</h2>
+<h1>7. Purge Single Position</h1>
 <div>
   <label for="psp_token_id" title="Enter the tokenId of the position to purge.">Token ID:</label>
   <input type="text" id="psp_token_id" bind:value={token_id} placeholder="Enter Token ID">
@@ -252,7 +252,7 @@
 <button on:click={schedulePurgeSinglePosition}>Purge Single Position</button>
 
 <!-- UI for RemoveUnownedPositionFromTracker -->
-<h2>Remove Unowned Position From Tracker</h2>
+<h1>8. Remove Unowned Position From Tracker</h1>
 <div>
   <label for="rupft_token_id" title="Likely unused call, but if needed, enter the tokenId of the position to remove from tracker.">Token ID:</label>
   <input type="text" id="rupft_token_id" bind:value={token_id} placeholder="Enter Token ID">
