@@ -16,6 +16,7 @@
     import SwapWithUniswapV1 from "$lib/adaptors/SwapWithUniswapV1.svelte"
     import VestingSimpleV2 from "$lib/adaptors/VestingSimpleV2.svelte"
     import UniswapV3V2 from "$lib/adaptors/UniswapV3V2.svelte"
+    import AaveV2EnableAssetAsCollateralV1 from "$lib/adaptors/AaveV2EnableAssetAsCollateralV1.svelte"
 
     let version = "";
 
@@ -44,6 +45,7 @@
         "SwapWithUniswapV1": SwapWithUniswapV1,
         "VestingSimpleV2": VestingSimpleV2,
         "UniswapV3V2": UniswapV3V2,
+        "AaveV2EnableAssetAsCollateralV1": AaveV2EnableAssetAsCollateralV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
