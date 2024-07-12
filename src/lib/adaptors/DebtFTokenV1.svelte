@@ -79,7 +79,7 @@
 
 <button on:click={scheduleRepay}>Withdraw</button>
 
-<h1>2. Call Add Interest</h1>
+<h1>3. Call Add Interest</h1>
 
 <div>
   <label for="fraxlend_pair_add" title="The address of the Frax Pair to call addInterest on.">The address of the Frax Pair to call addInterest on:</label>

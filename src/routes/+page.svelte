@@ -26,6 +26,7 @@
     import BalancerPoolV1 from "$lib/adaptors/BalancerPoolV1.svelte"
     import LegacyCellarV1 from "$lib/adaptors/LegacyCellarV1.svelte"
     import DebtFTokenV1 from "$lib/adaptors/DebtFTokenV1.svelte"
+    import CollateralFTokenV1 from "$lib/adaptors/CollateralFTokenV1.svelte"
 
     let version = "";
 
@@ -63,7 +64,8 @@
         "MorphoAaveV3DebtTokenV1": MorphoAaveV3DebtTokenV1,
         "BalancerPoolV1": BalancerPoolV1,
         "LegacyCellarV1": LegacyCellarV1,
-        "DebtFTokenV1": DebtFTokenV1
+        "DebtFTokenV1": DebtFTokenV1,
+        "CollateralFTokenV1": CollateralFTokenV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
