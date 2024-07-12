@@ -32,6 +32,7 @@
     import AuraErc4626V1 from "$lib/adaptors/AuraErc4626V1.svelte"
     import MorphoBlueCollateralV1 from "$lib/adaptors/MorphoBlueCollateralV1.svelte"
     import MorphoBlueDebtV1 from "$lib/adaptors/MorphoBlueDebtV1.svelte"
+    import MorphoBlueSupplyV1 from "$lib/adaptors/MorphoBlueSupplyV1.svelte"
 
     let version = "";
 
@@ -75,7 +76,8 @@
         "CurveV1": CurveV1,
         "AuraErc4626V1": AuraErc4626V1,
         "MorphoBlueCollateralV1": MorphoBlueCollateralV1,
-        "MorphoBlueDebtV1": MorphoBlueDebtV1
+        "MorphoBlueDebtV1": MorphoBlueDebtV1,
+        "MorphoBlueSupplyV1": MorphoBlueSupplyV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
