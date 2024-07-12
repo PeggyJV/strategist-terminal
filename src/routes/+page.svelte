@@ -34,6 +34,7 @@
     import MorphoBlueDebtV1 from "$lib/adaptors/MorphoBlueDebtV1.svelte"
     import MorphoBlueSupplyV1 from "$lib/adaptors/MorphoBlueSupplyV1.svelte"
     import Erc4626V1 from "$lib/adaptors/Erc4626V1.svelte"
+    import StakingV1 from "$lib/adaptors/StakingV1.svelte"
 
     let version = "";
 
@@ -79,7 +80,8 @@
         "MorphoBlueCollateralV1": MorphoBlueCollateralV1,
         "MorphoBlueDebtV1": MorphoBlueDebtV1,
         "MorphoBlueSupplyV1": MorphoBlueSupplyV1,
-        "Erc4626V1": Erc4626V1
+        "Erc4626V1": Erc4626V1,
+        "StakingV1": StakingV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
