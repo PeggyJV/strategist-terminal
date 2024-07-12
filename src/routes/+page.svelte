@@ -28,6 +28,7 @@
     import DebtFTokenV1 from "$lib/adaptors/DebtFTokenV1.svelte"
     import CollateralFTokenV1 from "$lib/adaptors/CollateralFTokenV1.svelte"
     import ConvexCurveV1 from "$lib/adaptors/ConvexCurveV1.svelte"
+    import CurveV1 from "$lib/adaptors/CurveV1.svelte"
 
     let version = "";
 
@@ -67,7 +68,8 @@
         "LegacyCellarV1": LegacyCellarV1,
         "DebtFTokenV1": DebtFTokenV1,
         "CollateralFTokenV1": CollateralFTokenV1,
-        "ConvexCurveV1": ConvexCurveV1
+        "ConvexCurveV1": ConvexCurveV1,
+        "CurveV1": CurveV1
     }
     let displayedAdaptor = Object.values(map)[0]
     let activeButton = Object.keys(map)[0];
