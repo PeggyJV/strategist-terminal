@@ -35,6 +35,8 @@
     import MorphoBlueSupplyV1 from "$lib/adaptors/MorphoBlueSupplyV1.svelte"
     import Erc4626V1 from "$lib/adaptors/Erc4626V1.svelte"
     import StakingV1 from "$lib/adaptors/StakingV1.svelte"
+    import Queue from "$lib/Queue.svelte"
+    import { queue } from "$stores/AdapterQueue"
 
     let version = "";
 
@@ -117,6 +119,11 @@
         color: white;
         border-color: #007bff;
     }
+    .wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 </style>
 
 <h1>Welcome to SvelteKit</h1>
@@ -124,11 +131,20 @@
     Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
 </p>
 
-{#if config}
-    <Config />
-{/if}
+<div class="wrapper">
+    <div>
+        {#if config}
+            <Config />
+        {/if}
 
-<ScheduleRequest />
+        <ScheduleRequest />
+
+    </div>
+    {#if $queue.length > 0}
+        <Queue />
+    {/if}
+</div>
+
 
 <div class="horizontal-list">
     {#each Object.keys(map) as item}
