@@ -13,7 +13,6 @@
         height: 100px;
         margin-right: 100px;
     }
-
 </style>
 
 <div class="wrapper">
@@ -22,8 +21,8 @@
   <div>
     {#each $queue as item}
       <h2>{item.name}</h2>
-      {#each Object.keys(item.fields) as field}
-        * {field}
+      {#each Object.entries(item.fields) as [key, value]}
+        * {key}: {JSON.stringify(value, null, 2)}
       {/each}
     {/each}
   </div>
