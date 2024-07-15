@@ -1,14 +1,19 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  // Variables
-  let vesting_contract = "";
+  let vesting_contract_deposit = "";
+  let amount_deposit = "";
+
+  let vesting_contract_withdraw = "";
   let deposit_id = "";
-  let amount = "";
-  let vesting_contract_withdraw_all = "";
-  let withdraw_amount = "";
+  let amount_withdraw = "";
+
   let vesting_contract_any = "";
   let withdraw_amount_any = "";
+
+  let vesting_contract_withdraw_all = "";
+
+
 
   const VestingSimpleV2Address = "";
 
@@ -18,8 +23,8 @@
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
           DepositToVesting: {
-            vesting_contract,
-            amount,
+            vesting_contract: vesting_contract_deposit,
+            amount: amount_deposit,
           },
         }),
       );
@@ -34,9 +39,9 @@
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
           WithdrawFromVesting: {
-            vesting_contract,
+            vesting_contract: vesting_contract_withdraw,
             deposit_id,
-            amount: withdraw_amount
+            amount: amount_withdraw
           },
         }),
       );
@@ -64,7 +69,7 @@
       callQueue.push(
         new CellarCall(VestingSimpleV2Address, "VestingSimpleV2", {
           WithdrawAllFromVesting: {
-            vesting_contract: vesting_contract,
+            vesting_contract: vesting_contract_withdraw_all,
           },
         }),
       );
@@ -78,12 +83,12 @@
 <!-- Deposit To Vesting -->
 <h1>1. Deposit To Vesting</h1>
 <div>
-  <label for="vesting_contract" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
-  <input type="text" id="vesting_contract" bind:value={vesting_contract} placeholder="Vesting contract address">
+  <label for="vesting_contract_deposit" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
+  <input type="text" id="vesting_contract_deposit" bind:value={vesting_contract_deposit} placeholder="Vesting contract address">
 </div>
 <div>
-  <label for="amount" title="Enter the amount to deposit as a string.">Amount to Deposit:</label>
-  <input type="text" id="amount" bind:value={amount} placeholder="Amount">
+  <label for="amount_deposit" title="Enter the amount to deposit as a string.">Amount to Deposit:</label>
+  <input type="text" id="amount_deposit" bind:value={amount_deposit} placeholder="Amount">
 </div>
 <button on:click={scheduleDeposit}>Deposit</button>
 
@@ -91,8 +96,8 @@
 <h1>2. Withdraw From Vesting</h1>
 
 <div>
-  <label for="vesting_contract" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
-  <input type="text" id="vesting_contract" bind:value={vesting_contract} placeholder="Vesting contract address" />
+  <label for="vesting_contract_withdraw" title="Enter the vesting contract address as a string.">Vesting Contract Address:</label>
+  <input type="text" id="vesting_contract_withdraw" bind:value={vesting_contract_withdraw} placeholder="Vesting contract address" />
 </div>
 
 <div>
@@ -101,8 +106,8 @@
 </div>
 
 <div>
-  <label for="withdraw_amount" title="Enter the amount to withdraw as a string.">Amount to Withdraw:</label>
-  <input type="text" id="withdraw_amount" bind:value={withdraw_amount} placeholder="Amount" />
+  <label for="amount_withdraw" title="Enter the amount to withdraw as a string.">Amount to Withdraw:</label>
+  <input type="text" id="amount_withdraw" bind:value={amount_withdraw} placeholder="Amount" />
 </div>
 
 <button on:click={scheduleWithdraw}>Withdraw</button>
