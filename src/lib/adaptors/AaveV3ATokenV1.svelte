@@ -1,12 +1,16 @@
 <script lang="ts">
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    let token = "";
-    let amount = "";
+    let token_deposit = "";
+    let amount_deposit = "";
+
+    let token_withdraw = "";
+    let amount_withdraw = "";
+
     let asset = "";
     let useAsCollateral = false;
+
     let categoryId = 0;
-    let cellarAddress = "";
 
     const AaveV3ATokenV1Address =
       "0x1111111111111111111111111111111111111111";
@@ -16,8 +20,8 @@
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     DepositToAave: {
-                        token,
-                        amount,
+                        token_deposit,
+                        amount_deposit,
                     },
                 }),
             );
@@ -30,8 +34,8 @@
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     WithdrawFromAave: {
-                        token,
-                        amount,
+                        token_withdraw,
+                        amount_withdraw,
                     },
                 }),
             );
@@ -71,31 +75,20 @@
 
 <h1>1. Aave V3 Deposit</h1>
 <div>
-    <label for="address" title="Enter the address of Aave V3"
-        >ERC-20 Token Contract Address:</label
-    >
-    <input
-        type="text"
-        id="token"
-        bind:value={cellarAddress}
-        placeholder="0xcellar"
-    />
-</div>
-<div>
     <label
-        for="token"
+        for="token_deposit"
         title="Enter the ERC-20 token contract address as a string."
         >ERC-20 Token Contract Address:</label
     >
-    <input type="text" id="token" bind:value={token} placeholder="0xtoken" />
+    <input type="text" id="token_deposit" bind:value={token_deposit} placeholder="0xtoken" />
 </div>
 <div>
     <label
-        for="amount"
+        for="amount_deposit"
         title="Enter the amount of the ERC-20 asset to deposit as a string."
         >Amount of ERC-20 Asset:</label
     >
-    <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+    <input type="text" id="amount_deposit" bind:value={amount_deposit} placeholder="Amount" />
 </div>
 <button on:click={scheduleDeposit}>Deposit</button>
 
@@ -103,50 +96,26 @@
 
 <h1>2. Aave V3 Withdraw</h1>
 <div>
-    <label for="address" title="Enter the address of Aave V3"
-        >ERC-20 Token Contract Address:</label
-    >
-    <input
-        type="text"
-        id="token"
-        bind:value={cellarAddress}
-        placeholder="0xcellar"
-    />
-</div>
-
-<div>
     <label
-        for="token"
+        for="token_withdraw"
         title="Enter the ERC-20 token contract address as a string."
         >ERC-20 Token Contract Address:</label
     >
-    <input type="text" id="token" bind:value={token} placeholder="0xtoken" />
+    <input type="text" id="token_withdraw" bind:value={token_withdraw} placeholder="0xtoken" />
 </div>
 <div>
     <label
-        for="amount"
+        for="amount_withdraw"
         title="Enter the amount of the ERC-20 asset to withdraw as a string."
         >Amount of ERC-20 Asset:</label
     >
-    <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+    <input type="text" id="amount_withdraw" bind:value={amount_withdraw} placeholder="Amount" />
 </div>
 <button on:click={scheduleWithdraw}>Withdraw</button>
 
 <!-- Adjust Isolation Mode Asset As Collateral -->
 
 <h1>3. Adjust Isolation Mode Asset As Collateral</h1>
-
-<div>
-    <label for="address" title="Enter the address of Aave V3"
-        >ERC-20 Token Contract Address:</label
-    >
-    <input
-        type="text"
-        id="token"
-        bind:value={cellarAddress}
-        placeholder="0xcellar"
-    />
-</div>
 <div>
     <label
         for="asset"
@@ -163,7 +132,7 @@
         type="boolean"
         id="amount"
         bind:value={useAsCollateral}
-        placeholder="false"
+        placeholder="boolean"
     />
 </div>
 <button on:click={AdjustIsolationModeAssetAsCollateral}
@@ -174,25 +143,14 @@
 
 <h1>4. Change EMode</h1>
 <div>
-    <label for="address" title="Enter the address of Aave V3"
-        >ERC-20 Token Contract Address:</label
-    >
-    <input
-        type="text"
-        id="token"
-        bind:value={cellarAddress}
-        placeholder="0xcellar"
-    />
-</div>
-<div>
     <label for="categoryId" title="Enter the categoryId as a uint32"
         >Category ID:</label
     >
     <input
-        type="uint32"
+        type="text"
         id="categoryId"
         bind:value={categoryId}
-        placeholder="0"
+        placeholder="ID"
     />
 </div>
 <button on:click={ChangeEMode}>ChangeEMode</button>
