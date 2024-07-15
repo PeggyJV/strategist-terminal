@@ -3,7 +3,7 @@
     import Aavev3Deposit from "$lib/adaptors/aavev3Deposit.svelte";
     import Config from "$lib/config.svelte";
     import AaveV3AToken from "$lib/adaptors/AaveV3ATokenV1.svelte";
-    import Aavev3Debt from "$lib/adaptors/AaveV3DebtTokenV1.svelte";
+    import AaveV3DebtTokenV1 from "$lib/adaptors/AaveV3DebtTokenV1.svelte";
     import ScheduleRequest from "$lib/ScheduleRequest.svelte";
     import AaveATokenV1 from "$lib/adaptors/AaveATokenV1.svelte"
     import AaveDebtTokenV1 from "$lib/adaptors/AaveDebtTokenV1.svelte"
@@ -53,7 +53,7 @@
     const map: {  [key: string]: ConstructorOfATypedSvelteComponent} = {
         "Aavev3Deposit": Aavev3Deposit,
         "AaveV3AToken": AaveV3AToken,
-        "Aavev3Debt": Aavev3Debt,
+        "AaveV3DebtTokenV1": AaveV3DebtTokenV1,
         "AaveATokenV1": AaveATokenV1,
         "AaveDebtTokenV1": AaveDebtTokenV1,
         "CompoundCTokenV2": CompoundCTokenV2,

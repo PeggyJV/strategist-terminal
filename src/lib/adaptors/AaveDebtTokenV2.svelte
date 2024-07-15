@@ -1,7 +1,10 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
-  let token = "";
-  let amount = "";
+  let token_borrow = "";
+  let amount_borrow = "";
+
+  let token_repay = "";
+  let amount_repay = "";
 
   const AaveDebtTokenV2Address = "";
 
@@ -10,8 +13,8 @@
       callQueue.push(
         new CellarCall(AaveDebtTokenV2Address, "AaveDebtTokenV2", {
           BorrowFromAave: {
-            token,
-            amount,
+            token: token_borrow,
+            amount: amount_borrow,
           },
         }),
       );
@@ -24,8 +27,8 @@
       callQueue.push(
         new CellarCall(AaveDebtTokenV2Address, "AaveDebtTokenV2", {
           RepayAaveDebt: {
-            token,
-            amount,
+            token: token_repay,
+            amount: amount_repay,
           },
         }),
       );
@@ -40,19 +43,19 @@
 <h1>1. BorrowFromAave </h1>
 <div>
   <label
-    for="token"
+    for="token_borrow"
     title="Enter the ERC-20 token contract address as a string."
   >ERC-20 Token Contract Address:</label
   >
-  <input type="text" id="token" bind:value={token} placeholder="0xtoken" />
+  <input type="text" id="token_borrow" bind:value={token_borrow} placeholder="0xtoken" />
 </div>
 <div>
   <label
-    for="amount"
+    for="amount_borrow"
     title="Enter the amount of the ERC-20 asset to borrow as a string."
   >Amount of ERC-20 Asset:</label
   >
-  <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+  <input type="text" id="amount_borrow" bind:value={amount_borrow} placeholder="Amount" />
 </div>
 <button on:click={scheduleBorrow}>Borrow</button>
 
@@ -61,18 +64,18 @@
 <h1>2. RepayAaveDebt</h1>
 <div>
   <label
-    for="token"
+    for="token_repay"
     title="Enter the ERC-20 token contract address as a string."
   >ERC-20 Token Contract Address:</label
   >
-  <input type="text" id="token" bind:value={token} placeholder="0xtoken" />
+  <input type="text" id="token_repay" bind:value={token_repay} placeholder="0xtoken" />
 </div>
 <div>
   <label
-    for="amount"
+    for="amount_repay"
     title="Enter the amount of the ERC-20 asset to repay as a string."
   >Amount of ERC-20 Asset:</label
   >
-  <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+  <input type="text" id="amount_repay" bind:value={amount_repay} placeholder="Amount" />
 </div>
 <button on:click={scheduleRepayDebt}>Repay loan debt on Aave</button>

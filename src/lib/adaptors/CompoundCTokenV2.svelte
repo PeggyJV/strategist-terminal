@@ -1,7 +1,9 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
-  let market = ""
-  let amount_to_deposit = ""
+  let market_deposit = "";
+  let amount_to_deposit = "";
+
+  let market_withdraw = "";
   let amount_to_withdraw = "";
 
   const CompoundCTokenV2Address = "";
@@ -11,7 +13,7 @@
       callQueue.push(
         new CellarCall(CompoundCTokenV2Address, "CompoundCTokenV2", {
           DepositToCompound: {
-            market,
+            market: market_deposit,
             amount_to_deposit,
           },
         }),
@@ -25,7 +27,7 @@
       callQueue.push(
         new CellarCall(CompoundCTokenV2Address, "CompoundCTokenV2", {
           WithdrawFromCompound: {
-            market,
+            market: market_withdraw,
             amount_to_withdraw,
           },
         }),
@@ -51,19 +53,19 @@
 <h1>1. Lend assets on Compound </h1>
 <div>
   <label
-    for="market"
+    for="market_deposit"
     title="Enter the compound market, as a string."
-  >Market:</label
+  >Enter the Compound market address:</label
   >
-  <input type="text" id="market" bind:value={market} placeholder="Enter the Compound market address" />
+  <input type="text" id="market_deposit" bind:value={market_deposit} placeholder="Market" />
 </div>
 <div>
   <label
     for="amount_to_deposit"
     title="Enter the amount of the ERC-20 asset to deposit as a string."
-  >Amount of ERC-20 Asset:</label
+  >Enter amount to deposit:</label
   >
-  <input type="text" id="amount_to_deposit" bind:value={amount_to_deposit} placeholder="Enter amount to deposit" />
+  <input type="text" id="amount_to_deposit" bind:value={amount_to_deposit} placeholder="Amount" />
 </div>
 <button on:click={scheduleDeposit}>Deposit</button>
 
@@ -72,19 +74,19 @@
 <h1>2. Withdraw assets from Compound</h1>
 <div>
   <label
-    for="market"
+    for="market_withdraw"
     title="Enter the compound market, as a string."
-  >Market:</label
+  >Enter the Compound market address:</label
   >
-  <input type="text" id="market" bind:value={market} placeholder="Enter the Compound market address" />
+  <input type="text" id="market_withdraw" bind:value={market_withdraw} placeholder="Market" />
 </div>
 <div>
   <label
     for="amount_to_withdraw"
     title="Enter the amount of the ERC-20 asset to withdraw as a string."
-  >Amount of ERC-20 Asset:</label
+  >Enter amount to withdraw:</label
   >
-  <input type="text" id="amount_to_withdraw" bind:value={amount_to_withdraw} placeholder="Enter amount to withdraw" />
+  <input type="text" id="amount_to_withdraw" bind:value={amount_to_withdraw} placeholder="Amount" />
 </div>
 <button on:click={scheduleWithdraw}>Withdraw</button>
 

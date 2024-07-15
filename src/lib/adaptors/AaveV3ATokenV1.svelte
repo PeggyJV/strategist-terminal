@@ -8,9 +8,9 @@
     let amount_withdraw = "";
 
     let asset = "";
-    let useAsCollateral = false;
+    let use_as_collateral = false;
 
-    let categoryId = 0;
+    let category_id = 0;
 
     const AaveV3ATokenV1Address =
       "0x1111111111111111111111111111111111111111";
@@ -20,8 +20,8 @@
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     DepositToAave: {
-                        token_deposit,
-                        amount_deposit,
+                        token: token_deposit,
+                        amount: amount_deposit,
                     },
                 }),
             );
@@ -34,8 +34,8 @@
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     WithdrawFromAave: {
-                        token_withdraw,
-                        amount_withdraw,
+                        token: token_withdraw,
+                        amount: amount_withdraw,
                     },
                 }),
             );
@@ -49,7 +49,7 @@
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     AdjustIsolationModeAssetAsCollateral: {
                         asset,
-                        useAsCollateral,
+                        use_as_collateral,
                     },
                 }),
             );
@@ -62,7 +62,7 @@
             callQueue.push(
                 new CellarCall(AaveV3ATokenV1Address, "AaveV3ATokenV1", {
                     ChangeEMode: {
-                        categoryId,
+                        category_id,
                     },
                 }),
             );
@@ -125,13 +125,13 @@
     <input type="text" id="asset" bind:value={asset} placeholder="0xtoken" />
 </div>
 <div>
-    <label for="useAsCollateral" title="Whether to use the asset as collateral."
+    <label for="use_as_collateral" title="Whether to use the asset as collateral."
         >Use as Collateral:</label
     >
     <input
-        type="boolean"
-        id="amount"
-        bind:value={useAsCollateral}
+        type="text"
+        id="use_as_collateral"
+        bind:value={use_as_collateral}
         placeholder="boolean"
     />
 </div>
@@ -143,13 +143,13 @@
 
 <h1>4. Change EMode</h1>
 <div>
-    <label for="categoryId" title="Enter the categoryId as a uint32"
+    <label for="category_id" title="Enter the category_id as a uint32"
         >Category ID:</label
     >
     <input
         type="text"
-        id="categoryId"
-        bind:value={categoryId}
+        id="category_id"
+        bind:value={category_id}
         placeholder="ID"
     />
 </div>

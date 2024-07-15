@@ -1,10 +1,15 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  let path = "";
-  let amount = "";
-  let amount_out_min = "";
+  let path_v2 = "";
+  let amount_v2 = "";
+  let amount_out_min_v2 = "";
+
+  let path_v3 = "";
+  let amount_v3 = "";
+  let amount_out_min_v3 = "";
   let pool_fees = "";
+
   const SwapWithUniswapV1Address = "";
 
   function scheduleSwapV2() {
@@ -12,9 +17,9 @@
       callQueue.push(
         new CellarCall(SwapWithUniswapV1Address, "SwapWithUniswapV1", {
           SwapWithUniV2: {
-            path,
-            amount,
-            amount_out_min
+            path: path_v2,
+            amount: amount_v2,
+            amount_out_min: amount_out_min_v2
           },
         }),
       );
@@ -27,10 +32,10 @@
       callQueue.push(
         new CellarCall(SwapWithUniswapV1Address, "SwapWithUniswapV1", {
           SwapWithUniV3: {
-            path,
+            path: path_v3,
             pool_fees,
-            amount,
-            amount_out_min
+            amount: amount_v3,
+            amount_out_min: amount_out_min_v3
           },
         }),
       );
@@ -44,26 +49,26 @@
 
 <h1>1. SwapWithUniV2</h1>
 <div>
-  <label for="path" title="Enter address as a string.">Address:</label>
-  <input type="text" id="path" bind:value={path} placeholder="Address" />
+  <label for="path_v2" title="Enter address as a string.">Address:</label>
+  <input type="text" id="path_v2" bind:value={path_v2} placeholder="Address" />
 </div>
 
 <div>
-  <label for="amount" title="Enter the amount of the token to swap, as a string.">Amount to Swap:</label>
-  <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+  <label for="amount_v2" title="Enter the amount of the token to swap, as a string.">Amount to Swap:</label>
+  <input type="text" id="amount_v2" bind:value={amount_v2} placeholder="Amount" />
 </div>
 
 <div>
-  <label for="amount_out_min" title="Enter the amount of the token to swap, as a string.">Amount min:</label>
-  <input type="text" id="amount_out_min" bind:value={amount_out_min} placeholder="Amount out min" />
+  <label for="amount_out_min_v2" title="Enter the amount of the token to swap, as a string.">Amount min:</label>
+  <input type="text" id="amount_out_min_v2" bind:value={amount_out_min_v2} placeholder="Amount out min" />
 </div>
 
 <button on:click={scheduleSwapV2}>Swap assets</button>
 
 <h1>2. SwapWithUniV3</h1>
 <div>
-  <label for="path" title="Enter address as a string.">Address:</label>
-  <input type="text" id="path" bind:value={path} placeholder="Address" />
+  <label for="path_v3" title="Enter address as a string.">Address:</label>
+  <input type="text" id="path_v3" bind:value={path_v3} placeholder="Address" />
 </div>
 
 <div>
@@ -72,13 +77,13 @@
 </div>
 
 <div>
-  <label for="amount" title="Enter the amount of the token to swap, as a string.">Amount to Swap:</label>
-  <input type="text" id="amount" bind:value={amount} placeholder="Amount" />
+  <label for="amount_v3" title="Enter the amount of the token to swap, as a string.">Amount to Swap:</label>
+  <input type="text" id="amount_v3" bind:value={amount_v3} placeholder="Amount" />
 </div>
 
 <div>
-  <label for="amount_out_min" title="Enter the amount of the token to swap, as a string.">Amount min:</label>
-  <input type="text" id="amount_out_min" bind:value={amount_out_min} placeholder="Amount out min" />
+  <label for="amount_out_min_v3" title="Enter the amount of the token to swap, as a string.">Amount min:</label>
+  <input type="text" id="amount_out_min_v3" bind:value={amount_out_min_v3} placeholder="Amount out min" />
 </div>
 
 <button on:click={scheduleSwapV3}>Swap assets</button>
