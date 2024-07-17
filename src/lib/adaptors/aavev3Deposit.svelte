@@ -1,7 +1,7 @@
 <script lang="ts">
     import { queue, CellarCall } from "$stores/AdapterQueue";
 
-    let tokenId = "";
+    let  token_id = "";
     let amount = "";
     const aaveDepositAdaptorAddress = "";
 
@@ -13,7 +13,7 @@
         callQueue.push(
           new CellarCall(aaveDepositAdaptorAddress, "AaveATokenAdaptorV1", {
             DepositToAave: {
-              tokenId,
+              token_id,
               amount,
             },
           }),
@@ -24,8 +24,9 @@
 </script>
 
 <h1>Aave V3 Deposit</h1>
-ERC-20 Token Contract Address<input
-    bind:value={tokenId}
+  ERC-20 Token Contract Address
+<input
+    bind:value={token_id}
     placeholder="0xTokenID"
 />
 <br />

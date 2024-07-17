@@ -6,27 +6,23 @@
   }
 
 </script>
+<div class="prose ">
+  <h2 class="text-2xl font-bold mb-4">Queue:</h2>
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
 
-<style>
-    .wrapper {
-        width: 300px;
-        height: 100px;
-        margin-right: 100px;
-    }
-</style>
+      <div class="px-4 py-2">
+        {#each $queue as item}
+          <div class="mb-4">
+            <h2 class="text-xl font-bold not-prose">{item.name}</h2>
+            {#each Object.entries(item.fields) as [key, value]}
+              <p class="mt-2"><span class="font-bold">{key}:</span> {JSON.stringify(value)}</p>
+            {/each}
+          </div>
+        {/each}
+      </div>
 
-<div class="wrapper">
-  <h2>Queue:</h2>
-
-  <div>
-    {#each $queue as item}
-      <h2>{item.name}</h2>
-      {#each Object.entries(item.fields) as [key, value]}
-        * {key}: {JSON.stringify(value, null, 2)}
-      {/each}
-    {/each}
+      <button class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-b-lg focus:outline-none" on:click={clearQueue}>Clear Queue</button>
+    </div>
   </div>
-
-  <button on:click={clearQueue}>Clear queue</button>
-
 </div>
