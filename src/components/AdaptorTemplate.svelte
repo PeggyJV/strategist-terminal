@@ -4,15 +4,12 @@
 
   export let  adaptor: Adaptor
 
-  const name = adaptor.name;
-  const address = adaptor.address;
-
   let fieldValues: Record<string, string> = {};
 
   function scheduleCall(functionName: string, fields: Record<string, string>) {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(address, name, {
+        new CellarCall(adaptor.address, adaptor.name, {
           [functionName]: fields,
         })
       );
@@ -21,7 +18,7 @@
   }
 </script>
 <div class="prose mt-10 w-screen">
-  <h1>{name}</h1>
+  <h1>{adaptor.name}</h1>
 
   {#each adaptor.calls as call, index}
     <h2>{index + 1}. {call.function}</h2>

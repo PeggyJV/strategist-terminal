@@ -1,10 +1,10 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
-  import Config from "$lib/config.svelte";
-  import ScheduleRequest from "$lib/ScheduleRequest.svelte";
-  import Queue from "$lib/Queue.svelte";
+  import Config from "../components/config.svelte";
+  import ScheduleRequest from "../components/ScheduleRequest.svelte";
+  import Queue from "../components/Queue.svelte";
   import { queue } from "$stores/AdapterQueue";
-  import Template from "$lib/AdaptorTemplate.svelte"
+  import Template from "../components/AdaptorTemplate.svelte"
   import adaptorList, { type Adaptor } from "$lib/adaptorList"
 
   let version = "";
@@ -34,7 +34,7 @@
 
 <div class="min-h-screen flex flex-col justify-center items-center bg-gray-100">
 
-  <h1 class="mb-4 text-3xl font-bold">Welcome to Strategist Terminal</h1>
+  <h1 class="mb-4 text-3xl font-bold">Strategist Terminal</h1>
 
   <div class="flex mt-8 space-x-12">
     {#if config}
