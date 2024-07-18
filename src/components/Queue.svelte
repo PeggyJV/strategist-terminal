@@ -6,7 +6,7 @@
   }
 
 </script>
-<div class="prose ">
+<div class="prose mt-10">
   <h2 class="text-2xl font-bold mb-4">Queue:</h2>
   <div class="max-w-4xl mx-auto">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">

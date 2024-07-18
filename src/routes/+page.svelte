@@ -9,17 +9,6 @@
 
   let version = "";
 
-  let config = true;
-  let aavev3 = true;
-  let aavev3a = true;
-  let aavev3debt = true;
-
-  let cellar_id = "";
-  let block_height = "";
-  let chain_id = "";
-  let deadline = "";
-
-
   let activeAdaptor = adaptorList[0];
 
   async function status() {
@@ -32,36 +21,41 @@
   }
 </script>
 
-<div class="min-h-screen flex flex-col justify-center items-center bg-gray-100">
+<div class="min-h-screen flex flex-col items-center bg-gray-100 overflow-hidden">
 
-  <h1 class="mb-4 text-3xl font-bold">Strategist Terminal</h1>
+  <h1 class="m-4 text-3xl font-bold">Strategist Terminal</h1>
 
-  <div class="flex mt-8 space-x-12">
-    {#if config}
-      <div class="prose flex-1">
-        <Config />
-      </div>
-    {/if}
-
-    <div class="prose flex-1">
-      <ScheduleRequest />
+  <div class="flex mt-8  w-screen">
+    <!-- Left column, 15% width -->
+    <div class="px-10 w-1/5 min-w-[250px]">
+      <Config />
     </div>
 
-    {#if $queue.length > 0}
+    <!-- Middle column, 70% width -->
+    <div class="flex-1 flex flex-col items-center min-w-[500px] w-3/5">
+      <div class="flex flex-wrap gap-2.5 mt-12 justify-center">
+        {#each adaptorList as adaptor}
+          <button
+            on:click={selectAdaptor}
+            class="p-2.5 border rounded focus:outline-none {adaptor.name === activeAdaptor.name ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-100 text-black border-gray-300'}"
+          >{adaptor.name}</button>
+        {/each}
+      </div>
+
+      <Template adaptor={activeAdaptor} />
+    </div>
+
+    <!-- Right column, 15% width -->
+    <div class="flex flex-col justify-start px-10 w-1/5 min-w-[250px]">
+      <div class="prose min-w-200" >
+        <ScheduleRequest />
+      </div>
+      {#if $queue.length > 0}
         <Queue />
-    {/if}
+      {/if}
+    </div>
   </div>
 
-  <div class="flex flex-wrap gap-2.5 mt-12 mx-20">
-    {#each adaptorList as adaptor}
-      <button
-        on:click={selectAdaptor}
-        class="p-2.5 border rounded focus:outline-none {adaptor.name === activeAdaptor.name ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-100 text-black border-gray-300'}"
-      >{adaptor.name}</button>
-    {/each}
-  </div>
-
-  <Template adaptor={activeAdaptor} />
 
   <!-- Additional text information at the bottom of the page -->
   <div class="mt-8 prose">
@@ -73,7 +67,6 @@
     <p>
       B. See the <a href="https://sommelier-finance.gitbook.io/sommelier-documentation/smart-contracts/protocol-v2-contract-architecture">docs</a> for more information pertaining to this adaptor.
     </p>
-    <!-- Empty lines of spaces -->
     <br /><br /><br />
   </div>
 
