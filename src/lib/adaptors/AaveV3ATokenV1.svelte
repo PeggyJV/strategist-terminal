@@ -93,7 +93,6 @@
     <div class="flex justify-between">
         <label
             for="amount_deposit"
-            title="Enter the amount of the ERC-20 asset to deposit as a string."
             >Amount of ERC-20 Asset:</label
         >
         <input
