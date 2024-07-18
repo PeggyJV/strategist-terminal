@@ -15,6 +15,7 @@
       );
       return callQueue;
     });
+    fieldValues = {}
   }
 </script>
 <div class="prose mt-10 w-screen">
