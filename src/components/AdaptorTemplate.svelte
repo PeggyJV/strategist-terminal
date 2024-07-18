@@ -1,16 +1,25 @@
 <script lang="ts">
-  import { queue, CellarCall } from "$stores/AdapterQueue";
-  import type { Adaptor } from "$lib/adaptorList"
+  import { CellarCall, queue } from "$stores/AdapterQueue"
+  import type { Adaptor, AdaptorCall } from "$lib/adaptorList"
 
   export let  adaptor: Adaptor
 
   let fieldValues: Record<string, string> = {};
 
-  function scheduleCall(functionName: string, fields: Record<string, string>) {
+  function scheduleCall(call: AdaptorCall, fields: Record<string, string>) {
+
+    const relevantFields: Record<string, string> = {};
+
+    call.fields.forEach(field => {
+        if (fields[field.name]) {
+          relevantFields[field.name] = fields[field.name];
+        }
+      });
+
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(adaptor.address, adaptor.name, {
-          [functionName]: fields,
+          [call.function]: relevantFields,
         })
       );
       return callQueue;
@@ -39,7 +48,7 @@
     {/each}
 
     <button
-      on:click={() => scheduleCall(call.function, fieldValues)}
+      on:click={() => scheduleCall(call, fieldValues)}
       class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 mt-3"
     >{call.action}</button>
   {/each}
