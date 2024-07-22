@@ -43,7 +43,7 @@
     <!-- Middle column, 70% width -->
     <div class="flex-1 flex flex-col items-center min-w-[500px] w-3/5">
 
-      <div class="mb-4 w-full max-w-md">
+      <div class="mb-2 w-full max-w-md">
         <input
           type="text"
           bind:value={searchQuery}
