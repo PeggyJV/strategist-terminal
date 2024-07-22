@@ -16,7 +16,12 @@
           <div class="mb-4">
             <h2 class="text-xl font-bold not-prose">{item.name}</h2>
             {#each Object.entries(item.fields) as [key, value]}
-              <p class="mt-2"><span class="font-bold">{key}:</span> {JSON.stringify(value)}</p>
+              <div class="mb-2">
+                <p class="font-bold">{key}:</p>
+                <p class="mt-1 text-gray-700 whitespace-pre-wrap break-words">
+                  {JSON.stringify(value)}
+                </p>
+              </div>
             {/each}
           </div>
         {/each}
