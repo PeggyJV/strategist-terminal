@@ -4,6 +4,10 @@
 
   export let adaptor: Adaptor;
 
+  let adaptorAddress = adaptor.address;
+
+  $: adaptorAddress = adaptor.address;
+
   // functionName: { fieldName: value }
   let fieldValues: Record<string, Record<string, string>> = {};
 
@@ -46,6 +50,13 @@
 
 <div class="prose mt-10 w-screen">
   <h1>{adaptor.name}</h1>
+  <label for="adaptorAddress">Adaptor address:</label>
+  <input
+    bind:value={adaptorAddress}
+    id="adaptorAddress"
+    placeholder={adaptorAddress}
+    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+  />
 
   {#each adaptor.calls as call, index}
     <h2>{index + 1}. {call.function}</h2>
