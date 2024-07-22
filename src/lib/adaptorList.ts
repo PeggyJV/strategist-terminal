@@ -8,6 +8,9 @@ import AaveV3DebtTokenV1 from "$lib/adaptors/AaveV3DebtTokenV1"
 import AaveATokenAdaptorV1 from "$lib/adaptors/AaveATokenAdaptorV1"
 import AuraErc4626V1 from "$lib/adaptors/AuraErc4626V1"
 import BalancerPoolV1 from "$lib/adaptors/BalancerPoolV1"
+import CollateralFTokenV1 from "$lib/adaptors/CollateralFTokenV1"
+import CompoundCTokenV2 from "$lib/adaptors/CompoundCTokenV2"
+import ConvexCurveV1 from "$lib/adaptors/ConvexCurveV1"
 
 export interface Adaptor {
   name: string
@@ -37,7 +40,10 @@ const adaptors: Adaptor[] = [
   AaveV3DebtTokenV1,
   AaveATokenAdaptorV1,
   AuraErc4626V1,
-  BalancerPoolV1
+  BalancerPoolV1,
+  CollateralFTokenV1,
+  CompoundCTokenV2,
+  ConvexCurveV1
 ]
 
 export default adaptors;
