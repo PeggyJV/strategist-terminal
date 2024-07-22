@@ -1,3 +1,10 @@
+import AaveV3ATokenV1 from "$lib/adaptors/AaveV3ATokenV1"
+import AaveATokenV1 from "$lib/adaptors/AaveATokenV1"
+import AaveATokenV2 from "$lib/adaptors/AaveATokenV2"
+import AaveDebtTokenV1 from "$lib/adaptors/AaveDebtTokenV1"
+import AaveDebtTokenV2 from "$lib/adaptors/AaveDebtTokenV2"
+import AaveV2EnableAssetAsCollateralV1 from "$lib/adaptors/AaveV2EnableAssetAsCollateralV1"
+
 export interface Adaptor {
   name: string
   address: string
@@ -17,212 +24,12 @@ export interface Field {
 
 }
 const adaptors: Adaptor[] = [
-  {
-    name: "AaveV3ATokenV1",
-    address: "0x1111111111111111111111111111111111111111",
-    calls: [
-      {
-        function: "DepositToAave",
-        action: "Deposit",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "WithdrawFromAave",
-        action: "Withdraw",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "AdjustIsolationModeAssetAsCollateral",
-        action: "Adjust",
-        fields: [
-          {
-            name: "asset",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "use_as_collateral",
-            label: "Use as Collateral",
-            placeholder: "boolean"
-          }
-        ]
-      },
-      {
-        function: "ChangeEMode",
-        action: "Change",
-        fields: [
-          {
-            name: "category_id",
-            label: "Category ID",
-            placeholder: "ID"
-          }
-          
-        ]
-      },
-    ]
-  },
-  {
-    name: "AaveATokenV1",
-    address: "",
-    calls: [
-      {
-        function: "DepositToAave",
-        action: "Deposit",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "WithdrawFromAave",
-        action: "Withdraw",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-    ]
-  },
-  {
-    name: "AaveATokenV2",
-    address: "",
-    calls: [
-      {
-        function: "DepositToAave",
-        action: "Deposit",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "WithdrawFromAave",
-        action: "Withdraw",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-    ]
-  },
-  {
-    name: "AaveDebtTokenV1",
-    address: "",
-    calls: [
-      {
-        function: "BorrowFromAave",
-        action: "Borrow",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "RepayAaveDebt",
-        action: "Repay",
-        fields: [
-          {
-            name: "token",
-            label: "ERC-20 Token Contract Address",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "Amount of ERC-20 Asset",
-            placeholder: "Amount"
-          }
-        ]
-      },
-      {
-        function: "SwapAndRepay",
-        action: "Swap And Repay",
-        fields: [
-          {
-            name: "token_in",
-            label: "The address of the token to swap from",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "token_to_repay",
-            label: "The address of the token to swap to and repay with",
-            placeholder: "0xtoken"
-          },
-          {
-            name: "amount",
-            label: "The amount to swap",
-            placeholder: "Amount"
-          },
-          {
-            name: "exchange",
-            label: "The exchange to make the swap on",
-            placeholder: "Exchange"
-          }
-        ]
-      },
-    ]
-  }
+  AaveV3ATokenV1,
+  AaveATokenV1,
+  AaveATokenV2,
+  AaveDebtTokenV1,
+  AaveDebtTokenV2,
+  AaveV2EnableAssetAsCollateralV1
 ]
 
 export default adaptors;

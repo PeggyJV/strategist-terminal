@@ -38,7 +38,7 @@
 
 </script>
 
-<!-- Aave V3 Deposit -->
+<!-- Aave V3 Borrow -->
 
 <h1>1. BorrowFromAave </h1>
 <div>

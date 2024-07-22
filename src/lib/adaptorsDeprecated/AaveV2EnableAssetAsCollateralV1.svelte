@@ -29,7 +29,7 @@
 
 <div>
   <label for="use_as_collateral" title="Whether to use the asset as collateral.">Use the asset as collateral:</label>
-  <input type="checkbox" id="use_as_collateral" bind:value={use_as_collateral} />
+  <input type="checkbox" id="use_as_collateral" bind:value={use_as_collateral}  placeholder="Boolean" />
 </div>
 
 
