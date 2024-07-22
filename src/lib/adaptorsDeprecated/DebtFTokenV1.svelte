@@ -44,7 +44,7 @@
       callQueue.push(
         new CellarCall(DebtFTokenV1Address, "DebtFTokenV1", {
           CallAddInterest: {
-            fraxlend_pair_add
+            fraxlend_pair: fraxlend_pair_add
           },
         }),
       );
@@ -64,7 +64,7 @@
   <input type="text" id="amount_to_borrow" bind:value={amount_to_borrow} placeholder="Amount" />
 </div>
 
-<button on:click={scheduleBorrow}>Deposit</button>
+<button on:click={scheduleBorrow}>Borrow From Fraxlend</button>
 
 <h1>2. Repay Fraxlend Debt</h1>
 <div>
@@ -77,7 +77,7 @@
   <input type="text" id="debt_token_repay_amount" bind:value={debt_token_repay_amount} placeholder="Amount" />
 </div>
 
-<button on:click={scheduleRepay}>Withdraw</button>
+<button on:click={scheduleRepay}>Repay Fraxlend Debt</button>
 
 <h1>3. Call Add Interest</h1>
 

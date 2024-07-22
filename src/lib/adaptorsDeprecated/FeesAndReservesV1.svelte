@@ -1,9 +1,9 @@
 <script lang="ts">
   import { queue, CellarCall } from "$stores/AdapterQueue";
 
-  let performance_fee_5: string = "";
+  let performance_fee: string = "";
   let performance_fee_1: string = "";
-  let management_fee_5: string = "";
+  let management_fee: string = "";
   let management_fee_2: string = "";
   let new_frequency: string = "";
   let new_max_gas: string = "";
@@ -18,7 +18,7 @@
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
           UpdatePerformanceFees: {
-            performance_fee_5: performance_fee_1,
+            performance_fee: performance_fee_1,
           },
         }),
       );
@@ -31,7 +31,7 @@
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
           UpdateManagementFees: {
-            management_fee_5: management_fee_2,
+            management_fee: management_fee_2,
           },
         }),
       );
@@ -70,8 +70,8 @@
       callQueue.push(
         new CellarCall(FeesAndReservesV1Address, "FeesAndReservesV1", {
           SetupMetaData: {
-            management_fee_5,
-            performance_fee_5
+            management_fee,
+            performance_fee
           },
         }),
       );
@@ -182,20 +182,20 @@
 <div>
   <div>
     <label
-      for="management_fee_5"
+      for="management_fee"
       title="Enter Cellar's new management fee."
     >Management fee:</label
     >
-    <input type="text" id="management_fee_5" bind:value={management_fee_5} placeholder="Amount" />
+    <input type="text" id="management_fee" bind:value={management_fee} placeholder="Amount" />
   </div>
 
   <div>
     <label
-      for="performance_fee_5"
+      for="performance_fee"
       title="Enter Cellar's new performance fee."
     >Performance fee:</label
     >
-    <input type="text" id="performance_fee_5" bind:value={performance_fee_5} placeholder="Amount" />
+    <input type="text" id="performance_fee" bind:value={performance_fee} placeholder="Amount" />
   </div>
 
 </div>

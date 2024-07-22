@@ -12,7 +12,7 @@
   function scheduleBorrowFromAaveV3Morpho() {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(MorphoAaveV3DebtTokenV1Address, "MorphoAaveV3DebtTokenV1", {
+        new CellarCall(MorphoAaveV3DebtTokenV1Address, "MorphoAaveV3DebtTokenV1.ts", {
           BorrowFromAaveV3Morpho: { underlying: underlying_to_borrow, amount_to_borrow, max_iterations: max_iterations_borrow },
         }),
       );
@@ -23,7 +23,7 @@
   function scheduleRepayAaveV3MorphoDebt() {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(MorphoAaveV3DebtTokenV1Address, "MorphoAaveV3DebtTokenV1", {
+        new CellarCall(MorphoAaveV3DebtTokenV1Address, "MorphoAaveV3DebtTokenV1.ts", {
           RepayAaveV3MorphoDebt: { token_to_repay, amount_to_repay },
         }),
       );
