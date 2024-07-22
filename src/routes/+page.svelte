@@ -10,6 +10,12 @@
   let version = "";
 
   let activeAdaptor = adaptorList[0];
+  let searchQuery = "";
+
+
+  $: filteredAdaptors = adaptorList.filter(adaptor =>
+    adaptor.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   async function status() {
     version = await invoke("version", {});
@@ -17,7 +23,10 @@
 
   function selectAdaptor(event: MouseEvent) {
     const target = event.target as HTMLButtonElement;
-    activeAdaptor = adaptorList.find((a: Adaptor) => a.name ===  target.innerText)
+    activeAdaptor = adaptorList.find(
+        (a: Adaptor) => a.name ===  target.innerText
+      )
+      ?? adaptorList[0]
   }
 </script>
 
@@ -33,8 +42,18 @@
 
     <!-- Middle column, 70% width -->
     <div class="flex-1 flex flex-col items-center min-w-[500px] w-3/5">
+
+      <div class="mb-4 w-full max-w-md">
+        <input
+          type="text"
+          bind:value={searchQuery}
+          placeholder="Search adaptors..."
+          class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+        />
+      </div>
+
       <div class="flex flex-wrap gap-2.5 mt-12 justify-center">
-        {#each adaptorList as adaptor}
+        {#each filteredAdaptors as adaptor}
           <button
             on:click={selectAdaptor}
             class="p-2.5 border rounded focus:outline-none {adaptor.name === activeAdaptor.name ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-100 text-black border-gray-300'}"
