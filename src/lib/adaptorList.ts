@@ -11,6 +11,9 @@ import BalancerPoolV1 from "$lib/adaptors/BalancerPoolV1"
 import CollateralFTokenV1 from "$lib/adaptors/CollateralFTokenV1"
 import CompoundCTokenV2 from "$lib/adaptors/CompoundCTokenV2"
 import ConvexCurveV1 from "$lib/adaptors/ConvexCurveV1"
+import CurveV1 from "$lib/adaptors/CurveV1"
+import DebtFTokenV1 from "$lib/adaptors/DebtFTokenV1"
+import Erc4626V1V1 from "$lib/adaptors/Erc4626V1"
 
 export interface Adaptor {
   name: string
@@ -43,7 +46,10 @@ const adaptors: Adaptor[] = [
   BalancerPoolV1,
   CollateralFTokenV1,
   CompoundCTokenV2,
-  ConvexCurveV1
+  ConvexCurveV1,
+  CurveV1,
+  DebtFTokenV1,
+  Erc4626V1V1
 ]
 
 export default adaptors;
