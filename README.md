@@ -1,18 +1,25 @@
-# create-svelte
+# Strategist Terminal
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+![Strategist Terminal Logo](https://github.com/PeggyJV/strategist-terminal/blob/main/static/logo.png)
 
-## Creating a project
+The Strategist Terminal is a graphical user interface for a stategist to execute rebalacing of strategies running on the Sommelier protocol.
 
-If you're seeing this, you've probably already done this step. Congrats!
+The goals are 
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- Graphical entry of parameters for a rebalance
+- Tracking of the life cycle of a rebalance from submission to execution
+- Management of the SSL certificate the authenticates a strategist
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Non-goals
+- Performance and monitoring of cellars.
+
+
+## Status
+
+The Strategy Terminal is **pre-alpha** development mode with the goal of a alpha release in August 2024.
+
+
+
 
 ## Developing
 
