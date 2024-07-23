@@ -1,4 +1,5 @@
-use std::{fs, path::Path, sync::Arc};
+#![allow(dead_code)]
+use std::{fs, sync::Arc};
 
 use eyre::{bail, Result};
 use lazy_static::lazy_static;
@@ -22,12 +23,6 @@ pub(crate) struct AppConfig {
     pub publisher_domain: Option<String>,
     pub client_cert_path: Option<String>,
     pub client_cert_key_path: Option<String>,
-}
-
-fn load_config<P: AsRef<Path>>(config_path: P) -> Result<AppConfig> {
-    let config = fs::read_to_string(config_path)?;
-
-    toml::de::from_str::<AppConfig>(&config).map_err(Into::into)
 }
 
 #[derive(Default)]
