@@ -7,7 +7,7 @@ use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
-use schedule::{build_request, validate_calls, ScheduleRequestData};
+use schedule::{build_request, validate_calls};
 
 use tracing::info;
 
@@ -64,9 +64,9 @@ fn schedule_request(
     let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
         .map_err(|e| e.to_string())?;
 
-    //schedule::handle(request);
-
     println!("request: {:?}", request);
+
+    schedule::handle(request);
 
     // TODO: return results to frontend
     Ok(())

@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use alloy_primitives::Address;
 use eyre::{bail, Result};
+use futures::StreamExt;
 use serde::Deserialize;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
@@ -84,24 +85,38 @@ async fn broadcast_schedule_request(context: &AppContext, request: ScheduleReque
         bail!("subscribers cache has not been initialized")
     };
 
-    // TODO: concurrently execute each request and capture all results
-    for subscriber in subscribers.into_iter() {
-        debug!(
-            "sending contract call to subscriber {}",
-            &subscriber.push_url
-        );
-        let request = request.clone();
-        let Some(identity) = context.client_identity.clone() else {
-            bail!("app context does not contain client identity. user must provide their certificate and key.");
-        };
+    let Some(identity) = context.client_identity.clone() else {
+        bail!("app context does not contain client identity. user must provide their certificate and key.");
+    };
 
-        match handle_scheduling(identity, subscriber, request).await {
-            Ok(res) => info!("response: {res:?}"),
-            Err(err) => error!("error: {err:?}"),
-        }
-    }
+    let posts = futures::stream::iter(subscribers.into_iter().map(|subscriber| {
+        tokio::spawn(handle_subscriber(
+            identity.clone(),
+            subscriber,
+            request.clone(),
+        ))
+    }))
+    .buffer_unordered(10)
+    .collect::<Vec<_>>();
+
+    posts.await;
 
     Ok(())
+}
+
+async fn handle_subscriber(
+    identity: Identity,
+    subscriber: Subscriber,
+    request: ScheduleRequest,
+) -> Result<()> {
+    debug!(
+        "sending contract call to subscriber {}",
+        &subscriber.push_url
+    );
+
+    let request = request.clone();
+
+    handle_scheduling(identity, subscriber, request).await
 }
 
 async fn handle_scheduling(
