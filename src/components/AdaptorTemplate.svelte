@@ -70,11 +70,11 @@
 
       {#each call.fields as field}
         <div class="flex justify-between mt-2">
-          <label for="{field.name}">{field.label}:</label>
+          <label for="{`${call.function}-${field.name}`}">{field.label}:</label>
           <input
             value={fieldValues[call.function]?.[field.name] || ''}
             on:input={(event) => handleInput(call.function, field.name, event)}
-            id="{field.name}"
+            id="{`${call.function}-${field.name}`}"
             placeholder="{field.placeholder}"
             class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
           />
