@@ -21,16 +21,12 @@
   }
 
 
-  function setFieldValue(callFunction: string, fieldName: string, value: string) {
+  function handleInput(callFunction: string, fieldName: string, event: Event) {
+    const input = event.target as HTMLInputElement;
     if (!fieldValues[callFunction]) {
       fieldValues[callFunction] = {};
     }
-    fieldValues[callFunction][fieldName] = value;
-  }
-
-  function handleInput(callFunction: string, fieldName: string, event: Event) {
-    const input = event.target as HTMLInputElement;
-    setFieldValue(callFunction, fieldName, input.value);
+    fieldValues[callFunction][fieldName] = input.value;
   }
 
   function scheduleCall(call: AdaptorCall) {
