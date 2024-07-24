@@ -39,13 +39,7 @@ const CompoundCTokenV2: Adaptor = {
     {
       function: "ClaimComp",
       action: "Claim",
-      fields: [
-        {
-          name: "",
-          label: "",
-          placeholder: ""
-        }
-      ]
+      fields: []
     }
   ]
 }
