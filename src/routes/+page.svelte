@@ -6,11 +6,14 @@
   import { queue } from "$stores/AdapterQueue";
   import Template from "../components/AdaptorTemplate.svelte"
   import adaptorList, { type Adaptor } from "$lib/adaptorList"
+  import StateModal from "../components/StateModal.svelte"
 
   let version = "";
 
   let activeAdaptor = adaptorList[0];
   let searchQuery = "";
+
+  let modalVisible = false;
 
 
   $: filteredAdaptors = adaptorList.filter(adaptor =>
@@ -28,11 +31,19 @@
       )
       ?? adaptorList[0]
   }
+
+  function toggleModal() {
+    modalVisible = !modalVisible;
+  }
+
 </script>
 
 <div class="min-h-screen flex flex-col items-center bg-gray-100 overflow-hidden">
 
   <h1 class="m-4 text-3xl font-bold">Strategist Terminal</h1>
+  <button on:click={toggleModal} class="m-2 w-10 h-10 ">
+      MODAL BUTTON
+  </button>
 
   <div class="flex mt-8  w-screen">
     <!-- Left column, 15% width -->
@@ -88,5 +99,9 @@
     </p>
     <br /><br /><br />
   </div>
+
+  {#if modalVisible}
+    <StateModal {toggleModal}/>
+  {/if}
 
 </div>
