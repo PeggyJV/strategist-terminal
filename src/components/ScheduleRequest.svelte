@@ -2,6 +2,13 @@
     import { invoke } from "@tauri-apps/api/tauri";
     import { cellarId, blockHeight, chainId, deadline } from "$stores/scheduleRequestStore";
     import { queue, CellarCall } from "$stores/AdapterQueue";
+    import StateModal from "../components/StateModal.svelte"; 
+
+    let modalVisible = false;  
+
+    function toggleModal() {
+        modalVisible = !modalVisible;
+    }
 
     async function scheduleRequest() {
         let calls = $queue.map((call) => call.json_fields());
@@ -12,8 +19,12 @@
             chainId: $chainId,
             deadline: $deadline,
             queue: calls,
+        }).then(result => {
+            console.log('Schedule successful', result);
+            toggleModal();  
         }).catch((error) => {
             console.error(error);
+            toggleModal();  
         });
 
         queue.set([]);
