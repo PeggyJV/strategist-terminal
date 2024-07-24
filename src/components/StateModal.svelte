@@ -1,5 +1,10 @@
 <script lang="ts">
   export let toggleModal: () => void;
+  // Example data bindings, you should replace these with real data bindings or props
+  let votingPower = "xxx"; // Replace 'xxx' with actual data or bindings
+  let currentHeight = "xxx";
+  let scheduledHeight = "xxx";
+  let corkResult = "xxx";
 </script>
 
 <div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -27,9 +32,15 @@
               </svg>
             </div>
             <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Informational Message</h3>
+              <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Track Schedule ID: 1234</h3>
               <div class="mt-2">
-                <p class="text-sm text-gray-500">This is an informational message about the process you have initiated. Please review the details and confirm to proceed.</p>
+                <!-- Updated information displayed in a list format -->
+                <ul class="text-sm text-gray-500 list-disc pl-5">
+                  <li>Voting power behind a cork: {votingPower}</li>
+                  <li>Current height: {currentHeight}</li>
+                  <li>Scheduled height: {scheduledHeight}</li>
+                  <li>Cork result: {corkResult}</li>
+                </ul>
               </div>
             </div>
           </div>

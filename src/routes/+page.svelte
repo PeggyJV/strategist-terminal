@@ -41,7 +41,7 @@
 <div class="min-h-screen flex flex-col items-center bg-gray-100 overflow-hidden">
     <h1 class="m-4 text-3xl font-bold">Strategist Terminal</h1>
     <button on:click={toggleModal} class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
-        Track Schedule id: 123 
+        Track Schedule ID: 123 
     </button>
 
   <div class="flex mt-8  w-screen">
