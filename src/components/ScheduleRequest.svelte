@@ -29,7 +29,35 @@
 
         queue.set([]);
     }
+
+    // Check all fields are filled
+    $: isButtonEnabled = $cellarId.trim().length > 0 && 
+                         $blockHeight.trim().length > 0 &&
+                         $chainId.trim().length > 0 &&
+                         $deadline.trim().length > 0;
 </script>
+
+<style>
+    .tooltip-text {
+        visibility: hidden;
+        width: 220px;
+        background-color: black;
+        color: white;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 10;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 5px;
+    }
+
+    .group:hover .tooltip-text {
+        visibility: visible;
+    }
+</style>
 
 <h1 class="text-2xl font-bold mb-4">Schedule Request</h1>
 
@@ -77,9 +105,21 @@
     />
 </div>
 
-<button
-  class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-  on:click={scheduleRequest}
->
-    Schedule Request
-</button>
+<div class="group relative">
+    <button
+        class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
+        on:click={scheduleRequest}
+        disabled={!isButtonEnabled}
+    >
+        Schedule Request
+    </button>
+    {#if !isButtonEnabled}
+        <div class="tooltip-text absolute">
+            Please fill all Schedule Request fields
+        </div>
+    {/if}
+</div>
+
+{#if modalVisible}
+    <StateModal {toggleModal}/>
+{/if}
