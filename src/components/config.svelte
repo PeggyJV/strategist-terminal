@@ -1,9 +1,12 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
+
   let somm_node_grpc = "https://sommelier-grpc.polkachu.com:14190";
   let publisher_domain = "https://smart-strategies.xyz";
   let client_cert_path = "/home/strategy/certs/client.pem";
   let client_cert_key_path = "/home/strategy/certs/client.key";
+
+  let showTooltip = false; // State to manage tooltip visibility
 
   async function configure() {
     const result = await invoke("configure", {
@@ -14,9 +17,14 @@
     });
     console.log(result);
   }
-</script>
-<div class="prose">
 
+  $: isButtonEnabled = somm_node_grpc.trim().length > 0 &&
+                       publisher_domain.trim().length > 0 &&
+                       client_cert_path.trim().length > 0 &&
+                       client_cert_key_path.trim().length > 0;
+</script>
+
+<div class="prose">
   <h1 class="text-2xl font-bold mb-4">Configure</h1>
 
   <div class="mb-4">
@@ -63,10 +71,14 @@
     />
   </div>
 
-  <button
-    class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-    on:click={configure}
-  >
-    Configure
-  </button>
+  <div class="group relative" on:mouseover={() => showTooltip = true} on:mouseout={() => showTooltip = false}>
+    <button class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}" on:click={configure} disabled={!isButtonEnabled}>
+      Configure
+    </button>
+    {#if !isButtonEnabled && showTooltip}
+      <div class="absolute inset-x-0 bottom-full mb-2 px-2 py-1 bg-black text-white text-center rounded-md translate-x-[-50%]">
+        Please fill all fields
+      </div>
+    {/if}
+  </div>
 </div>
