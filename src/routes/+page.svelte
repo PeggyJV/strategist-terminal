@@ -35,14 +35,14 @@
     <button
       on:click={selectTab}
       value="Adaptors"
-      class="p-2.5 border rounded focus:outline-none"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.Adaptors ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
     >Adaptors</button>
 
     <button
       on:click={selectTab}
       value="FlashLoans"
-      class="p-2.5 border rounded focus:outline-none"
-    >FlashLoans</button>
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.FlashLoans ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >Flash Loans</button>
   </div>
 
 
