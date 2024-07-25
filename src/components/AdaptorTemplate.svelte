@@ -51,7 +51,9 @@
 </script>
 
 <div class="prose mt-10 w-screen">
-  <h1>{adaptor.name}</h1>
+  <div class="flex  justify-center">
+    <h1>{adaptor.name}</h1>
+  </div>
   <label for="adaptorAddress">Adaptor address:</label>
   <input
     bind:value={adaptorAddress}
