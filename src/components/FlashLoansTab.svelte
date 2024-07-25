@@ -4,10 +4,6 @@
 
   let tokens = "";
   let amounts = "";
-  let userData = "";
-
-  let lendAdaptor = AaveV3ATokenV1;
-  let borrowAdaptor = AaveV3DebtTokenV1;
 
   let DepositToAave = AaveV3ATokenV1.calls[0];
   let BorrowFromAave = AaveV3DebtTokenV1.calls[0];
