@@ -71,20 +71,36 @@
         {/each}
     </select>
 </div>
-<div class="mb-4">
-    <label for="deadline" class="block mb-1">Deadline:</label>
-    <input type="datetime-local" id="deadline" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={$deadline} placeholder="Enter Deadline"/>
-</div>
-<div class="group relative" on:mouseover={() => showTooltip = true} on:mouseout={() => showTooltip = false}>
-    <button on:click={scheduleRequest} disabled={!isButtonEnabled} class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}">
+
+{#if $chainId !== "1"}
+    <div class="mb-4">
+        <label for="deadline" class="block mb-1">Deadline:</label>
+        <input type="datetime-local" id="deadline" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={$deadline} placeholder="Enter Deadline"/>
+    </div>
+{/if}
+
+<div class="relative">
+    <button
+      on:click={scheduleRequest}
+      disabled={!isButtonEnabled}
+      on:focus={() => { if (!isButtonEnabled) showTooltip = true }}
+      on:blur={() => { if (!isButtonEnabled) showTooltip = false }}
+      class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
+    >
         Schedule Request
     </button>
     {#if !isButtonEnabled && showTooltip}
-        <div class="absolute inset-x-0 bottom-full mb-2 px-2 py-1 bg-black text-white text-center rounded-md translate-x-[-50%]">
+        <div
+          class="absolute inset-x-0 bottom-full mb-2 px-2 py-1 bg-black text-white text-center rounded-md translate-x-[-50%]"
+          role="tooltip"
+        >
             Please fill all Schedule Request fields
         </div>
     {/if}
-    <button on:click={toggleModal} class="px-4 py-2 mt-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+    <button
+      on:click={toggleModal}
+      class="px-4 py-2 mt-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+    >
         Track Schedule ID: 1234
     </button>
 </div>
