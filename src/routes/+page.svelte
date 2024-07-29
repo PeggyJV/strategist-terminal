@@ -4,8 +4,8 @@
   import ScheduleRequest from "../components/ScheduleRequest.svelte";
   import Queue from "../components/Queue.svelte";
   import { queue } from "$stores/AdapterQueue";
-  import AdaptorsTab from "../components/AdaptorsTab.svelte"
-  import FlashLoansTab from "../components/FlashLoansTab.svelte"
+  import AdaptorsTab from "../components/adaptors/AdaptorsTab.svelte"
+  import FlashLoansTab from "../components/flashLoan/FlashLoansTab.svelte"
 
   let version = "";
 
