@@ -1,19 +1,34 @@
 <script lang="ts">
-  import AaveV3ATokenV1 from "$lib/adaptors/AaveV3ATokenV1"
-  import AaveV3DebtTokenV1 from "$lib/adaptors/AaveV3DebtTokenV1"
+  import AdaptorSelection from "./AdaptorSelection.svelte"
+  import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
+
+  let adaptorSelectionOpen = false;
+  let addCallBtnVisible = true;
+
+  let adaptorAddress = "";
 
   let tokens = "";
   let amounts = "";
 
-  let DepositToAave = AaveV3ATokenV1.calls[0];
-  let BorrowFromAave = AaveV3DebtTokenV1.calls[0];
+  function openAdaptorSelection() {
+    adaptorSelectionOpen = true;
+    addCallBtnVisible = false;
+  }
 
-  let adaptorAddress = "";
-  let depositToken = "";
-  let depositAmount = "";
+  function closeAdaptorSelection() {
+    adaptorSelectionOpen = false;
+    addCallBtnVisible = true;
+  }
 
-  let borrowToken = "";
-  let borrowAmount = "";
+  function removeCall(index: number): void {
+    flashLoanCalls.update((calls: CellarCall[]) => {
+      return calls.filter((_, i) => i !== index);
+    });
+  }
+
+  function requestFlashLoan(): void {
+    // TODO
+  }
 </script>
 
 <div class="prose">
@@ -49,58 +64,43 @@
     />
   </div>
 
-  <h3>Internal Calls:</h3>
+  <h2>Internal Calls</h2>
 
-  <div class="ml-5">
-    <h4>{DepositToAave.function}:</h4>
-    <div class="mt-5 ml-5">
-      <div class="flex justify-between mt-2">
-        <label for="depositToken">{DepositToAave.fields[0].label}:</label>
-        <input
-          bind:value={depositToken}
-          id="depositToken"
-          placeholder={DepositToAave.fields[0].placeholder}
-          class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-        />
-      </div>
-      <div class="flex justify-between mt-2">
-        <label for="depositAmount">{DepositToAave.fields[1].label}:</label>
-        <input
-          bind:value={depositAmount}
-          id="depositAmount"
-          placeholder={DepositToAave.fields[1].placeholder}
-          class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-        />
-      </div>
-    </div>
+  {#each $flashLoanCalls as call, index (index)}
+        <h4>{call.name}</h4>
+        {#each Object.entries(call.fields) as [key, value]}
+          <div class="flex justify-between mt-2 ml-5">
+            <div>
+              {key}: {JSON.stringify(value)}
+            </div>
+            <button
+              on:click={() => removeCall(index)}
+              type="button"
+              class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:bg-red-600"
+            >Remove</button>
+          </div>
 
-    <h4>{BorrowFromAave.function}:</h4>
-    <div class="mt-5 ml-5">
-      <div class="flex justify-between mt-2">
-        <label for="borrowToken">{BorrowFromAave.fields[0].label}:</label>
-        <input
-          bind:value={borrowToken}
-          id="borrowToken"
-          placeholder={BorrowFromAave.fields[0].placeholder}
-          class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-        />
-      </div>
-      <div class="flex justify-between mt-2">
-        <label for="borrowAmount">{BorrowFromAave.fields[1].label}:</label>
-        <input
-          bind:value={borrowAmount}
-          id="borrowAmount"
-          placeholder={BorrowFromAave.fields[1].placeholder}
-          class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-        />
-      </div>
-    </div>
-  </div>
+        {/each}
+  {/each}
 
-  <button
-    on:click={() => {}}
-    type="button"
-    class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 my-5"
-  >Loan</button>
+  {#if addCallBtnVisible}
+    <button
+      on:click={openAdaptorSelection}
+      type="button"
+      class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 my-5"
+    >Add</button>
+  {/if}
+
+
+  {#if adaptorSelectionOpen}
+    <AdaptorSelection closeAdaptorSelection={closeAdaptorSelection} />
+  {/if}
+
 
 </div>
+
+<button
+  on:click={requestFlashLoan}
+  type="button"
+  class="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 m-5 text-xl"
+>Loan</button>
