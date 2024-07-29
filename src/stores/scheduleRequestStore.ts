@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 
-export const cellarId: Writable<String> = writable("");
-export const blockHeight: Writable<String> = writable("");
-export const chainId: Writable<String> = writable("");
-export const deadline: Writable<String> = writable("");
+export const cellarId: Writable<string> = writable("");
+export const blockHeight: Writable<string> = writable("");
+export const chainId: Writable<string> = writable("");
+export const deadline: Writable<string> = writable("");
