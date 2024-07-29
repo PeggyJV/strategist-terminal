@@ -1,11 +1,11 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     import { cellarId, blockHeight, chainId, deadline } from "$stores/scheduleRequestStore";
-    import { queue, CellarCall } from "$stores/AdapterQueue";
+    import { queue } from "$stores/AdapterQueue";
     import StateModal from "../components/StateModal.svelte"; 
 
     let modalVisible = false;  
-    let showTooltip = false; // State to manage tooltip visibility
+    let showTooltip = false;
 
     function toggleModal() {
         modalVisible = !modalVisible;
@@ -61,6 +61,9 @@
             Please fill all Schedule Request fields
         </div>
     {/if}
+    <button on:click={toggleModal} class="px-4 py-2 mt-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+        Track Schedule ID: 1234
+    </button>
 </div>
 {#if modalVisible}
     <StateModal {toggleModal}/>
