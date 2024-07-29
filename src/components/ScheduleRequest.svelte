@@ -8,11 +8,11 @@
     let modalVisible = false;  
     let showTooltip = false;
 
-    const chainMap = {
-        Ethereum: "aa",
-        Arbitrum: "bb",
-        Optimism: "cc",
-        Scroll: "dd"
+    const chainIdMap = {
+        Ethereum: "1",
+        Arbitrum: "42161",
+        Optimism: "10",
+        Scroll: "534353"
     }
 
     function toggleModal() {
@@ -66,7 +66,7 @@
     <label for="chain_id" class="block mb-1">Chain:</label>
 
     <select name="chain_id" id="chain_id" bind:value={$chainId} class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500">
-        {#each Object.entries(chainMap) as [key, value]}
+        {#each Object.entries(chainIdMap) as [key, value]}
             <option value={value}>{key}</option>
         {/each}
     </select>
