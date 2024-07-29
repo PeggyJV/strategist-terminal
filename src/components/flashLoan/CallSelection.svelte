@@ -38,6 +38,7 @@
 </script>
 
 {#if callListVisible}
+  <h2>Select adaptor call:</h2>
   <div class="flex flex-wrap gap-2.5 mt-12 justify-center">
     {#each adaptor.calls as call}
       <button

@@ -66,6 +66,12 @@
 
   <h2>Internal Calls</h2>
 
+  {#if $flashLoanCalls.length === 0 && addCallBtnVisible}
+    <div>
+      No calls added yet!
+    </div>
+  {/if}
+
   {#each $flashLoanCalls as call, index (index)}
         <h4>{call.name}</h4>
         {#each Object.entries(call.fields) as [key, value]}
