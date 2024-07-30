@@ -1,0 +1,166 @@
+export type Cellar = {
+  ADDRESS: string,
+  CHAIN: {
+    chainId: string,
+    displayName: string
+  }
+}
+
+export const Chains = {
+  ETHEREUM: {
+    chainId: "1",
+    displayName: "Ethereum"
+  },
+  ARBITRUM: {
+    chainId: "42161",
+    displayName: "Arbitrum"
+  },
+  OPTIMISM: {
+    chainId: "10",
+    displayName: "Optimism"
+  },
+  SCROLL: {
+    chainId: "534353",
+    displayName: "Scroll"
+  },
+}
+
+const Cellars = {
+  AAVE_V2_STABLE_CELLAR: {
+    ADDRESS: "0x7bad5df5e11151dc5ee1a648800057c5c934c0d5",
+    CHAIN: Chains.ETHEREUM
+  },
+  ETH_BTC_TREND_CELLAR: {
+    ADDRESS: "0x6b7f87279982d919bbf85182ddeab179b366d8f2",
+    CHAIN: Chains.ETHEREUM
+  },
+  ETH_BTC_MOMENTUM_CELLAR: {
+    ADDRESS: "0x6e2dac3b9e9adc0cbbae2d0b9fd81952a8d33872",
+    CHAIN: Chains.ETHEREUM
+  },
+  STEADY_ETH: {
+    ADDRESS: "0x3f07a84ecdf494310d397d24c1c78b041d2fa622",
+    CHAIN: Chains.ETHEREUM
+  },
+  STEADY_BTC: {
+    ADDRESS: "0x4986fd36b6b16f49b43282ee2e24c5cf90ed166d",
+    CHAIN: Chains.ETHEREUM
+  },
+  STEADY_UNI: {
+    ADDRESS: "0x6f069f711281618467dae7873541ecc082761b33",
+    CHAIN: Chains.ETHEREUM
+  },
+  STEADY_MATIC: {
+    ADDRESS: "0x05641a27c82799aaf22b436f20a3110410f29652",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_USD: {
+    ADDRESS: "0x97e6e0a40a3d02f12d1cec30ebfbae04e37c119e",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_ETH: {
+    ADDRESS: "0xb5b29320d2dde5ba5bafa1ebcd270052070483ec",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_LINK: {
+    ADDRESS: "0x4068bdd217a45f8f668ef19f1e3a1f043e4c4934",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_ENS: {
+    ADDRESS: "0x18ea937aba6053bc232d9ae2c42abe7a8a2be440",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_1Inch: {
+    ADDRESS: "0xc7b69e15d86c5c1581dacce3cacaf5b68cd6596f",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_SNX: {
+    ADDRESS: "0xcbf2250f33c4161e18d4a2fa47464520af5216b5",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_UNI: {
+    ADDRESS: "0x6a6af5393dc23d7e3db28d28ef422db7c40932b6",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_BTC: {
+    ADDRESS: "0x0274a704a6d9129f90a62ddc6f6024b33ecdad36",
+    CHAIN: Chains.ETHEREUM
+  },
+  FRAXIMAL: {
+    ADDRESS: "0xdbe19d1c3f21b1bb250ca7bdae0687a97b5f77e6",
+    CHAIN: Chains.ETHEREUM
+  },
+  DEFI_STARS: {
+    ADDRESS: "0x03df2a53cbed19b824347d6a45d09016c2d1676a",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_SWETH: {
+    ADDRESS: "0xd33dad974b938744dac81fe00ac67cb5aa13958e",
+    CHAIN: Chains.ETHEREUM
+  },
+  ETH_TREND_GROWTH: {
+    ADDRESS: "0x6c51041a91c91c86f3f08a72cb4d3f67f1208897",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_GHO: {
+    ADDRESS: "0x0C190DEd9Be5f512Bd72827bdaD4003e9Cc7975C",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_SOMM: {
+    ADDRESS: "0x5195222f69c5821f8095ec565E71e18aB6A2298f",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_EETH: {
+    ADDRESS: "0x9a7b4980C6F0FCaa50CD5f288Ad7038f434c692e",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_STETH: {
+    ADDRESS: "0xfd6db5011b171b05e1ea3b92f9eacaeeb055e971",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_STETH_STETH_DEPOSIT: {
+    ADDRESS: "0xc7372Ab5dd315606dB799246E8aA112405abAeFf",
+    CHAIN: Chains.ETHEREUM
+  },
+  REAL_YIELD_ETH_ARB: {
+    ADDRESS: "0xC47bB288178Ea40bF520a91826a3DEE9e0DbFA4C",
+    CHAIN: Chains.ARBITRUM
+  },
+  REAL_YIELD_ETH_OPT: {
+    ADDRESS: "0xC47bB288178Ea40bF520a91826a3DEE9e0DbFA4C",
+    CHAIN: Chains.OPTIMISM
+  },
+  REAL_YIELD_ETH_SCROLL: {
+    ADDRESS: "0xd3bb04423b0c98abc9d62f201212f44dc2611200",
+    CHAIN: Chains.SCROLL
+  },
+  REAL_YIELD_USD_ARB: {
+    ADDRESS: "0x392B1E6905bb8449d26af701Cdea6Ff47bF6e5A8",
+    CHAIN: Chains.ARBITRUM
+  },
+  MORPHO_ETH: {
+    ADDRESS: "0xcf4B531b4Cde95BD35d71926e09B2b54c564F5b6",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_DIVETH: {
+    ADDRESS: "0x6c1edce139291Af5b84fB1e496c9747F83E876c9",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_ETHX: {
+    ADDRESS: "0x19B8D8FC682fC56FbB42653F68c7d48Dd3fe597E",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_EETHV2: {
+    ADDRESS: "0xdAdC82e26b3739750E036dFd9dEfd3eD459b877A",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_RSETH: {
+    ADDRESS: "0x1dffb366b5c5A37A12af2C127F31e8e0ED86BDbe",
+    CHAIN: Chains.ETHEREUM
+  },
+  TURBO_EZETH: {
+    ADDRESS: "0x27500De405a3212D57177A789E30bb88b0AdbeC5",
+    CHAIN: Chains.ETHEREUM
+  }
+}
+export default Cellars;
