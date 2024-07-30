@@ -15,53 +15,47 @@
     console.log(result);
   }
 </script>
-<div class="prose">
+<div class="prose w-screen flex flex-col justify-center items-center">
 
-  <h1 class="text-2xl font-bold mb-4">Configure</h1>
+  <h1 class="text-2xl font-bold mb-4 ">Configure</h1>
 
-  <div class="mb-4">
-    <label for="somm_node_grpc" class="block mb-1">Sommelier Node GRPC URL:</label>
+
+    <label for="somm_node_grpc" class="block mb-1 w-full">Sommelier Node GRPC URL:</label>
     <input
       type="text"
       id="somm_node_grpc"
-      class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+      class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
       bind:value={somm_node_grpc}
       placeholder="Enter Sommelier Node GRPC URL"
     />
-  </div>
 
-  <div class="mb-4">
-    <label for="publisher_domain" class="block mb-1">Publisher Domain:</label>
+
+    <label for="publisher_domain" class="block mb-1 w-full">Publisher Domain:</label>
     <input
       type="text"
       id="publisher_domain"
-      class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+      class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
       bind:value={publisher_domain}
       placeholder="Enter Publisher Domain"
     />
-  </div>
 
-  <div class="mb-4">
-    <label for="client_cert_path" class="block mb-1">Client Cert Path:</label>
+    <label for="client_cert_path" class="block mb-1 w-full">Client Cert Path:</label>
     <input
       type="text"
       id="client_cert_path"
-      class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+      class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
       bind:value={client_cert_path}
       placeholder="Enter Client Cert Path"
     />
-  </div>
 
-  <div class="mb-4">
-    <label for="client_cert_key_path" class="block mb-1">Client Cert Key Path:</label>
+    <label for="client_cert_key_path" class="block mb-1 w-full">Client Cert Key Path:</label>
     <input
       type="text"
       id="client_cert_key_path"
-      class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+      class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
       bind:value={client_cert_key_path}
       placeholder="Enter Client Cert Key Path"
     />
-  </div>
 
   <button
     class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
-  import Config from "../components/config.svelte";
+  import Config from "../components/settings/config.svelte";
   import ScheduleRequest from "../components/ScheduleRequest.svelte";
   import Queue from "../components/Queue.svelte";
   import { queue } from "$stores/AdapterQueue";
@@ -15,7 +15,8 @@
 
   enum Tabs {
     Adaptors = "adaptor",
-    FlashLoans = "flashLoans"
+    FlashLoans = "flashLoans",
+    Settings = "settings"
   }
 
   let activeTab = Tabs.Adaptors
@@ -43,37 +44,52 @@
       value="FlashLoans"
       class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.FlashLoans ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
     >Flash Loans</button>
+
+    <button
+      on:click={selectTab}
+      value="Settings"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.Settings ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >Settings</button>
   </div>
 
 
   <div class="flex mt-8  w-screen">
     <!-- Left column, 15% width -->
     <div class="px-10 w-1/5 min-w-[250px]">
-      <Config />
     </div>
 
     <!-- Middle column, 70% width -->
     <div class="flex-1 flex flex-col items-center min-w-[500px] w-3/5">
 
+      {#if activeTab === Tabs.Adaptors}
+        <AdaptorsTab />
+      {/if}
+
       {#if activeTab === Tabs.FlashLoans}
         <FlashLoansTab />
       {/if}
 
-      {#if activeTab === Tabs.Adaptors}
-        <AdaptorsTab />
+      {#if activeTab === Tabs.Settings}
+        <Config />
       {/if}
 
     </div>
 
     <!-- Right column, 15% width -->
-    <div class="flex flex-col justify-start px-10 w-1/5 min-w-[250px]">
-      <div class="prose min-w-200" >
-        <ScheduleRequest />
+
+
+      <div class="flex flex-col justify-start px-10 w-1/5 min-w-[250px]">
+        {#if activeTab === Tabs.Adaptors}
+          <div class="prose min-w-200" >
+            <ScheduleRequest />
+          </div>
+          {#if $queue.length > 0}
+            <Queue />
+          {/if}
+        {/if}
       </div>
-      {#if $queue.length > 0}
-        <Queue />
-      {/if}
-    </div>
+
+
   </div>
 
 </div>
