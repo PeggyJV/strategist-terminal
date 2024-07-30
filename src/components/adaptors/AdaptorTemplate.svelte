@@ -51,7 +51,7 @@
 </script>
 
 <div class="prose mt-10 w-screen">
-  <div class="flex  justify-center">
+  <div class="flex justify-center">
     <h1>{adaptor.name}</h1>
   </div>
   <label for="adaptorAddress">Adaptor address:</label>
