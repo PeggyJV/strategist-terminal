@@ -9,6 +9,7 @@ use tokio::sync::RwLock;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig, Identity};
 use tracing::debug;
 
+const DEFAULT_RPC_ENDPOINT: &str = "https://sommelier-rpc.polkachu.com:443";
 const DEFAULT_GRPC_ENDPOINT: &str = "https://sommelier-grpc.polkachu.com:14190";
 
 lazy_static! {
@@ -19,6 +20,7 @@ lazy_static! {
 // TODO: front end needs to ask the user to supply domain and cert data
 #[derive(Default, Deserialize, Serialize)]
 pub(crate) struct AppConfig {
+    pub rpc_endpoint: Option<String>,
     pub grpc_endpoint: Option<String>,
     pub publisher_domain: Option<String>,
     pub client_cert_path: Option<String>,
@@ -27,6 +29,7 @@ pub(crate) struct AppConfig {
 
 #[derive(Default)]
 pub(crate) struct AppContext {
+    pub rpc_endpoint: String,
     pub grpc_endpoint: String,
     pub publisher_domain: Option<String>,
     pub client_identity: Option<Identity>,
@@ -36,6 +39,9 @@ pub(crate) struct AppContext {
 
 pub(crate) fn initialize_app_context(config: AppConfig) -> Result<()> {
     let mut app_context = futures::executor::block_on(APP_CONTEXT.write());
+    let rpc_endpoint = config
+        .rpc_endpoint
+        .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string());
     let grpc_endpoint = config
         .grpc_endpoint
         .unwrap_or(DEFAULT_GRPC_ENDPOINT.to_string());
@@ -50,6 +56,7 @@ pub(crate) fn initialize_app_context(config: AppConfig) -> Result<()> {
         };
 
     *app_context = AppContext {
+        rpc_endpoint,
         grpc_endpoint,
         publisher_domain: config.publisher_domain,
         client_identity,

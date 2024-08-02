@@ -9,12 +9,18 @@ use app::AppConfig;
 use cellar_call::CellarCall;
 use schedule::{build_request, validate_calls};
 
+use tauri::Manager;
 use tracing::info;
+
+use crate::state::RequestState;
 
 mod adaptors;
 mod app;
 mod cellar_call;
+mod lifecycle;
 mod schedule;
+mod sommelier;
+mod state;
 mod version;
 
 #[tauri::command]
@@ -25,6 +31,7 @@ fn version() {
 
 #[tauri::command]
 fn schedule_request(
+    app_handle: tauri::AppHandle,
     cellar_id: String,
     block_height: String,
     chain_id: String,
@@ -66,7 +73,7 @@ fn schedule_request(
 
     println!("request: {:?}", request);
 
-    schedule::handle(request);
+    tokio::task::spawn(schedule::handle(request, app_handle));
 
     // TODO: return results to frontend
     Ok(())
@@ -74,13 +81,23 @@ fn schedule_request(
 
 #[tauri::command]
 fn configure(
+    app_handle: tauri::AppHandle,
     somm_node_rpc: &str,
+    somm_node_grpc: &str,
     publisher_domain: &str,
     client_cert_path: &str,
     client_cert_key_path: &str,
 ) -> String {
+    // Run the block sync thread. Doing this here because it requires a gRPC endpoint, would be
+    // nice if it worked at startup though.
+    tokio::task::spawn(sommelier::sync_block_height(
+        app_handle,
+        somm_node_rpc.to_string(),
+    ));
+
     let config = AppConfig {
-        grpc_endpoint: Some(somm_node_rpc.to_string()),
+        rpc_endpoint: Some(somm_node_rpc.to_string()),
+        grpc_endpoint: Some(somm_node_grpc.to_string()),
         publisher_domain: Some(publisher_domain.to_string()),
         client_cert_path: Some(client_cert_path.to_string()),
         client_cert_key_path: Some(client_cert_key_path.to_string()),
@@ -110,6 +127,8 @@ fn configure(
 
 fn main() {
     tauri::Builder::default()
+        .manage(state::Sommelier::new())
+        .manage(state::Requests::new())
         .invoke_handler(tauri::generate_handler![
             version,
             schedule_request,
