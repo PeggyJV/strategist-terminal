@@ -6,9 +6,9 @@ export var flashLoanCalls: Writable<Array<CellarCall>> = writable([]);
 export class CellarCall {
   adaptor: string;
   name: string;
-  fields:  { [x: string]: Record<string, string>; } ;
+  fields: any;
 
-  constructor(adaptor: string, name: string, fields: { [x: string]: Record<string, string>; }) {
+  constructor(adaptor: string, name: string, fields: any) {
     this.adaptor = adaptor;
     this.name = name;
     this.fields = fields;
