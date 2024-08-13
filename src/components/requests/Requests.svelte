@@ -17,7 +17,7 @@
   const requests: Request[] = [
     {
       id: "111",
-      state: "xxx",
+      state: "Relayed",
       votingPower: "xxx",
       currentHeight: "xxx",
       scheduledHeight: "xxx",
@@ -25,7 +25,7 @@
     },
     {
       id: "222",
-      state: "xxx",
+      state: "Scheduled",
       votingPower: "xxx",
       currentHeight: "xxx",
       scheduledHeight: "xxx",
@@ -48,7 +48,11 @@
   }
 
 </script>
-<div class="prose mt-10 w-screen">
+<div class="prose w-screen">
+
+  <div class="flex justify-center">
+    <h1>Requests</h1>
+  </div>
 
   <table class="mx-auto text-center">
     <thead>
