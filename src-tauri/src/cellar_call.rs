@@ -75,9 +75,9 @@ impl CellarCall {
             Adaptors::CollateralFTokenV1 => {
                 get_collateral_f_token_adaptor_call(&self.adaptor, &self.fields)
             }
-            //Adaptors::AaveV3DebtTokenV1FlashLoan => {
-            //    get_aave_v3_debt_token_flash_loan_adaptor_call(&self.adaptor, &self.fields)
-            //}
+            Adaptors::AaveV3DebtTokenV1FlashLoan => {
+               get_aave_v3_debt_token_flash_loan_adaptor_call(&self.adaptor, &self.fields)
+            }
             //Adaptors::BalancerPoolV1FlashLoan => {
             //    get_balancer_pool_flash_loan_adaptor_call(&self.adaptor, &self.fields)
             //}

@@ -29,7 +29,7 @@ pub(crate) enum Adaptors {
     LegacyCellarV1,
     DebtFTokenV1,
     CollateralFTokenV1,
-    // AaveV3DebtTokenV1FlashLoan,
+    AaveV3DebtTokenV1FlashLoan,
     // BalancerPoolV1FlashLoan,
     ConvexCurveV1,
     CurveV1,
@@ -434,23 +434,27 @@ pub(crate) fn get_collateral_f_token_adaptor_call(
     Ok(adaptor_call)
 }
 
-//pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
-//    adaptor: &str,
-//    fields: &str,
-//) -> Result<AdaptorCall> {
-//    let function = serde_json::from_str::<aave_v3_debt_token_v1::Function>(fields)?;
-//    let call = AaveV3DebtTokenV1FlashLoan {
-//        function: Some(function),
-//    };
-//    let calls = AaveV3DebtTokenV1FlashLoanCalls { calls: vec![call] };
-//    let adaptor_call = AdaptorCall {
-//        adaptor: adaptor.to_owned(),
-//        call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls)),
-//    };
-//
-//    Ok(adaptor_call)
-//}
-//
+pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
+   adaptor: &str,
+   fields: &str,
+) -> Result<AdaptorCall> {
+   let function = serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
+   let call = AaveV3DebtTokenAdaptorV1FlashLoan {
+       flash_loan: Some(function),
+   };
+    println!("{:?}", call.clone());
+   let calls = AaveV3DebtTokenAdaptorV1FlashLoanCalls { calls: vec![call] };
+
+    println!("{:?}", calls.clone());
+    println!("{:?}", Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls.clone())));
+   let adaptor_call = AdaptorCall {
+       adaptor: adaptor.to_owned(),
+       call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls)),
+   };
+
+   Ok(adaptor_call)
+}
+
 //pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
 //    adaptor: &str,
 //    fields: &str,
