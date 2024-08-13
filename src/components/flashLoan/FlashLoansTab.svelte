@@ -1,6 +1,6 @@
 <script lang="ts">
   import AdaptorSelection from "./AdaptorSelection.svelte"
-  import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
+  import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -27,7 +27,18 @@
   }
 
   function requestFlashLoan(): void {
-    // TODO
+    queue.update((callQueue) => {
+      callQueue.push(
+        new CellarCall(adaptorAddress, "AaveV3DebtTokenAdaptorV1FlashLoan", {
+          FlashLoan: {
+            loan_tokens: tokens,
+            loan_amounts: amounts,
+            params: $flashLoanCalls
+          },
+        })
+      );
+      return callQueue;
+    });
   }
 </script>
 

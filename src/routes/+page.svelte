@@ -88,18 +88,14 @@
 
     <!-- Right column, 15% width -->
 
-
       <div class="flex flex-col justify-start px-10 w-1/5 min-w-[250px]">
-        {#if activeTab === Tabs.Adaptors}
-          <div class="prose min-w-200" >
-            <ScheduleRequest />
-          </div>
-          {#if $queue.length > 0}
-            <Queue />
-          {/if}
+        <div class="prose min-w-200" >
+          <ScheduleRequest />
+        </div>
+        {#if $queue.length > 0}
+          <Queue />
         {/if}
       </div>
-
 
   </div>
 

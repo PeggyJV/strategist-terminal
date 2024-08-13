@@ -4,13 +4,10 @@
 
   export let adaptor: Adaptor;
 
-  let adaptorAddress = adaptor.address;
-
   // functionName: { fieldName: value }
   let fieldValues: Record<string, Record<string, string>> = {};
 
   $: {
-    adaptorAddress = adaptor.address;
     resetFieldValues();
   }
 
@@ -56,9 +53,8 @@
   </div>
   <label for="adaptorAddress">Adaptor address:</label>
   <input
-    bind:value={adaptorAddress}
+    bind:value={adaptor.address}
     id="adaptorAddress"
-    placeholder={adaptorAddress}
     class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
   />
 
