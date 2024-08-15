@@ -29,7 +29,7 @@
   function requestFlashLoan(): void {
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptorAddress, "AaveV3DebtTokenAdaptorV1FlashLoan", {
+        new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
           FlashLoan: {
             loan_tokens: tokens,
             loan_amounts: amounts,
