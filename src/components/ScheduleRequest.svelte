@@ -19,13 +19,13 @@
         let calls = $queue.map((call) => call.json_fields());
 
         const deadlineDate = new Date(deadline);
-        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || "";
+        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
 
         const result = await invoke("schedule_request", {
             cellarId: cellar.ADDRESS,
             blockHeight: blockHeight,
             chainId: cellar.CHAIN.chainId,
-            deadline: deadlineUnixTimestamp,
+            deadline: deadlineUnixTimestamp.toString(),
             queue: calls,
         }).then(result => {
             console.log('Schedule successful', result);
@@ -38,6 +38,8 @@
     }
 
     $: isButtonEnabled = blockHeight.trim().length > 0
+      && $queue.length > 0
+      && !isNaN(parseInt(blockHeight))
 </script>
 
 <h1 class="text-2xl font-bold mb-4">Schedule Request</h1>
@@ -55,12 +57,12 @@
     <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
 </div>
 
-{#if cellar.CHAIN !== Chains.ETHEREUM}
+<!--{#if cellar.CHAIN !== Chains.ETHEREUM}-->
     <div class="mb-4">
         <label for="deadline" class="block mb-1">Deadline:</label>
         <input type="datetime-local" id="deadline" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={deadline} placeholder="Enter Deadline"/>
     </div>
-{/if}
+<!--{/if}-->
 
 <div class="relative">
     <button
