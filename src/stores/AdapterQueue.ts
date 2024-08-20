@@ -1,6 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 
 export var queue: Writable<Array<CellarCall>> = writable([]);
+export var flashLoanCalls: Writable<Array<CellarCall>> = writable([]);
 
 export class CellarCall {
   adaptor: string;
