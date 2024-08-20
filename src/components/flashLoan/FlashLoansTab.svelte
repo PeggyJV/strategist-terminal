@@ -35,7 +35,7 @@
         new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
           loan_tokens: cTokens,
           loan_amounts: cAmounts,
-          params: $flashLoanCalls
+          params: []
         })
       );
       return callQueue;

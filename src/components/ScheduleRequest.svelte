@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { queue } from "$stores/AdapterQueue";
+    import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "../components/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
     import type { Request } from "./requests/Requests.svelte"
@@ -18,7 +18,16 @@
         modalVisible = !modalVisible;
     }
 
-    async function scheduleRequest() {
+    function handleSchedule() {
+        let firstCall = $queue[0].name;
+        if (firstCall === "AaveV3DebtTokenV1FlashLoan") {
+            scheduleFlashLoanCall();
+        } else {
+            scheduleAdaptorCall();
+        }
+    }
+
+    async function scheduleAdaptorCall() {
         let calls = $queue.map((call) => call.json_fields());
 
         const deadlineDate = new Date(deadline);
@@ -36,6 +45,31 @@
         }).catch((error) => {
             console.error(error);
             toggleModal();  
+        });
+        queue.set([]);
+        // TODO: Create a request object from the result
+    }
+
+    async function scheduleFlashLoanCall() {
+        let calls = $queue.map((call) => call.json_fields());
+        let params = $flashLoanCalls.map((call) => call.json_fields());
+
+        const deadlineDate = new Date(deadline);
+        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
+
+        const result = await invoke("schedule_request", {
+            cellarId: cellar.ADDRESS,
+            blockHeight: blockHeight,
+            chainId: cellar.CHAIN.chainId,
+            deadline: deadlineUnixTimestamp.toString(),
+            flashLoanCall: calls[0],
+            queue: params,
+        }).then(result => {
+            console.log('Schedule successful', result);
+            toggleModal();
+        }).catch((error) => {
+            console.error(error);
+            toggleModal();
         });
         queue.set([]);
         // TODO: Create a request object from the result
@@ -70,7 +104,7 @@
 
 <div class="relative">
     <button
-      on:click={scheduleRequest}
+      on:click={handleSchedule}
       disabled={!isButtonEnabled}
       on:focus={() => { if (!isButtonEnabled) showTooltip = true }}
       on:blur={() => { if (!isButtonEnabled) showTooltip = false }}
