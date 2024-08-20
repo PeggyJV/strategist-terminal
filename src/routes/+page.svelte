@@ -6,6 +6,7 @@
   import { queue } from "$stores/AdapterQueue";
   import AdaptorsTab from "../components/adaptors/AdaptorsTab.svelte"
   import FlashLoansTab from "../components/flashLoan/FlashLoansTab.svelte"
+  import Requests from "../components/requests/Requests.svelte"
 
   let version = "";
 
@@ -14,9 +15,10 @@
   }
 
   enum Tabs {
-    Adaptors = "adaptor",
-    FlashLoans = "flashLoans",
-    Settings = "settings"
+    Adaptors,
+    FlashLoans,
+    Settings,
+    Requests
   }
 
   let activeTab = Tabs.Adaptors
@@ -47,6 +49,12 @@
 
     <button
       on:click={selectTab}
+      value="Requests"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.Requests ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >Requests</button>
+
+    <button
+      on:click={selectTab}
       value="Settings"
       class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.Settings ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
     >Settings</button>
@@ -71,6 +79,9 @@
 
       {#if activeTab === Tabs.Settings}
         <Config />
+      {/if}
+      {#if activeTab === Tabs.Requests}
+        <Requests />
       {/if}
 
     </div>
