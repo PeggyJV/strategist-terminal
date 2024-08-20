@@ -27,19 +27,33 @@
   }
 
   function requestFlashLoan(): void {
+    const cTokens = convertToArray(tokens);
+    const cAmounts = convertToArray(amounts);
+
     queue.update((callQueue) => {
       callQueue.push(
         new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
-          FlashLoan: {
-            loan_tokens: tokens,
-            loan_amounts: amounts,
-            params: $flashLoanCalls
-          },
+          loan_tokens: cTokens,
+          loan_amounts: cAmounts,
+          params: $flashLoanCalls
         })
       );
       return callQueue;
     });
   }
+
+  function convertToArray(value: string): any {
+    try {
+      const parsedValue = JSON.parse(value);
+
+      if (Array.isArray(parsedValue)) {
+        return parsedValue;
+      }
+    } catch (e) {}
+    return value;
+  }
+
+
 </script>
 
 <div class="prose">
