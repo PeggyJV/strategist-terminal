@@ -14,7 +14,7 @@ use tracing::{debug, error, info};
 use crate::{
     app::{self, get_channel, AppContext},
     cellar_call::{construct_call_data, CellarCall},
-    lifecycle::{self, cork_vote::cork_voting_period},
+    lifecycle,
     state::{RequestState, RequestStatus, Requests},
 };
 
@@ -65,6 +65,10 @@ pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandl
     let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
     let chain_id = request.chain_id;
 
+    let trace_id = request_state.id.to_string();
+    let trace_id = trace_id.as_str();
+    log::trace!(id = trace_id, chain_id; "handling request");
+
     // Run lifecycle tracking thread
     tokio::spawn(lifecycle::track_request(
         app_handle.clone(),
@@ -76,51 +80,56 @@ pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandl
     tx.send(RequestStatus::Broadcasting).await?;
 
     let height = request.block_height;
-    let request_status = broadcast_schedule_request(&app_context, tx.clone(), request).await?;
+    let request_status =
+        broadcast_schedule_request(trace_id, &app_context, tx.clone(), request).await?;
     let (cork_id, invalidation_scope) = match request_status {
-        RequestStatus::FailedBroadcast => return Ok(()),
+        RequestStatus::FailedBroadcast => {
+            log::warn!(id = trace_id; "broadcast failed");
+
+            return Ok(());
+        }
         RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => {
             (cork_id.clone(), invalidation_scope.clone())
         }
         _ => bail!("unexpected request status after broadcast: {request_status:?}"),
     };
 
-    // If we don't have the cork ID it's not possible to continue tracking the request
-    if cork_id.is_empty() {
-        log::error!("unable to retreive cork ID");
-        return Ok(());
-    }
-
     // Wait for the scheduled height
-    let request_status =
-        cork_voting_period(app_handle, &app_context, &cork_id, height, tx.clone()).await?;
-    let tx = match request_status {
-        RequestStatus::AwaitingRelay(tx) => tx,
-        RequestStatus::FailedVote => return Ok(()),
-        _ => bail!("unexpected request status after voting period: {request_status:?}"),
-    };
+    // let request_status =
+    //     cork_voting_period(app_handle, &app_context, &cork_id, height, tx.clone()).await?;
+    // let tx = match request_status {
+    //     RequestStatus::AwaitingRelay(tx) => tx,
+    //     RequestStatus::FailedVote => return Ok(()),
+    //     _ => bail!("unexpected request status after voting period: {request_status:?}"),
+    // };
 
-    // Wait for relay
-    if invalidation_scope.is_empty() {
-        log::error!("invalidation scope is empty");
-        return Ok(());
-    }
+    // // Wait for relay
+    // if invalidation_scope.is_empty() {
+    //     log::error!("invalidation scope is empty");
+    //     return Ok(());
+    // }
 
     Ok(())
 }
 
 /// Broadcasts the [`ScheduleRequest`] to all subscribers
 async fn broadcast_schedule_request(
+    id: &str,
     context: &AppContext,
     tx: Sender<RequestStatus>,
     request: ScheduleRequest,
 ) -> Result<RequestStatus> {
+    log::trace!(id; "broadcasting schedule request");
+
     let Some(subscribers) = context.subscribers.to_owned() else {
+        log::error!(id; "no subscribers found");
+
         tx.send(RequestStatus::FailedBroadcast).await?;
         return Ok(RequestStatus::FailedBroadcast);
     };
 
     let Some(identity) = context.client_identity.clone() else {
+        log::error!(id; "client identity not found");
         tx.send(RequestStatus::FailedBroadcast).await?;
         bail!("app context does not contain client identity. user must provide their certificate and key.");
     };
@@ -138,20 +147,18 @@ async fn broadcast_schedule_request(
     let result = posts.await;
 
     // Extract the cork ID from one of the successful responses.
-    let mut cork_id = String::default();
-    let mut invalidation_scope = String::default();
+    // If there were no successful responses this iterator has length zero and nothing happens,
+    // resulting in a failed broadcast.
     for (cid, is) in result.into_iter().flatten().flatten() {
         tx.send(RequestStatus::AwaitingVote((cid.clone(), is.clone())))
             .await?;
-        cork_id = cid;
-        invalidation_scope = is;
-        break;
+        return Ok(RequestStatus::AwaitingVote((cid.clone(), is.clone())));
     }
 
-    Ok(RequestStatus::AwaitingVote((
-        cork_id.clone(),
-        invalidation_scope.clone(),
-    )))
+    log::trace!(id; "broadcasting schedule request failed");
+    tx.send(RequestStatus::FailedBroadcast).await?;
+
+    Ok(RequestStatus::FailedBroadcast)
 }
 
 /// Returns the (Cork ID, Invalidation Scope) tuple from the subscriber

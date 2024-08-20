@@ -1,15 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::str::FromStr;
+use std::{fmt::Pointer, str::FromStr};
 
 use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
+use log::trace;
 use schedule::{build_request, validate_calls};
 
 use tauri::Manager;
+use tauri_plugin_log::LogTarget;
 use tracing::info;
 
 use crate::state::RequestState;
@@ -38,12 +40,13 @@ fn schedule_request(
     deadline: String,
     queue: Vec<CellarCall>,
 ) -> Result<(), String> {
-    // print all of the arguments
-    println!("cellar_id: {}", cellar_id);
-    println!("block_height: {}", block_height);
-    println!("chain_id: {}", chain_id);
-    println!("deadline: {}", deadline);
-    println!("queue: {:?}", queue);
+    log::trace!(
+        cellar_id = cellar_id.as_str(),
+        block_height = block_height.as_str(),
+        chain_id = chain_id.as_str(),
+        deadline = deadline.as_str();
+        "entered schedule_request handler"
+    );
 
     // parse block_height, chain_id, and deadline as u64
     let block_height = block_height.parse::<u64>().map_err(|e| e.to_string())?;
@@ -66,12 +69,24 @@ fn schedule_request(
         return Err(String::from("deadline cannot be zero"));
     }
 
-    validate_calls(&queue).map_err(|e| e.to_string())?;
+    log::trace!("validating calls");
 
-    let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
-        .map_err(|e| e.to_string())?;
+    if let Err(err) = validate_calls(&queue) {
+        log::error!("error validating calls: {:?}", err);
+        return Err(err.to_string());
+    }
 
-    println!("request: {:?}", request);
+    log::trace!("building request");
+
+    let request = match build_request(cellar_id, block_height, chain_id, deadline, queue) {
+        Ok(r) => r,
+        Err(e) => {
+            log::error!("error building request: {:?}", e);
+            return Err(e.to_string());
+        }
+    };
+
+    log::trace!(request:?; "spawning request handler");
 
     tokio::task::spawn(schedule::handle(request, app_handle));
 
@@ -129,6 +144,13 @@ fn main() {
     tauri::Builder::default()
         .manage(state::Sommelier::new())
         .manage(state::Requests::new())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([LogTarget::Stdout])
+                .level(log::LevelFilter::Info)
+                .level_for("app", log::LevelFilter::Trace)
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             version,
             schedule_request,

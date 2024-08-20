@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use log::kv::ToValue;
 use steward_proto::proto::ScheduleRequest;
 use tokio::sync::Mutex;
 use uuid::Uuid;
@@ -96,6 +97,37 @@ pub enum RequestStatus {
     Success(String),
     /// Unable to determine the state of the request
     Unknown,
+}
+
+impl std::fmt::Display for RequestStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RequestStatus::Initialized => write!(f, "Initialized"),
+            RequestStatus::Broadcasting => write!(f, "Broadcasting"),
+            RequestStatus::FailedBroadcast => write!(f, "FailedBroadcast"),
+            RequestStatus::AwaitingVote((cid, is)) => write!(
+                f,
+                "AwaitingVote(cork_id: {}, invalidation_scope: {})",
+                cid, is
+            ),
+            RequestStatus::FailedVote => write!(f, "FailedVote"),
+            RequestStatus::AwaitingConfirmation => write!(f, "AwaitingConfirmation"),
+            RequestStatus::AwaitingRelay(tx) => write!(f, "AwaitingRelay(tx_hash: {})", tx),
+            RequestStatus::Relayed(tx) => write!(f, "Relayed(gmp_tx_hash: {})", tx),
+            RequestStatus::AwaitingExecution => write!(f, "AwaitingExecution"),
+            RequestStatus::FailedExecution(tx) => {
+                write!(f, "FailedExecution(target_tx_hash: {})", tx)
+            }
+            RequestStatus::Success(tx) => write!(f, "Success(target_tx_hash: {})", tx),
+            RequestStatus::Unknown => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl ToValue for RequestStatus {
+    fn to_value(&self) -> log::kv::Value {
+        log::kv::Value::from_display(self)
+    }
 }
 
 /// Represents state info for the Sommelier chain

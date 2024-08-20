@@ -1,5 +1,5 @@
 use eyre::{bail, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use steward_proto::proto::{
     cellar_v2_5::{self},
     schedule_request::CallData,
@@ -10,7 +10,7 @@ use crate::adaptors::*;
 
 // for now this is more of an "adaptor call" than a "cellar call" as it assumes
 // the function being called is CallOnAdaptor. In the future we'll need to generalize
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub(crate) struct CellarCall {
     pub adaptor: String,
     pub name: Adaptors,
