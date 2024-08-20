@@ -1,6 +1,7 @@
 use eyre::Result;
 use serde::Deserialize;
 use steward_proto::proto::*;
+use steward_proto::proto::aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan;
 
 #[derive(Clone, Debug, Default, Deserialize)]
 pub(crate) enum Adaptors {
@@ -437,20 +438,20 @@ pub(crate) fn get_collateral_f_token_adaptor_call(
 pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
    adaptor: &str,
    fields: &str,
+   params: Vec<AdaptorCallForAaveV3FlashLoan>
 ) -> Result<AdaptorCall> {
-   let function = serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
-   let call = AaveV3DebtTokenAdaptorV1FlashLoan {
-       flash_loan: Some(function),
-   };
-    println!("{:?}", call.clone());
-   let calls = AaveV3DebtTokenAdaptorV1FlashLoanCalls { calls: vec![call] };
+    let mut function = serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
+    function.params = params;
 
-    println!("{:?}", calls.clone());
-    println!("{:?}", Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls.clone())));
-   let adaptor_call = AdaptorCall {
+    let call = AaveV3DebtTokenAdaptorV1FlashLoan {
+       flash_loan: Some(function),
+    };
+    let calls = AaveV3DebtTokenAdaptorV1FlashLoanCalls { calls: vec![call] };
+
+    let adaptor_call = AdaptorCall {
        adaptor: adaptor.to_owned(),
        call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls)),
-   };
+    };
 
    Ok(adaptor_call)
 }

@@ -10,6 +10,7 @@ use cellar_call::CellarCall;
 use schedule::{build_request, validate_calls, ScheduleRequestData};
 
 use tracing::info;
+use crate::schedule::build_flash_loan_request;
 
 mod adaptors;
 mod app;
@@ -29,6 +30,7 @@ fn schedule_request(
     block_height: String,
     chain_id: String,
     deadline: String,
+    flash_loan_call: Option<CellarCall>,
     queue: Vec<CellarCall>,
 ) -> Result<(), String> {
     // print all of the arguments
@@ -37,6 +39,7 @@ fn schedule_request(
     println!("chain_id: {}", chain_id);
     println!("deadline: {}", deadline);
     println!("queue: {:?}", queue);
+    println!("flash_loan_call: {:?}", flash_loan_call);
 
     // parse block_height, chain_id, and deadline as u64
     let block_height = block_height.parse::<u64>().map_err(|e| e.to_string())?;
@@ -60,6 +63,18 @@ fn schedule_request(
     }
 
     validate_calls(&queue).map_err(|e| e.to_string())?;
+
+    if let Some(flash_loan_call) = flash_loan_call {
+        let request = build_flash_loan_request(cellar_id, block_height, chain_id, deadline,flash_loan_call, queue)
+            .map_err(|e| e.to_string())?;
+
+        println!("request: {:?}", request);
+
+        //schedule::handle(request);
+
+        return Ok(());
+    }
+    println!("Flashloan false!");
 
     let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
         .map_err(|e| e.to_string())?;
