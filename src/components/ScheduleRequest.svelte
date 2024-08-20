@@ -3,6 +3,7 @@
     import { queue } from "$stores/AdapterQueue";
     import StateModal from "../components/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
+    import type { Request } from "./requests/Requests.svelte"
 
     let modalVisible = false;  
     let showTooltip = false;
@@ -10,6 +11,8 @@
     let cellar: Cellar = Cellars.REAL_YIELD_ETH;
     let blockHeight = "";
     let deadline = "";
+
+    let request: Request;
 
     function toggleModal() {
         modalVisible = !modalVisible;
@@ -35,6 +38,7 @@
             toggleModal();  
         });
         queue.set([]);
+        // TODO: Create a request object from the result
     }
 
     $: isButtonEnabled = blockHeight.trim().length > 0
@@ -88,5 +92,5 @@
     </button>
 </div>
 {#if modalVisible}
-    <StateModal {toggleModal}/>
+    <StateModal {toggleModal} {request}/>
 {/if}

@@ -43,7 +43,7 @@
 </script>
 
 <div class="prose">
-  <div class="flex  justify-center">
+  <div class="flex justify-center">
     <h1>Flash Loans</h1>
   </div>
 
