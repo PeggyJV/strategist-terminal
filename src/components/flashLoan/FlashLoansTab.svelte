@@ -74,7 +74,7 @@
     <input
       bind:value={tokens}
       id="tokens"
-      placeholder="e.g., [0x000..., 0x000...]"
+      placeholder='e.g., ["0x000...", "0x000..."]'
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
@@ -84,7 +84,7 @@
     <input
       bind:value={amounts}
       id="amounts"
-      placeholder="e.g., [50, 100]"
+      placeholder='e.g., ["50", "100"]'
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
