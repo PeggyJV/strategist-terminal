@@ -5,15 +5,26 @@ use eyre::{bail, Result};
 use serde::Deserialize;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
-    contract_call_service_client::ContractCallServiceClient, ScheduleRequest, ScheduleResponse,
+    contract_call_service_client::ContractCallServiceClient,
+    aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
+    balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
+    AdaptorCall,
+    ScheduleRequest,
+    ScheduleResponse
 };
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
 use crate::{
     app::{self, get_channel, AppContext},
-    cellar_call::{construct_call_data, CellarCall},
+    cellar_call::{
+        construct_call_data,
+        CellarCall,
+        convert_to_aave_v3_flash_loan_adaptor,
+        convert_to_balancer_pool_flash_loan_adaptor
+    },
 };
+use crate::adaptors::{Adaptors, get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call};
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -55,6 +66,60 @@ pub(crate) fn build_request(
         .map(|call| call.to_adaptor_call())
         .collect::<Result<_>>()?;
     let call_data = Some(construct_call_data(adaptor_calls));
+
+    Ok(ScheduleRequest {
+        cellar_id,
+        chain_id,
+        block_height,
+        deadline,
+        call_data,
+    })
+}
+
+pub(crate) fn build_flash_loan_request(
+    cellar_id: String,
+    block_height: u64,
+    chain_id: u64,
+    deadline: u64,
+    flash_loan_call: CellarCall,
+    queue: Vec<CellarCall>,
+) -> Result<ScheduleRequest> {
+    let adaptor_calls: Vec<AdaptorCall> = queue
+        .into_iter()
+        .map(|call| call.to_adaptor_call())
+        .collect::<Result<_>>()?;
+
+    let flash_loan_adaptor_call = match flash_loan_call.name {
+        Adaptors::AaveV3DebtTokenV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_aave_v3_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForAaveV3FlashLoan>>>()?;
+
+            get_aave_v3_debt_token_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        }
+        Adaptors::BalancerPoolV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_balancer_pool_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForBalancerPoolFlashLoan>>>()?;
+
+            get_balancer_pool_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        },
+        _ => unreachable!("Unsupported flash loan variant encountered"),
+    }?;
+
+    let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
+
+    let call_data = Some(construct_call_data(flash_loan_adaptor_call));
 
     Ok(ScheduleRequest {
         cellar_id,

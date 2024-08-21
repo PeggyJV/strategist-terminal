@@ -5,7 +5,7 @@
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;
 
-  let fieldValues: Record<string, string> = {};
+  let fieldValues: Record<string, any> = {};
 
   let selectedCall: AdaptorCall;
   let callListVisible = true;

@@ -27,19 +27,33 @@
   }
 
   function requestFlashLoan(): void {
+    const cTokens = convertToArray(tokens);
+    const cAmounts = convertToArray(amounts);
+
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptorAddress, "AaveV3DebtTokenAdaptorV1FlashLoan", {
-          FlashLoan: {
-            loan_tokens: tokens,
-            loan_amounts: amounts,
-            params: $flashLoanCalls
-          },
+        new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
+          loan_tokens: cTokens,
+          loan_amounts: cAmounts,
+          params: []
         })
       );
       return callQueue;
     });
   }
+
+  function convertToArray(value: string): any {
+    try {
+      const parsedValue = JSON.parse(value);
+
+      if (Array.isArray(parsedValue)) {
+        return parsedValue;
+      }
+    } catch (e) {}
+    return value;
+  }
+
+
 </script>
 
 <div class="prose">
@@ -60,7 +74,7 @@
     <input
       bind:value={tokens}
       id="tokens"
-      placeholder="e.g., [0x000..., 0x000...]"
+      placeholder='e.g., ["0x000...", "0x000..."]'
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
@@ -70,7 +84,7 @@
     <input
       bind:value={amounts}
       id="amounts"
-      placeholder="e.g., [50, 100]"
+      placeholder='e.g., ["50", "100"]'
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
