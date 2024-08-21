@@ -113,8 +113,8 @@ pub(crate) fn build_flash_loan_request(
                 &flash_loan_call.fields,
                 adaptor_calls_for_flash_loan,
             )
-        }
-        _ => return Err("Unsupported flash loan".into()),
+        },
+        _ => unreachable!("Unsupported flash loan variant encountered"),
     }?;
 
     let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
