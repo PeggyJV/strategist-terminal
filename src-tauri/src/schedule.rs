@@ -4,8 +4,13 @@ use alloy_primitives::Address;
 use eyre::{bail, Result};
 use serde::Deserialize;
 use somm_proto::pubsub::Subscriber;
-use steward_proto::proto::{AdaptorCall, contract_call_service_client::ContractCallServiceClient, ScheduleRequest, ScheduleResponse};
-use steward_proto::proto::aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan;
+use steward_proto::proto::{
+    contract_call_service_client::ContractCallServiceClient,
+    aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
+    AdaptorCall,
+    ScheduleRequest,
+    ScheduleResponse
+};
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
