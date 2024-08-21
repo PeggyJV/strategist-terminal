@@ -7,6 +7,7 @@ use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
     contract_call_service_client::ContractCallServiceClient,
     aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
+    balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
     AdaptorCall,
     ScheduleRequest,
     ScheduleResponse
@@ -16,9 +17,14 @@ use tracing::{debug, error, info};
 
 use crate::{
     app::{self, get_channel, AppContext},
-    cellar_call::{construct_call_data, CellarCall, convert_to_aave_v3_flash_loan_adaptor},
+    cellar_call::{
+        construct_call_data,
+        CellarCall,
+        convert_to_aave_v3_flash_loan_adaptor,
+        convert_to_balancer_pool_flash_loan_adaptor
+    },
 };
-use crate::adaptors::get_aave_v3_debt_token_flash_loan_adaptor_call;
+use crate::adaptors::{Adaptors, get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call};
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -83,17 +89,35 @@ pub(crate) fn build_flash_loan_request(
         .map(|call| call.to_adaptor_call())
         .collect::<Result<_>>()?;
 
-    let adaptor_calls_for_flash_loan: Vec<AdaptorCallForAaveV3FlashLoan> = adaptor_calls
-        .into_iter()
-        .map(|call| convert_to_aave_v3_flash_loan_adaptor(&call))
-        .collect::<Result<_>>()?;
+    let flash_loan_adaptor_call = match flash_loan_call.name {
+        Adaptors::AaveV3DebtTokenV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_aave_v3_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForAaveV3FlashLoan>>>()?;
 
-    let flash_loan_adaptor_call = get_aave_v3_debt_token_flash_loan_adaptor_call(
-        &flash_loan_call.adaptor,
-        &flash_loan_call.fields,
-        adaptor_calls_for_flash_loan);
+            get_aave_v3_debt_token_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        }
+        Adaptors::BalancerPoolV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_balancer_pool_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForBalancerPoolFlashLoan>>>()?;
 
-    let flash_loan_adaptor_call = vec![flash_loan_adaptor_call?];
+            get_balancer_pool_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        }
+        _ => return Err("Unsupported flash loan".into()),
+    }?;
+
+    let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
 
     let call_data = Some(construct_call_data(flash_loan_adaptor_call));
 

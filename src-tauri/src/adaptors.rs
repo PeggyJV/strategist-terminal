@@ -2,6 +2,7 @@ use eyre::Result;
 use serde::Deserialize;
 use steward_proto::proto::*;
 use steward_proto::proto::aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan;
+use steward_proto::proto::balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan;
 
 #[derive(Clone, Debug, Default, Deserialize)]
 pub(crate) enum Adaptors {
@@ -31,7 +32,7 @@ pub(crate) enum Adaptors {
     DebtFTokenV1,
     CollateralFTokenV1,
     AaveV3DebtTokenV1FlashLoan,
-    // BalancerPoolV1FlashLoan,
+    BalancerPoolV1FlashLoan,
     ConvexCurveV1,
     CurveV1,
     AuraErc4626V1,
@@ -456,22 +457,25 @@ pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
    Ok(adaptor_call)
 }
 
-//pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
-//    adaptor: &str,
-//    fields: &str,
-//) -> Result<AdaptorCall> {
-//    let function = serde_json::from_str::<balancer_pool_adaptor_v1::Function>(fields)?;
-//    let call = BalancerPoolV1FlashLoan {
-//        function: Some(function),
-//    };
-//    let calls = BalancerPoolV1FlashLoanCalls { calls: vec![call] };
-//    let adaptor_call = AdaptorCall {
-//        adaptor: adaptor.to_owned(),
-//        call_data: Some(adaptor_call::CallData::BalancerPoolV1FlashLoanCalls(calls)),
-//    };
-//
-//    Ok(adaptor_call)
-//}
+pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
+   adaptor: &str,
+   fields: &str,
+   params: Vec<AdaptorCallForBalancerPoolFlashLoan>
+) -> Result<AdaptorCall> {
+    let mut function = serde_json::from_str::<balancer_pool_adaptor_v1_flash_loan::MakeFlashLoan>(fields)?;
+    function.data = params;
+
+    let call = BalancerPoolAdaptorV1FlashLoan {
+        make_flash_loan: Some(function),
+    };
+    let calls = BalancerPoolAdaptorV1FlashLoanCalls { calls: vec![call] };
+    let adaptor_call = AdaptorCall {
+        adaptor: adaptor.to_owned(),
+        call_data: Some(adaptor_call::CallData::BalancerPoolV1FlashLoanCalls(calls)),
+    };
+
+   Ok(adaptor_call)
+}
 
 pub(crate) fn get_convex_curve_adaptor_call(adaptor: &str, fields: &str) -> Result<AdaptorCall> {
     let function = serde_json::from_str::<convex_curve_adaptor_v1::Function>(fields)?;

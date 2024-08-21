@@ -65,6 +65,15 @@ fn schedule_request(
     validate_calls(&queue).map_err(|e| e.to_string())?;
 
     if let Some(flash_loan_call) = flash_loan_call {
+
+        if flash_loan_call.adaptor.is_empty() {
+            return Err(String::from("adaptor id is empty"));
+        }
+
+        if Address::from_str(&flash_loan_call.adaptor).is_err() {
+            return Err(String::from("invalid adaptor address"));
+        }
+
         let request = build_flash_loan_request(cellar_id, block_height, chain_id, deadline,flash_loan_call, queue)
             .map_err(|e| e.to_string())?;
 
