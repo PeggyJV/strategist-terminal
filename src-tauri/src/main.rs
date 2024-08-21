@@ -23,6 +23,7 @@ mod lifecycle;
 mod schedule;
 mod sommelier;
 mod state;
+mod steward;
 mod version;
 
 #[tauri::command]
