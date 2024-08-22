@@ -7,20 +7,18 @@ use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
-use log::{kv::Visitor, trace};
 use schedule::{build_request, validate_calls};
 
-use crate::schedule::build_flash_loan_request;
+use crate::{logging::format_log, schedule::build_flash_loan_request};
 use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 use tracing::info;
-
-use crate::state::RequestState;
 
 mod adaptors;
 mod app;
 mod cellar_call;
 mod lifecycle;
+mod logging;
 mod schedule;
 mod sommelier;
 mod state;
@@ -184,20 +182,7 @@ fn main() {
         .manage(state::Requests::new())
         .plugin(
             tauri_plugin_log::Builder::default()
-                .format(|out, message, record| {
-                    let mut key_values = KVVisitor::default();
-
-                    record.key_values().visit(&mut key_values).unwrap();
-
-                    out.finish(format_args!(
-                        "[{}] [{}] [{}] {} {}",
-                        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
-                        record.target(),
-                        record.level(),
-                        message,
-                        key_values,
-                    ))
-                })
+                .format(format_log)
                 .targets([LogTarget::Stdout])
                 .level(log::LevelFilter::Info)
                 .level_for("app", log::LevelFilter::Trace)
@@ -210,26 +195,4 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[derive(Debug, Default)]
-struct KVVisitor {
-    pub map: HashMap<String, String>,
-}
-
-impl std::fmt::Display for KVVisitor {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.map)
-    }
-}
-
-impl<'kvs> log::kv::VisitSource<'kvs> for KVVisitor {
-    fn visit_pair(
-        &mut self,
-        key: log::kv::Key<'kvs>,
-        value: log::kv::Value<'kvs>,
-    ) -> Result<(), log::kv::Error> {
-        self.map.insert(key.to_string(), value.to_string());
-        Ok(())
-    }
 }

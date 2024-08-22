@@ -592,6 +592,7 @@ dependencies = [
  "chrono",
  "env_logger 0.11.3",
  "eyre",
+ "fern",
  "futures",
  "gravity_proto",
  "lazy_static",
