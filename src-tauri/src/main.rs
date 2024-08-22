@@ -1,15 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fmt::Pointer, str::FromStr};
+use std::{collections::HashMap, fmt::Pointer, str::FromStr};
 
 use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
-use log::trace;
+use log::{kv::Visitor, trace};
 use schedule::{build_request, validate_calls};
 
+use crate::schedule::build_flash_loan_request;
 use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 use tracing::info;
@@ -39,13 +40,22 @@ fn schedule_request(
     block_height: String,
     chain_id: String,
     deadline: String,
+    flash_loan_call: Option<CellarCall>,
     queue: Vec<CellarCall>,
 ) -> Result<(), String> {
+    let queue_log = queue
+        .clone()
+        .iter()
+        .map(|c| c.to_string())
+        .collect::<Vec<String>>()
+        .join(", ");
     log::trace!(
         cellar_id = cellar_id.as_str(),
         block_height = block_height.as_str(),
         chain_id = chain_id.as_str(),
-        deadline = deadline.as_str();
+        deadline = deadline.as_str(),
+        queue = queue_log.as_str(),
+        flash_loan_call = flash_loan_call.is_some();
         "entered schedule_request handler"
     );
 
@@ -76,6 +86,33 @@ fn schedule_request(
         log::error!("error validating calls: {:?}", err);
         return Err(err.to_string());
     }
+
+    if let Some(flash_loan_call) = flash_loan_call {
+        if flash_loan_call.adaptor.is_empty() {
+            return Err(String::from("adaptor id is empty"));
+        }
+
+        if Address::from_str(&flash_loan_call.adaptor).is_err() {
+            return Err(String::from("invalid adaptor address"));
+        }
+
+        let request = build_flash_loan_request(
+            cellar_id,
+            block_height,
+            chain_id,
+            deadline,
+            flash_loan_call,
+            queue,
+        )
+        .map_err(|e| e.to_string())?;
+
+        println!("request: {:?}", request);
+
+        //schedule::handle(request);
+
+        return Ok(());
+    }
+    println!("Flashloan false!");
 
     log::trace!("building request");
 
@@ -147,6 +184,20 @@ fn main() {
         .manage(state::Requests::new())
         .plugin(
             tauri_plugin_log::Builder::default()
+                .format(|out, message, record| {
+                    let mut key_values = KVVisitor::default();
+
+                    record.key_values().visit(&mut key_values).unwrap();
+
+                    out.finish(format_args!(
+                        "[{}] [{}] [{}] {} {}",
+                        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+                        record.target(),
+                        record.level(),
+                        message,
+                        key_values,
+                    ))
+                })
                 .targets([LogTarget::Stdout])
                 .level(log::LevelFilter::Info)
                 .level_for("app", log::LevelFilter::Trace)
@@ -159,4 +210,26 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[derive(Debug, Default)]
+struct KVVisitor {
+    pub map: HashMap<String, String>,
+}
+
+impl std::fmt::Display for KVVisitor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.map)
+    }
+}
+
+impl<'kvs> log::kv::VisitSource<'kvs> for KVVisitor {
+    fn visit_pair(
+        &mut self,
+        key: log::kv::Key<'kvs>,
+        value: log::kv::Value<'kvs>,
+    ) -> Result<(), log::kv::Error> {
+        self.map.insert(key.to_string(), value.to_string());
+        Ok(())
+    }
 }

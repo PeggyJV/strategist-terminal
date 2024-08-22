@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { queue } from "$stores/AdapterQueue";
+    import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "../components/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
     import type { Request } from "./requests/Requests.svelte"
@@ -18,17 +18,26 @@
         modalVisible = !modalVisible;
     }
 
-    async function scheduleRequest() {
+    function handleSchedule() {
+        let firstCall = $queue[0].name;
+        if (firstCall === "AaveV3DebtTokenV1FlashLoan") {
+            scheduleFlashLoanCall();
+        } else {
+            scheduleAdaptorCall();
+        }
+    }
+
+    async function scheduleAdaptorCall() {
         let calls = $queue.map((call) => call.json_fields());
 
         const deadlineDate = new Date(deadline);
-        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || "";
+        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
 
         const result = await invoke("schedule_request", {
             cellarId: cellar.ADDRESS,
             blockHeight: blockHeight,
             chainId: cellar.CHAIN.chainId,
-            deadline: deadlineUnixTimestamp,
+            deadline: deadlineUnixTimestamp.toString(),
             queue: calls,
         }).then(result => {
             console.log('Schedule successful', result);
@@ -41,7 +50,34 @@
         // TODO: Create a request object from the result
     }
 
+    async function scheduleFlashLoanCall() {
+        let calls = $queue.map((call) => call.json_fields());
+        let params = $flashLoanCalls.map((call) => call.json_fields());
+
+        const deadlineDate = new Date(deadline);
+        const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
+
+        const result = await invoke("schedule_request", {
+            cellarId: cellar.ADDRESS,
+            blockHeight: blockHeight,
+            chainId: cellar.CHAIN.chainId,
+            deadline: deadlineUnixTimestamp.toString(),
+            flashLoanCall: calls[0],
+            queue: params,
+        }).then(result => {
+            console.log('Schedule successful', result);
+            toggleModal();
+        }).catch((error) => {
+            console.error(error);
+            toggleModal();
+        });
+        queue.set([]);
+        // TODO: Create a request object from the result
+    }
+
     $: isButtonEnabled = blockHeight.trim().length > 0
+      && $queue.length > 0
+      && !isNaN(parseInt(blockHeight))
 </script>
 
 <h1 class="text-2xl font-bold mb-4">Schedule Request</h1>
@@ -59,16 +95,16 @@
     <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
 </div>
 
-{#if cellar.CHAIN !== Chains.ETHEREUM}
+<!--{#if cellar.CHAIN !== Chains.ETHEREUM}-->
     <div class="mb-4">
         <label for="deadline" class="block mb-1">Deadline:</label>
         <input type="datetime-local" id="deadline" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={deadline} placeholder="Enter Deadline"/>
     </div>
-{/if}
+<!--{/if}-->
 
 <div class="relative">
     <button
-      on:click={scheduleRequest}
+      on:click={handleSchedule}
       disabled={!isButtonEnabled}
       on:focus={() => { if (!isButtonEnabled) showTooltip = true }}
       on:blur={() => { if (!isButtonEnabled) showTooltip = false }}

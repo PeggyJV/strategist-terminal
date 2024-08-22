@@ -5,15 +5,25 @@ use eyre::{bail, Result};
 use futures::StreamExt;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
-    contract_call_service_client::ContractCallServiceClient, ScheduleRequest, ScheduleResponse,
+    aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
+    balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
+    contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
+    ScheduleResponse,
 };
 use tauri::{async_runtime::Sender, Manager};
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, error, info};
 
+use crate::adaptors::{
+    get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call,
+    Adaptors,
+};
 use crate::{
     app::{self, get_channel, AppContext},
-    cellar_call::{construct_call_data, CellarCall},
+    cellar_call::{
+        construct_call_data, convert_to_aave_v3_flash_loan_adaptor,
+        convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
+    },
     lifecycle,
     state::{RequestState, RequestStatus, Requests},
 };
@@ -58,13 +68,66 @@ pub(crate) fn build_request(
     })
 }
 
+pub(crate) fn build_flash_loan_request(
+    cellar_id: String,
+    block_height: u64,
+    chain_id: u64,
+    deadline: u64,
+    flash_loan_call: CellarCall,
+    queue: Vec<CellarCall>,
+) -> Result<ScheduleRequest> {
+    let adaptor_calls: Vec<AdaptorCall> = queue
+        .into_iter()
+        .map(|call| call.to_adaptor_call())
+        .collect::<Result<_>>()?;
+
+    let flash_loan_adaptor_call = match flash_loan_call.name {
+        Adaptors::AaveV3DebtTokenV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_aave_v3_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForAaveV3FlashLoan>>>()?;
+
+            get_aave_v3_debt_token_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        }
+        Adaptors::BalancerPoolV1FlashLoan => {
+            let adaptor_calls_for_flash_loan = adaptor_calls
+                .into_iter()
+                .map(|call| convert_to_balancer_pool_flash_loan_adaptor(&call))
+                .collect::<Result<Vec<AdaptorCallForBalancerPoolFlashLoan>>>()?;
+
+            get_balancer_pool_flash_loan_adaptor_call(
+                &flash_loan_call.adaptor,
+                &flash_loan_call.fields,
+                adaptor_calls_for_flash_loan,
+            )
+        }
+        _ => unreachable!("Unsupported flash loan variant encountered"),
+    }?;
+
+    let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
+
+    let call_data = Some(construct_call_data(flash_loan_adaptor_call));
+
+    Ok(ScheduleRequest {
+        cellar_id,
+        chain_id,
+        block_height,
+        deadline,
+        call_data,
+    })
+}
+
 /// Handles submitting and tracking the request
 pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandle) -> Result<()> {
     let app_context = app::get_app_context().await;
     let request_state = RequestState::new();
     let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
     let chain_id = request.chain_id;
-
     let trace_id = request_state.id.to_string();
     let trace_id = trace_id.as_str();
     log::trace!(id = trace_id, chain_id; "handling request");

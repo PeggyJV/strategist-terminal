@@ -3,6 +3,8 @@ use std::{fmt::write, marker::PhantomData};
 use eyre::Result;
 use log::kv::ToValue;
 use serde::{Deserialize, Serialize};
+use steward_proto::proto::aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan;
+use steward_proto::proto::balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan;
 use steward_proto::proto::*;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -32,8 +34,8 @@ pub(crate) enum Adaptors {
     LegacyCellarV1,
     DebtFTokenV1,
     CollateralFTokenV1,
-    // AaveV3DebtTokenV1FlashLoan,
-    // BalancerPoolV1FlashLoan,
+    AaveV3DebtTokenV1FlashLoan,
+    BalancerPoolV1FlashLoan,
     ConvexCurveV1,
     CurveV1,
     AuraErc4626V1,
@@ -77,8 +79,8 @@ impl std::fmt::Display for Adaptors {
             Adaptors::LegacyCellarV1 => write!(f, "LegacyCellarV1"),
             Adaptors::DebtFTokenV1 => write!(f, "DebtFTokenV1"),
             Adaptors::CollateralFTokenV1 => write!(f, "CollateralFTokenV1"),
-            // Adaptors::AaveV3DebtTokenV1FlashLoan => write!(f, "AaveV3DebtTokenV1FlashLoan"),
-            // Adaptors::BalancerPoolV1FlashLoan => write!(f, "BalancerPoolV1FlashLoan"),
+            Adaptors::AaveV3DebtTokenV1FlashLoan => write!(f, "AaveV3DebtTokenV1FlashLoan"),
+            Adaptors::BalancerPoolV1FlashLoan => write!(f, "BalancerPoolV1FlashLoan"),
             Adaptors::ConvexCurveV1 => write!(f, "ConvexCurveV1"),
             Adaptors::CurveV1 => write!(f, "CurveV1"),
             Adaptors::AuraErc4626V1 => write!(f, "AuraErc4626V1"),
@@ -92,9 +94,9 @@ impl std::fmt::Display for Adaptors {
     }
 }
 
-impl<'s> ToValue for &'s Adaptors {
-    fn to_value(&self) -> log::kv::Value<'s> {
-        log::kv::Value::from_display(&self.to_string())
+impl ToValue for Adaptors {
+    fn to_value(&self) -> log::kv::Value<'_> {
+        log::kv::Value::from_serde(self)
     }
 }
 
@@ -488,39 +490,50 @@ pub(crate) fn get_collateral_f_token_adaptor_call(
     Ok(adaptor_call)
 }
 
-//pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
-//    adaptor: &str,
-//    fields: &str,
-//) -> Result<AdaptorCall> {
-//    let function = serde_json::from_str::<aave_v3_debt_token_v1::Function>(fields)?;
-//    let call = AaveV3DebtTokenV1FlashLoan {
-//        function: Some(function),
-//    };
-//    let calls = AaveV3DebtTokenV1FlashLoanCalls { calls: vec![call] };
-//    let adaptor_call = AdaptorCall {
-//        adaptor: adaptor.to_owned(),
-//        call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls)),
-//    };
-//
-//    Ok(adaptor_call)
-//}
-//
-//pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
-//    adaptor: &str,
-//    fields: &str,
-//) -> Result<AdaptorCall> {
-//    let function = serde_json::from_str::<balancer_pool_adaptor_v1::Function>(fields)?;
-//    let call = BalancerPoolV1FlashLoan {
-//        function: Some(function),
-//    };
-//    let calls = BalancerPoolV1FlashLoanCalls { calls: vec![call] };
-//    let adaptor_call = AdaptorCall {
-//        adaptor: adaptor.to_owned(),
-//        call_data: Some(adaptor_call::CallData::BalancerPoolV1FlashLoanCalls(calls)),
-//    };
-//
-//    Ok(adaptor_call)
-//}
+pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
+    adaptor: &str,
+    fields: &str,
+    params: Vec<AdaptorCallForAaveV3FlashLoan>,
+) -> Result<AdaptorCall> {
+    let mut function =
+        serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
+    function.params = params;
+
+    let call = AaveV3DebtTokenAdaptorV1FlashLoan {
+        flash_loan: Some(function),
+    };
+    let calls = AaveV3DebtTokenAdaptorV1FlashLoanCalls { calls: vec![call] };
+
+    let adaptor_call = AdaptorCall {
+        adaptor: adaptor.to_owned(),
+        call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(
+            calls,
+        )),
+    };
+
+    Ok(adaptor_call)
+}
+
+pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
+    adaptor: &str,
+    fields: &str,
+    params: Vec<AdaptorCallForBalancerPoolFlashLoan>,
+) -> Result<AdaptorCall> {
+    let mut function =
+        serde_json::from_str::<balancer_pool_adaptor_v1_flash_loan::MakeFlashLoan>(fields)?;
+    function.data = params;
+
+    let call = BalancerPoolAdaptorV1FlashLoan {
+        make_flash_loan: Some(function),
+    };
+    let calls = BalancerPoolAdaptorV1FlashLoanCalls { calls: vec![call] };
+    let adaptor_call = AdaptorCall {
+        adaptor: adaptor.to_owned(),
+        call_data: Some(adaptor_call::CallData::BalancerPoolV1FlashLoanCalls(calls)),
+    };
+
+    Ok(adaptor_call)
+}
 
 pub(crate) fn get_convex_curve_adaptor_call(adaptor: &str, fields: &str) -> Result<AdaptorCall> {
     let function = serde_json::from_str::<convex_curve_adaptor_v1::Function>(fields)?;
