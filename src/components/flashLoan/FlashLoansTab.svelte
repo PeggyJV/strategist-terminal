@@ -10,6 +10,13 @@
   let tokens = "";
   let amounts = "";
 
+  enum FlashLoans {
+    AaveV3DebtTokenV1FlashLoan,
+    BalancerPoolV1FlashLoan,
+  }
+
+  let selectedFlashLoan: FlashLoans = FlashLoans.AaveV3DebtTokenV1FlashLoan;
+
   function openAdaptorSelection() {
     adaptorSelectionOpen = true;
     addCallBtnVisible = false;
@@ -30,13 +37,25 @@
     const cTokens = convertToArray(tokens);
     const cAmounts = convertToArray(amounts);
 
+    let cellarCall: CellarCall;
+
+    if (selectedFlashLoan === FlashLoans.AaveV3DebtTokenV1FlashLoan) {
+      cellarCall = new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
+        loan_tokens: cTokens,
+        loan_amounts: cAmounts,
+        params: []
+      });
+    } else {
+      cellarCall = new CellarCall(adaptorAddress, "BalancerPoolV1FlashLoan", {
+        tokens: cTokens,
+        amounts: cAmounts,
+        data: []
+      });
+    }
+
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
-          loan_tokens: cTokens,
-          loan_amounts: cAmounts,
-          params: []
-        })
+        cellarCall
       );
       return callQueue;
     });
@@ -59,6 +78,19 @@
 <div class="prose">
   <div class="flex justify-center">
     <h1>Flash Loans</h1>
+  </div>
+
+  <div class="flex flex-row">
+    <button
+      on:click={() => selectedFlashLoan = FlashLoans.AaveV3DebtTokenV1FlashLoan}
+      value="AaveV3DebtTokenV1FlashLoan"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {selectedFlashLoan === FlashLoans.AaveV3DebtTokenV1FlashLoan ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >AaveV3DebtTokenV1FlashLoan</button>
+    <button
+      on:click={() => selectedFlashLoan = FlashLoans.BalancerPoolV1FlashLoan}
+      value="BalancerPoolV1FlashLoan"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {selectedFlashLoan === FlashLoans.BalancerPoolV1FlashLoan ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >BalancerPoolV1FlashLoan</button>
   </div>
 
   <label for="adaptorAddress">FlashLoan Adaptor address:</label>
@@ -134,4 +166,4 @@
   on:click={requestFlashLoan}
   type="button"
   class="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 m-5 text-xl"
->Loan</button>
+>Add to queue</button>

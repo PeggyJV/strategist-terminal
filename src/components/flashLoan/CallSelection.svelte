@@ -50,6 +50,14 @@
 {/if}
 
 {#if selectedCall}
+
+  <label for="adaptorAddress">{adaptor.name} Adaptor address:</label>
+  <input
+    bind:value={adaptor.address}
+    id="adaptorAddress"
+    class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+  />
+
   <h2>{selectedCall.function}</h2>
 
   {#each selectedCall.fields as field}

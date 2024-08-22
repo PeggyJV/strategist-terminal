@@ -20,7 +20,8 @@
 
     function handleSchedule() {
         let firstCall = $queue[0].name;
-        if (firstCall === "AaveV3DebtTokenV1FlashLoan") {
+        if (firstCall === "AaveV3DebtTokenV1FlashLoan"
+          || firstCall === "BalancerPoolV1FlashLoan") {
             scheduleFlashLoanCall();
         } else {
             scheduleAdaptorCall();
