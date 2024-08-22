@@ -83,7 +83,6 @@ fn schedule_request(
 
         return Ok(());
     }
-    println!("Flashloan false!");
 
     let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
         .map_err(|e| e.to_string())?;
