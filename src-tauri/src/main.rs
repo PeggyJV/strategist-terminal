@@ -7,7 +7,9 @@ use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
+use futures::executor::block_on;
 use schedule::{build_request, validate_calls};
+use steward::{__cmd__steward_versions, refresh_steward_versions_thread};
 
 use crate::{logging::format_log, schedule::build_flash_loan_request};
 use tauri::Manager;
@@ -176,10 +178,19 @@ fn configure(
     })
 }
 
+#[tauri::command]
+fn steward_versions(app_handle: tauri::AppHandle) -> HashMap<String, String> {
+    let state_future = app_handle.state::<state::Stewards>().0.lock();
+    let state = futures::executor::block_on(state_future);
+
+    state.clone().versions
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(state::Sommelier::new())
         .manage(state::Requests::new())
+        .manage(state::Stewards::new())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .format(format_log)
@@ -191,7 +202,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             version,
             schedule_request,
-            configure
+            steward_versions,
+            configure,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

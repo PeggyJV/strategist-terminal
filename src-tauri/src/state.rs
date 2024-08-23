@@ -147,3 +147,21 @@ impl Sommelier {
         Self(Arc::new(Mutex::new(SommelierState::default())))
     }
 }
+
+/// Represents state info the Steward instances
+#[derive(Clone, Debug, Default)]
+pub struct StewardState {
+    /// Steward versions
+    pub versions: HashMap<String, String>,
+}
+
+/// Wrapper of the state info for Steward instances
+#[derive(Clone, Debug, Default)]
+pub struct Stewards(pub Arc<Mutex<StewardState>>);
+
+impl Stewards {
+    /// Creates a new Steward state
+    pub fn new() -> Self {
+        Self(Arc::new(Mutex::new(StewardState::default())))
+    }
+}
