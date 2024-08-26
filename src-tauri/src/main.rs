@@ -1,13 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, fmt::Pointer, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 
 use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
-use futures::executor::block_on;
+
 use schedule::{build_request, validate_calls};
 use steward::refresh_steward_versions_thread;
 

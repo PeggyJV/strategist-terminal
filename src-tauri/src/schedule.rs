@@ -10,9 +10,9 @@ use steward_proto::proto::{
     contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
     ScheduleResponse,
 };
-use tauri::{async_runtime::Sender, Manager};
+use tauri::{async_runtime::Sender};
 use tonic::transport::{Channel, Identity};
-use tracing::{debug, error, info};
+use tracing::{debug, info};
 
 use crate::adaptors::{
     get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call,
@@ -25,7 +25,7 @@ use crate::{
         convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
     },
     lifecycle,
-    state::{RequestState, RequestStatus, Requests},
+    state::{RequestState, RequestStatus},
 };
 
 pub(crate) fn validate_calls(calls: &Vec<CellarCall>) -> Result<()> {
@@ -142,10 +142,10 @@ pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandl
     // Broadcast the request to all subscribers
     tx.send(RequestStatus::Broadcasting).await?;
 
-    let height = request.block_height;
+    let _height = request.block_height;
     let request_status =
         broadcast_schedule_request(trace_id, &app_context, tx.clone(), request).await?;
-    let (cork_id, invalidation_scope) = match request_status {
+    let (_cork_id, _invalidation_scope) = match request_status {
         RequestStatus::FailedBroadcast => {
             log::warn!(id = trace_id; "broadcast failed");
 
