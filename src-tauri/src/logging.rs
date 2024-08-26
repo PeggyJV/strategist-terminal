@@ -9,6 +9,7 @@ pub(crate) struct KVVisitor {
     pub map: HashMap<String, String>,
 }
 
+// Implement the `Display` trait for the `KVVisitor` struct in order to print the key-value pairs
 impl std::fmt::Display for KVVisitor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut lines = Vec::<String>::new();

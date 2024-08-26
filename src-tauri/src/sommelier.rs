@@ -10,8 +10,8 @@ pub async fn sync_block_height(app_handle: tauri::AppHandle, rpc_endpoint: Strin
         if let Err(err) = refresh_block_height(app_handle.clone(), &rpc_endpoint).await {
             log::error!("failed to refresh block height: {}", err);
         }
-
-        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+            
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     }
 }
 
@@ -19,7 +19,16 @@ pub async fn sync_block_height(app_handle: tauri::AppHandle, rpc_endpoint: Strin
 async fn refresh_block_height(app_handle: tauri::AppHandle, rpc_endpoint: &str) -> Result<()> {
     log::debug!("getting latest block height");
 
-    let client = HttpClient::new(rpc_endpoint)?;
+    let client = loop {
+        match HttpClient::new(rpc_endpoint) {
+            Ok(client) => break client,
+            Err(err) => {
+                log::error!("failed to create RPC client: {}", err);
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+            }
+        }
+    };
+
     let block_height = client.abci_info().await?.last_block_height.value();
     let sommelier_state = app_handle.state::<state::Sommelier>();
     let mut sommelier_state = sommelier_state.0.lock().await;

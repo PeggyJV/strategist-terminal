@@ -25,13 +25,6 @@ mod schedule;
 mod sommelier;
 mod state;
 mod steward;
-mod version;
-
-#[tauri::command]
-fn version() {
-    // TODO: return results to frontend
-    version::handle();
-}
 
 #[tauri::command]
 fn schedule_request(
@@ -201,7 +194,6 @@ fn main() {
                 .build(),
         )
         .invoke_handler(tauri::generate_handler![
-            version,
             schedule_request,
             steward_versions,
             configure,
