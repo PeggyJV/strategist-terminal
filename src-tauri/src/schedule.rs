@@ -212,7 +212,7 @@ async fn broadcast_schedule_request(
     // Extract the cork ID from one of the successful responses.
     // If there were no successful responses this iterator has length zero and nothing happens,
     // resulting in a failed broadcast.
-    for (cid, is) in result.into_iter().flatten().flatten() {
+    if let Some((cid, is)) = result.into_iter().flatten().flatten().next() {
         tx.send(RequestStatus::AwaitingVote((cid.clone(), is.clone())))
             .await?;
         return Ok(RequestStatus::AwaitingVote((cid.clone(), is.clone())));
