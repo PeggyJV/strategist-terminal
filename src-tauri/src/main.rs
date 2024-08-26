@@ -9,7 +9,7 @@ use app::AppConfig;
 use cellar_call::CellarCall;
 use futures::executor::block_on;
 use schedule::{build_request, validate_calls};
-use steward::{__cmd__steward_versions, refresh_steward_versions_thread};
+use steward::refresh_steward_versions_thread;
 
 use crate::{logging::format_log, schedule::build_flash_loan_request};
 use tauri::Manager;
@@ -180,7 +180,8 @@ fn configure(
 
 #[tauri::command]
 fn steward_versions(app_handle: tauri::AppHandle) -> HashMap<String, String> {
-    let state_future = app_handle.state::<state::Stewards>().0.lock();
+    let state = app_handle.state::<state::Stewards>();
+    let state_future = state.0.lock();
     let state = futures::executor::block_on(state_future);
 
     state.clone().versions
@@ -205,6 +206,14 @@ fn main() {
             steward_versions,
             configure,
         ])
+        .setup(|app| {
+            let app_handle = app.handle();
+
+            // Monitor subscribers' Steward versions
+            tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle));
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
