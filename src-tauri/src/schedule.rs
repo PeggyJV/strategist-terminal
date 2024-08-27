@@ -10,7 +10,7 @@ use steward_proto::proto::{
     contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
     ScheduleResponse,
 };
-use tauri::{async_runtime::Sender};
+use tauri::async_runtime::Sender;
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, info};
 

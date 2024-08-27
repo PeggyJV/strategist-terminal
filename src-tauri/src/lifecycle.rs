@@ -16,9 +16,8 @@ pub async fn track_request(
     request: RequestState,
     mut status_rx: Receiver<RequestStatus>,
 ) -> Result<()> {
-    let id = request.id;
-    let trace_id = id.to_string();
-    let trace_id = trace_id.as_str();
+    let id = request.id.clone();
+    let trace_id = id.as_str();
     let requests = app_handle.state::<Requests>();
 
     log::info!(id = trace_id, status = &request.status; "tracking request");
@@ -31,7 +30,7 @@ pub async fn track_request(
         // Handle any state updates included in the status
         match &status {
             RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => {
-                requests.entry(id).and_modify(|r| {
+                requests.entry(id.clone()).and_modify(|r| {
                     r.cork_id = Some(cork_id.to_owned());
                     r.invalidate_scope = Some(invalidation_scope.to_owned());
                 });
@@ -40,21 +39,21 @@ pub async fn track_request(
             }
             RequestStatus::AwaitingRelay(somm_tx_hash) => {
                 requests
-                    .entry(id)
+                    .entry(id.clone())
                     .and_modify(|r| r.relay_request_tx_hash = somm_tx_hash.to_owned());
 
                 log::info!(id = trace_id, status = &RequestStatus::AwaitingRelay(somm_tx_hash.to_owned()); "request is awaiting relay");
             }
             RequestStatus::Relayed(gmp_tx_hash) => {
                 requests
-                    .entry(id)
+                    .entry(id.clone())
                     .and_modify(|r| r.gmp_tx_hash = Some(gmp_tx_hash.to_owned()));
 
                 log::info!(id = trace_id, status = &RequestStatus::Relayed(gmp_tx_hash.to_owned()); "request is relayed");
             }
             RequestStatus::FailedExecution(tx_hash) | RequestStatus::Success(tx_hash) => {
                 requests
-                    .entry(id)
+                    .entry(id.clone())
                     .and_modify(|r| r.target_tx_hash = Some(tx_hash.to_owned()));
 
                 log::info!(id = trace_id, status = &RequestStatus::FailedExecution(tx_hash.to_owned()); "request failed execution");
@@ -66,7 +65,7 @@ pub async fn track_request(
 
         // Update the request state
         requests
-            .entry(id)
+            .entry(id.clone())
             .and_modify(|r| r.status = status.to_owned());
     }
 

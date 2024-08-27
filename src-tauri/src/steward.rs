@@ -1,4 +1,3 @@
-use eyre::Result;
 use tauri::Manager;
 
 use crate::{
@@ -12,35 +11,38 @@ pub(crate) struct StewardVersion {
 }
 
 /// Queries all subscriber endpoints for their Steward verions
-pub(crate) async fn get_all_steward_versions(
-    app_context: &AppContext,
-) -> Vec<StewardVersion> {
+pub(crate) async fn get_all_steward_versions(app_context: &AppContext) -> Vec<StewardVersion> {
     let Some(subscribers) = &app_context.subscribers else {
         log::error!("no subscribers found when attempting to query steward versions");
         return vec![];
     };
 
     futures::future::join_all(
-        subscribers.iter().map(|s| get_steward_version(s.push_url.clone()))
-    ).await
+        subscribers
+            .iter()
+            .map(|s| get_steward_version(s.push_url.clone())),
+    )
+    .await
 }
 
 /// Queries the provided subscriber endpoint for it's Steward version
 pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion {
-    let mut client = match steward_proto::proto::status_service_client::StatusServiceClient::connect(
-        grpc_endpoint.clone(),
-    )
-    .await {
-        Ok(client) => client,
-        Err(e) => {
-            log::error!(message = e.to_string(), push_url = grpc_endpoint.as_str(); "failed to connect to steward");
+    let mut client =
+        match steward_proto::proto::status_service_client::StatusServiceClient::connect(
+            grpc_endpoint.clone(),
+        )
+        .await
+        {
+            Ok(client) => client,
+            Err(e) => {
+                log::error!(message = e.to_string(), push_url = grpc_endpoint.as_str(); "failed to connect to steward");
 
-            return StewardVersion {
-                endpoint: grpc_endpoint,
-                version: None,
-            };
-        }
-    };
+                return StewardVersion {
+                    endpoint: grpc_endpoint,
+                    version: None,
+                };
+            }
+        };
     let request = tonic::Request::new(steward_proto::proto::VersionRequest {});
 
     log::debug!(push_url = grpc_endpoint.as_str(); "getting steward version");
@@ -78,7 +80,12 @@ pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
     let mut state = state.0.lock().await;
     state.versions = versions
         .into_iter()
-        .map(|v| (v.endpoint, v.version.unwrap_or_else(|| "unavailable".to_string())))
+        .map(|v| {
+            (
+                v.endpoint,
+                v.version.unwrap_or_else(|| "unavailable".to_string()),
+            )
+        })
         .collect();
 
     log::debug!("refreshed steward versions: {:?}", state.versions);

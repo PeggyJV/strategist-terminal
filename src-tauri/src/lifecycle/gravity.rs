@@ -1,4 +1,4 @@
-use alloy::{hex};
+use alloy::hex;
 use eyre::{bail, Result};
 use tauri::async_runtime::Sender;
 

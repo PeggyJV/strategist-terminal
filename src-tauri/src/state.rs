@@ -1,13 +1,14 @@
 use std::{collections::HashMap, sync::Arc};
 
 use log::kv::ToValue;
+use serde::{Deserialize, Serialize};
 use steward_proto::proto::ScheduleRequest;
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
 /// Represents the state of all requests
 #[derive(Clone, Debug, Default)]
-pub struct Requests(pub Arc<Mutex<HashMap<Uuid, RequestState>>>);
+pub struct Requests(pub Arc<Mutex<HashMap<String, RequestState>>>);
 
 impl Requests {
     /// Creates a new requests state
@@ -17,15 +18,15 @@ impl Requests {
 
     /// Adds a request to the state
     pub async fn add(&self, request: RequestState) {
-        self.0.lock().await.insert(request.id, request);
+        self.0.lock().await.insert(request.id.clone(), request);
     }
 }
 
 /// Represents the state of a particular request
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct RequestState {
     /// Request ID
-    pub id: Uuid,
+    pub id: String,
     /// The tracked [`ScheduleRequest`]
     pub request: ScheduleRequest,
     /// The current state in the request lifecycle
@@ -50,14 +51,14 @@ impl RequestState {
         let id = Uuid::new_v4();
 
         Self {
-            id,
+            id: id.to_string(),
             ..Default::default()
         }
     }
 }
 
 /// Represents the status of the request in its lifecycle
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub enum RequestStatus {
     /// The request has been created but not broadcast
     #[default]

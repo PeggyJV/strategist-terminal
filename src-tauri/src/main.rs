@@ -9,6 +9,7 @@ use app::AppConfig;
 use cellar_call::CellarCall;
 
 use schedule::{build_request, validate_calls};
+use state::RequestState;
 use steward::refresh_steward_versions_thread;
 
 use crate::{logging::format_log, schedule::build_flash_loan_request};
@@ -172,6 +173,19 @@ fn configure(
 }
 
 #[tauri::command]
+fn request_state(app_handle: tauri::AppHandle) -> String {
+    let state = app_handle.state::<state::Requests>();
+    let state_future = state.0.lock();
+    let state = futures::executor::block_on(state_future);
+    let requests = state
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.clone()))
+        .collect::<HashMap<String, RequestState>>();
+
+    serde_json::to_string(&requests).unwrap()
+}
+
+#[tauri::command]
 fn steward_versions(app_handle: tauri::AppHandle) -> HashMap<String, String> {
     let state = app_handle.state::<state::Stewards>();
     let state_future = state.0.lock();
@@ -197,6 +211,7 @@ fn main() {
             schedule_request,
             steward_versions,
             configure,
+            request_state,
         ])
         .setup(|app| {
             let app_handle = app.handle();

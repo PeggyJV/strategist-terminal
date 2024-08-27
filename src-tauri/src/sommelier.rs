@@ -10,7 +10,7 @@ pub async fn sync_block_height(app_handle: tauri::AppHandle, rpc_endpoint: Strin
         if let Err(err) = refresh_block_height(app_handle.clone(), &rpc_endpoint).await {
             log::error!("failed to refresh block height: {}", err);
         }
-            
+
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     }
 }
