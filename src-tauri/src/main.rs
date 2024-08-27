@@ -1,31 +1,35 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use alloy_primitives::Address;
 use app::AppConfig;
 
 use cellar_call::CellarCall;
-use schedule::{build_request, validate_calls, ScheduleRequestData};
 
+use schedule::{build_request, validate_calls};
+use state::RequestState;
+use steward::refresh_steward_versions_thread;
+
+use crate::{logging::format_log, schedule::build_flash_loan_request};
+use tauri::Manager;
+use tauri_plugin_log::LogTarget;
 use tracing::info;
-use crate::schedule::build_flash_loan_request;
 
 mod adaptors;
 mod app;
 mod cellar_call;
+mod lifecycle;
+mod logging;
 mod schedule;
-mod version;
-
-#[tauri::command]
-fn version() {
-    // TODO: return results to frontend
-    version::handle();
-}
+mod sommelier;
+mod state;
+mod steward;
 
 #[tauri::command]
 fn schedule_request(
+    app_handle: tauri::AppHandle,
     cellar_id: String,
     block_height: String,
     chain_id: String,
@@ -33,13 +37,21 @@ fn schedule_request(
     flash_loan_call: Option<CellarCall>,
     queue: Vec<CellarCall>,
 ) -> Result<(), String> {
-    // print all of the arguments
-    println!("cellar_id: {}", cellar_id);
-    println!("block_height: {}", block_height);
-    println!("chain_id: {}", chain_id);
-    println!("deadline: {}", deadline);
-    println!("queue: {:?}", queue);
-    println!("flash_loan_call: {:?}", flash_loan_call);
+    let queue_log = queue
+        .clone()
+        .iter()
+        .map(|c| c.to_string())
+        .collect::<Vec<String>>()
+        .join(", ");
+    log::trace!(
+        cellar_id = cellar_id.as_str(),
+        block_height = block_height.as_str(),
+        chain_id = chain_id.as_str(),
+        deadline = deadline.as_str(),
+        queue = queue_log.as_str(),
+        flash_loan_call = flash_loan_call.is_some();
+        "entered schedule_request handler"
+    );
 
     // parse block_height, chain_id, and deadline as u64
     let block_height = block_height.parse::<u64>().map_err(|e| e.to_string())?;
@@ -62,10 +74,14 @@ fn schedule_request(
         return Err(String::from("deadline cannot be zero"));
     }
 
-    validate_calls(&queue).map_err(|e| e.to_string())?;
+    log::trace!("validating calls");
+
+    if let Err(err) = validate_calls(&queue) {
+        log::error!("error validating calls: {:?}", err);
+        return Err(err.to_string());
+    }
 
     if let Some(flash_loan_call) = flash_loan_call {
-
         if flash_loan_call.adaptor.is_empty() {
             return Err(String::from("adaptor id is empty"));
         }
@@ -74,8 +90,15 @@ fn schedule_request(
             return Err(String::from("invalid adaptor address"));
         }
 
-        let request = build_flash_loan_request(cellar_id, block_height, chain_id, deadline,flash_loan_call, queue)
-            .map_err(|e| e.to_string())?;
+        let request = build_flash_loan_request(
+            cellar_id,
+            block_height,
+            chain_id,
+            deadline,
+            flash_loan_call,
+            queue,
+        )
+        .map_err(|e| e.to_string())?;
 
         println!("request: {:?}", request);
 
@@ -84,12 +107,19 @@ fn schedule_request(
         return Ok(());
     }
 
-    let request = build_request(cellar_id, block_height, chain_id, deadline, queue)
-        .map_err(|e| e.to_string())?;
+    log::trace!("building request");
 
-    //schedule::handle(request);
+    let request = match build_request(cellar_id, block_height, chain_id, deadline, queue) {
+        Ok(r) => r,
+        Err(e) => {
+            log::error!("error building request: {:?}", e);
+            return Err(e.to_string());
+        }
+    };
 
-    println!("request: {:?}", request);
+    log::trace!(request:?; "spawning request handler");
+
+    tokio::task::spawn(schedule::handle(request, app_handle));
 
     // TODO: return results to frontend
     Ok(())
@@ -97,13 +127,23 @@ fn schedule_request(
 
 #[tauri::command]
 fn configure(
+    app_handle: tauri::AppHandle,
     somm_node_rpc: &str,
+    somm_node_grpc: &str,
     publisher_domain: &str,
     client_cert_path: &str,
     client_cert_key_path: &str,
 ) -> String {
+    // Run the block sync thread. Doing this here because it requires a gRPC endpoint, would be
+    // nice if it worked at startup though.
+    tokio::task::spawn(sommelier::sync_block_height(
+        app_handle,
+        somm_node_rpc.to_string(),
+    ));
+
     let config = AppConfig {
-        grpc_endpoint: Some(somm_node_rpc.to_string()),
+        rpc_endpoint: Some(somm_node_rpc.to_string()),
+        grpc_endpoint: Some(somm_node_grpc.to_string()),
         publisher_domain: Some(publisher_domain.to_string()),
         client_cert_path: Some(client_cert_path.to_string()),
         client_cert_key_path: Some(client_cert_key_path.to_string()),
@@ -131,13 +171,55 @@ fn configure(
     })
 }
 
+#[tauri::command]
+fn request_state(app_handle: tauri::AppHandle) -> String {
+    let state = app_handle.state::<state::Requests>();
+    let state_future = state.0.lock();
+    let state = futures::executor::block_on(state_future);
+    let requests = state
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.clone()))
+        .collect::<HashMap<String, RequestState>>();
+
+    serde_json::to_string(&requests).unwrap()
+}
+
+#[tauri::command]
+fn steward_versions(app_handle: tauri::AppHandle) -> HashMap<String, String> {
+    let state = app_handle.state::<state::Stewards>();
+    let state_future = state.0.lock();
+    let state = futures::executor::block_on(state_future);
+
+    state.clone().versions
+}
+
 fn main() {
     tauri::Builder::default()
+        .manage(state::Sommelier::new())
+        .manage(state::Requests::new())
+        .manage(state::Stewards::new())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .format(format_log)
+                .targets([LogTarget::Stdout])
+                .level(log::LevelFilter::Info)
+                .level_for("app", log::LevelFilter::Trace)
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
-            version,
             schedule_request,
-            configure
+            steward_versions,
+            configure,
+            request_state,
         ])
+        .setup(|app| {
+            let app_handle = app.handle();
+
+            // Monitor subscribers' Steward versions
+            tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle));
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,10 +1,11 @@
 use eyre::Result;
-use serde::Deserialize;
-use steward_proto::proto::*;
+use log::kv::ToValue;
+use serde::{Deserialize, Serialize};
 use steward_proto::proto::aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan;
 use steward_proto::proto::balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan;
+use steward_proto::proto::*;
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub(crate) enum Adaptors {
     AaveATokenV1,
     AaveDebtTokenV1,
@@ -44,6 +45,57 @@ pub(crate) enum Adaptors {
     #[serde(untagged)]
     #[default]
     Invalid,
+}
+
+impl std::fmt::Display for Adaptors {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Adaptors::AaveATokenV1 => write!(f, "AaveATokenV1"),
+            Adaptors::AaveDebtTokenV1 => write!(f, "AaveDebtTokenV1"),
+            Adaptors::CompoundCTokenV2 => write!(f, "CompoundCTokenV2"),
+            Adaptors::AaveATokenV2 => write!(f, "AaveATokenV2"),
+            Adaptors::AaveDebtTokenV2 => write!(f, "AaveDebtTokenV2"),
+            Adaptors::AaveV3ATokenV1 => write!(f, "AaveV3ATokenV1"),
+            Adaptors::AaveV3DebtTokenV1 => write!(f, "AaveV3DebtTokenV1"),
+            Adaptors::OneInchV1 => write!(f, "OneInchV1"),
+            Adaptors::FeesAndReservesV1 => write!(f, "FeesAndReservesV1"),
+            Adaptors::ZeroXV1 => write!(f, "ZeroXV1"),
+            Adaptors::SwapWithUniswapV1 => write!(f, "SwapWithUniswapV1"),
+            Adaptors::VestingSimpleV2 => write!(f, "VestingSimpleV2"),
+            Adaptors::CellarV1 => write!(f, "CellarV1"),
+            Adaptors::UniswapV3V2 => write!(f, "UniswapV3V2"),
+            Adaptors::AaveV2EnableAssetAsCollateralV1 => {
+                write!(f, "AaveV2EnableAssetAsCollateralV1")
+            }
+            Adaptors::FTokenV1 => write!(f, "FTokenV1"),
+            Adaptors::MorphoAaveV2ATokenV1 => write!(f, "MorphoAaveV2ATokenV1"),
+            Adaptors::MorphoAaveV2DebtTokenV1 => write!(f, "MorphoAaveV2DebtTokenV1"),
+            Adaptors::MorphoAaveV3ATokenCollateralV1 => write!(f, "MorphoAaveV3ATokenCollateralV1"),
+            Adaptors::MorphoAaveV3ATokenP2pV1 => write!(f, "MorphoAaveV3ATokenP2pV1"),
+            Adaptors::MorphoAaveV3DebtTokenV1 => write!(f, "MorphoAaveV3DebtTokenV1"),
+            Adaptors::BalancerPoolV1 => write!(f, "BalancerPoolV1"),
+            Adaptors::LegacyCellarV1 => write!(f, "LegacyCellarV1"),
+            Adaptors::DebtFTokenV1 => write!(f, "DebtFTokenV1"),
+            Adaptors::CollateralFTokenV1 => write!(f, "CollateralFTokenV1"),
+            Adaptors::AaveV3DebtTokenV1FlashLoan => write!(f, "AaveV3DebtTokenV1FlashLoan"),
+            Adaptors::BalancerPoolV1FlashLoan => write!(f, "BalancerPoolV1FlashLoan"),
+            Adaptors::ConvexCurveV1 => write!(f, "ConvexCurveV1"),
+            Adaptors::CurveV1 => write!(f, "CurveV1"),
+            Adaptors::AuraErc4626V1 => write!(f, "AuraErc4626V1"),
+            Adaptors::MorphoBlueCollateralV1 => write!(f, "MorphoBlueCollateralV1"),
+            Adaptors::MorphoBlueDebtV1 => write!(f, "MorphoBlueDebtV1"),
+            Adaptors::MorphoBlueSupplyV1 => write!(f, "MorphoBlueSupplyV1"),
+            Adaptors::Erc4626V1 => write!(f, "Erc4626V1"),
+            Adaptors::StakingV1 => write!(f, "StakingV1"),
+            Adaptors::Invalid => write!(f, "Invalid"),
+        }
+    }
+}
+
+impl ToValue for Adaptors {
+    fn to_value(&self) -> log::kv::Value<'_> {
+        log::kv::Value::from_serde(self)
+    }
 }
 
 pub(crate) fn get_aave_a_token_adaptor_call(adaptor: &str, fields: &str) -> Result<AdaptorCall> {
@@ -437,32 +489,36 @@ pub(crate) fn get_collateral_f_token_adaptor_call(
 }
 
 pub(crate) fn get_aave_v3_debt_token_flash_loan_adaptor_call(
-   adaptor: &str,
-   fields: &str,
-   params: Vec<AdaptorCallForAaveV3FlashLoan>
+    adaptor: &str,
+    fields: &str,
+    params: Vec<AdaptorCallForAaveV3FlashLoan>,
 ) -> Result<AdaptorCall> {
-    let mut function = serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
+    let mut function =
+        serde_json::from_str::<aave_v3_debt_token_adaptor_v1_flash_loan::FlashLoan>(fields)?;
     function.params = params;
 
     let call = AaveV3DebtTokenAdaptorV1FlashLoan {
-       flash_loan: Some(function),
+        flash_loan: Some(function),
     };
     let calls = AaveV3DebtTokenAdaptorV1FlashLoanCalls { calls: vec![call] };
 
     let adaptor_call = AdaptorCall {
-       adaptor: adaptor.to_owned(),
-       call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(calls)),
+        adaptor: adaptor.to_owned(),
+        call_data: Some(adaptor_call::CallData::AaveV3DebtTokenV1FlashLoanCalls(
+            calls,
+        )),
     };
 
-   Ok(adaptor_call)
+    Ok(adaptor_call)
 }
 
 pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
-   adaptor: &str,
-   fields: &str,
-   params: Vec<AdaptorCallForBalancerPoolFlashLoan>
+    adaptor: &str,
+    fields: &str,
+    params: Vec<AdaptorCallForBalancerPoolFlashLoan>,
 ) -> Result<AdaptorCall> {
-    let mut function = serde_json::from_str::<balancer_pool_adaptor_v1_flash_loan::MakeFlashLoan>(fields)?;
+    let mut function =
+        serde_json::from_str::<balancer_pool_adaptor_v1_flash_loan::MakeFlashLoan>(fields)?;
     function.data = params;
 
     let call = BalancerPoolAdaptorV1FlashLoan {
@@ -474,7 +530,7 @@ pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
         call_data: Some(adaptor_call::CallData::BalancerPoolV1FlashLoanCalls(calls)),
     };
 
-   Ok(adaptor_call)
+    Ok(adaptor_call)
 }
 
 pub(crate) fn get_convex_curve_adaptor_call(adaptor: &str, fields: &str) -> Result<AdaptorCall> {

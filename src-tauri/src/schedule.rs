@@ -2,39 +2,31 @@ use std::str::FromStr;
 
 use alloy_primitives::Address;
 use eyre::{bail, Result};
-use serde::Deserialize;
+use futures::StreamExt;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
-    contract_call_service_client::ContractCallServiceClient,
     aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
     balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
-    AdaptorCall,
-    ScheduleRequest,
-    ScheduleResponse
+    contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
+    ScheduleResponse,
 };
+use tauri::async_runtime::Sender;
 use tonic::transport::{Channel, Identity};
-use tracing::{debug, error, info};
+use tracing::{debug, info};
 
+use crate::adaptors::{
+    get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call,
+    Adaptors,
+};
 use crate::{
     app::{self, get_channel, AppContext},
     cellar_call::{
-        construct_call_data,
-        CellarCall,
-        convert_to_aave_v3_flash_loan_adaptor,
-        convert_to_balancer_pool_flash_loan_adaptor
+        construct_call_data, convert_to_aave_v3_flash_loan_adaptor,
+        convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
     },
+    lifecycle,
+    state::{RequestState, RequestStatus},
 };
-use crate::adaptors::{Adaptors, get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call};
-
-#[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub(crate) struct ScheduleRequestData {
-    pub cellar_id: String,
-    pub block_height: u64,
-    pub chain_id: u64,
-    pub deadline: u64,
-    pub queue: Vec<CellarCall>,
-}
 
 pub(crate) fn validate_calls(calls: &Vec<CellarCall>) -> Result<()> {
     if calls.is_empty() {
@@ -113,7 +105,7 @@ pub(crate) fn build_flash_loan_request(
                 &flash_loan_call.fields,
                 adaptor_calls_for_flash_loan,
             )
-        },
+        }
         _ => unreachable!("Unsupported flash loan variant encountered"),
     }?;
 
@@ -130,64 +122,137 @@ pub(crate) fn build_flash_loan_request(
     })
 }
 
-pub(crate) fn handle(request: ScheduleRequest) {
-    futures::executor::block_on(async move {
-        let app_context = app::get_app_context().await;
+/// Handles submitting and tracking the request
+pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandle) -> Result<()> {
+    let app_context = app::get_app_context().await;
+    let request_state = RequestState::new();
+    let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
+    let chain_id = request.chain_id;
+    let trace_id = request_state.id.to_string();
+    let trace_id = trace_id.as_str();
+    log::trace!(id = trace_id, chain_id; "handling request");
 
-        broadcast_schedule_request(&app_context, request)
-            .await
-            .unwrap_or_else(|err| {
-                // TODO: find a way to bubble up errors to tauri command
-                error!("{err:?}");
-            });
-    });
+    // Run lifecycle tracking thread
+    tokio::spawn(lifecycle::track_request(
+        app_handle.clone(),
+        request_state,
+        rx,
+    ));
+
+    // Broadcast the request to all subscribers
+    tx.send(RequestStatus::Broadcasting).await?;
+
+    let _height = request.block_height;
+    let request_status =
+        broadcast_schedule_request(trace_id, &app_context, tx.clone(), request).await?;
+    let (_cork_id, _invalidation_scope) = match request_status {
+        RequestStatus::FailedBroadcast => {
+            log::warn!(id = trace_id; "broadcast failed");
+
+            return Ok(());
+        }
+        RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => {
+            (cork_id.clone(), invalidation_scope.clone())
+        }
+        _ => bail!("unexpected request status after broadcast: {request_status:?}"),
+    };
+
+    // Wait for the scheduled height
+    // let request_status =
+    //     cork_voting_period(app_handle, &app_context, &cork_id, height, tx.clone()).await?;
+    // let tx = match request_status {
+    //     RequestStatus::AwaitingRelay(tx) => tx,
+    //     RequestStatus::FailedVote => return Ok(()),
+    //     _ => bail!("unexpected request status after voting period: {request_status:?}"),
+    // };
+
+    // // Wait for relay
+    // if invalidation_scope.is_empty() {
+    //     log::error!("invalidation scope is empty");
+    //     return Ok(());
+    // }
+
+    Ok(())
 }
 
 /// Broadcasts the [`ScheduleRequest`] to all subscribers
-async fn broadcast_schedule_request(context: &AppContext, request: ScheduleRequest) -> Result<()> {
+async fn broadcast_schedule_request(
+    id: &str,
+    context: &AppContext,
+    tx: Sender<RequestStatus>,
+    request: ScheduleRequest,
+) -> Result<RequestStatus> {
+    log::trace!(id; "broadcasting schedule request");
+
     let Some(subscribers) = context.subscribers.to_owned() else {
-        bail!("subscribers cache has not been initialized")
+        log::error!(id; "no subscribers found");
+
+        tx.send(RequestStatus::FailedBroadcast).await?;
+        return Ok(RequestStatus::FailedBroadcast);
     };
 
-    // TODO: concurrently execute each request and capture all results
-    for subscriber in subscribers.into_iter() {
-        debug!(
-            "sending contract call to subscriber {}",
-            &subscriber.push_url
-        );
-        let request = request.clone();
-        let Some(identity) = context.client_identity.clone() else {
-            bail!("app context does not contain client identity. user must provide their certificate and key.");
-        };
+    let Some(identity) = context.client_identity.clone() else {
+        log::error!(id; "client identity not found");
+        tx.send(RequestStatus::FailedBroadcast).await?;
+        bail!("app context does not contain client identity. user must provide their certificate and key.");
+    };
 
-        match handle_scheduling(identity, subscriber, request).await {
-            Ok(res) => info!("response: {res:?}"),
-            Err(err) => error!("error: {err:?}"),
-        }
+    let posts = futures::stream::iter(subscribers.into_iter().map(|subscriber| {
+        tokio::spawn(handle_subscriber(
+            identity.clone(),
+            subscriber,
+            request.clone(),
+        ))
+    }))
+    .buffer_unordered(10)
+    .collect::<Vec<_>>();
+
+    let result = posts.await;
+
+    // Extract the cork ID from one of the successful responses.
+    // If there were no successful responses this iterator has length zero and nothing happens,
+    // resulting in a failed broadcast.
+    if let Some((cid, is)) = result.into_iter().flatten().flatten().next() {
+        tx.send(RequestStatus::AwaitingVote((cid.clone(), is.clone())))
+            .await?;
+        return Ok(RequestStatus::AwaitingVote((cid.clone(), is.clone())));
     }
 
-    Ok(())
+    log::trace!(id; "broadcasting schedule request failed");
+    tx.send(RequestStatus::FailedBroadcast).await?;
+
+    Ok(RequestStatus::FailedBroadcast)
 }
 
-async fn handle_scheduling(
+/// Returns the (Cork ID, Invalidation Scope) tuple from the subscriber
+async fn handle_subscriber(
     identity: Identity,
     subscriber: Subscriber,
     request: ScheduleRequest,
-) -> Result<()> {
+) -> Result<(String, String)> {
+    debug!(
+        "sending contract call to subscriber {}",
+        &subscriber.push_url
+    );
+
+    let request = request.clone();
     let channel = get_channel(identity, subscriber.ca_cert, subscriber.push_url.clone()).await?;
 
     info!("sending schedule call to {}", subscriber.push_url);
-    match schedule(channel, request).await {
+    let response = match schedule(channel, request).await {
         Ok(res) => {
             debug!("response from {}: {res:?}", subscriber.push_url);
+            res
         }
-        Err(err) => error!(
+        Err(err) => bail!(
             "failed to send contract call to subscriber {}: {err:?}",
             subscriber.address
         ),
-    }
+    };
 
-    Ok(())
+    let response = response.into_inner();
+
+    Ok((response.id, response.invalidation_scope))
 }
 
 async fn schedule(
@@ -206,38 +271,6 @@ mod tests {
     use tokio::task::JoinSet;
 
     use super::*;
-
-    #[tokio::test]
-    async fn test_validate_data() {
-        let valid_data = ScheduleRequestData {
-            chain_id: 42161,
-            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
-            block_height: 12345689,
-            deadline: 12345689101112,
-            queue: vec![CellarCall::default()],
-        };
-        let invalid_data1 = ScheduleRequestData {
-            chain_id: 42161,
-            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
-            block_height: 12345689,
-            deadline: 12345689101112,
-            queue: vec![CellarCall::default()],
-        };
-        let invalid_data2 = ScheduleRequestData {
-            chain_id: 0,
-            cellar_id: "0xf9d0bb4fE3a004bE6766005EE9Fb889A8A0DCED3".to_string(),
-            block_height: 12345689,
-            deadline: 12345689101112,
-            queue: vec![CellarCall::default()],
-        };
-        let invalid_data3 = ScheduleRequestData {
-            chain_id: 42161,
-            cellar_id: "".to_string(),
-            block_height: 12345689,
-            deadline: 12345689101112,
-            queue: vec![CellarCall::default()],
-        };
-    }
 
     #[tokio::test]
     async fn test_get_channel() {
@@ -305,17 +338,17 @@ oBA+9gAfZIZxqDzomWPySAp+Z3vsKQ5o9sUCMBcwPd4vFQcMgCKr0Eg5g2ON1g55
         };
         let mut set = JoinSet::new();
 
-        set.spawn(handle_scheduling(
+        set.spawn(handle_subscriber(
             identity.clone(),
             subscriber.clone(),
             request.clone(),
         ));
-        set.spawn(handle_scheduling(
+        set.spawn(handle_subscriber(
             identity.clone(),
             subscriber.clone(),
             request.clone(),
         ));
-        set.spawn(handle_scheduling(
+        set.spawn(handle_subscriber(
             identity.clone(),
             subscriber.clone(),
             request.clone(),

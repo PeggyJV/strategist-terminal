@@ -1,23 +1,36 @@
+use crate::adaptors::*;
 use eyre::{bail, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use steward_proto::proto::{
+    aave_v3_debt_token_adaptor_v1_flash_loan::adaptor_call_for_aave_v3_flash_loan,
+    aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
+    adaptor_call,
+    balancer_pool_adaptor_v1_flash_loan::adaptor_call_for_balancer_pool_flash_loan,
+    balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
     cellar_v2_5::{self},
     schedule_request::CallData,
-    aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
-    aave_v3_debt_token_adaptor_v1_flash_loan::adaptor_call_for_aave_v3_flash_loan,
-    balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
-    balancer_pool_adaptor_v1_flash_loan::adaptor_call_for_balancer_pool_flash_loan,
-    AdaptorCall, CellarV25, adaptor_call
+    AdaptorCall, CellarV25,
 };
-use crate::adaptors::*;
 
 // for now this is more of an "adaptor call" than a "cellar call" as it assumes
 // the function being called is CallOnAdaptor. In the future we'll need to generalize
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub(crate) struct CellarCall {
     pub adaptor: String,
     pub name: Adaptors,
     pub fields: String,
+}
+
+impl std::fmt::Display for CellarCall {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "CellarCall{{adaptor: {}, name: {}, fields: {}}}",
+            self.adaptor,
+            self.name.to_string(),
+            self.fields
+        )
+    }
 }
 
 impl CellarCall {
@@ -78,11 +91,13 @@ impl CellarCall {
             Adaptors::CollateralFTokenV1 => {
                 get_collateral_f_token_adaptor_call(&self.adaptor, &self.fields)
             }
-            Adaptors::AaveV3DebtTokenV1FlashLoan => {
-               get_aave_v3_debt_token_flash_loan_adaptor_call(&self.adaptor, &self.fields, Vec::new())
-            }
+            Adaptors::AaveV3DebtTokenV1FlashLoan => get_aave_v3_debt_token_flash_loan_adaptor_call(
+                &self.adaptor,
+                &self.fields,
+                Vec::new(),
+            ),
             Adaptors::BalancerPoolV1FlashLoan => {
-               get_balancer_pool_flash_loan_adaptor_call(&self.adaptor, &self.fields, Vec::new())
+                get_balancer_pool_flash_loan_adaptor_call(&self.adaptor, &self.fields, Vec::new())
             }
             Adaptors::ConvexCurveV1 => get_convex_curve_adaptor_call(&self.adaptor, &self.fields),
             Adaptors::CurveV1 => get_curve_adaptor_call(&self.adaptor, &self.fields),
@@ -134,7 +149,7 @@ fn construct_call_on_adaptor(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::Ca
 }
 
 pub(crate) fn convert_to_aave_v3_flash_loan_adaptor(
-    call: &AdaptorCall
+    call: &AdaptorCall,
 ) -> Result<AdaptorCallForAaveV3FlashLoan> {
     Ok(AdaptorCallForAaveV3FlashLoan {
         adaptor: call.adaptor.clone(),
@@ -142,7 +157,7 @@ pub(crate) fn convert_to_aave_v3_flash_loan_adaptor(
     })
 }
 pub(crate) fn convert_to_balancer_pool_flash_loan_adaptor(
-    call: &AdaptorCall
+    call: &AdaptorCall,
 ) -> Result<AdaptorCallForBalancerPoolFlashLoan> {
     Ok(AdaptorCallForBalancerPoolFlashLoan {
         adaptor: call.adaptor.clone(),
@@ -150,113 +165,123 @@ pub(crate) fn convert_to_balancer_pool_flash_loan_adaptor(
     })
 }
 fn convert_call_data_aave_flash_loan(
-    call_data: &Option<adaptor_call::CallData>
+    call_data: &Option<adaptor_call::CallData>,
 ) -> Result<Option<adaptor_call_for_aave_v3_flash_loan::CallData>> {
     match call_data {
-        Some(adaptor_call::CallData::AaveATokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveATokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AaveDebtTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveDebtTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::CompoundCTokenV2Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::CompoundCTokenV2Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AaveATokenV2Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveATokenV2Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AaveDebtTokenV2Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveDebtTokenV2Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AaveV3ATokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveV3ATokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::OneInchV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::OneInchV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::FeesAndReservesV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::FeesAndReservesV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::ZeroXV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::ZeroXV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::SwapWithUniswapV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::SwapWithUniswapV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::VestingSimpleV2Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::VestingSimpleV2Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::CellarV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::CellarV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::UniswapV3V2Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::UniswapV3V2Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AaveV2EnableAssetAsCollateralV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AaveV2EnableAssetAsCollateralV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::FTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::FTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoAaveV2ATokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV2ATokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoAaveV2DebtTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV2DebtTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoAaveV3ATokenCollateralV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3ATokenCollateralV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoAaveV3ATokenP2pV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3ATokenP2pV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoAaveV3DebtTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3DebtTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::BalancerPoolV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::BalancerPoolV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::LegacyCellarV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::LegacyCellarV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::DebtFTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::DebtFTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::CollateralFTokenV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::CollateralFTokenV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::ConvexCurveV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::ConvexCurveV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::CurveV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::CurveV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::AuraErc4626V1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::AuraErc4626V1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoBlueCollateralV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueCollateralV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoBlueDebtV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueDebtV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::MorphoBlueSupplyV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueSupplyV1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::Erc4626V1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::Erc4626V1Calls(data.clone())))
-        }
-        Some(adaptor_call::CallData::StakingV1Calls(data)) => {
-            Ok(Some(adaptor_call_for_aave_v3_flash_loan::CallData::StakingV1Calls(data.clone())))
-        }
-        _ => {
-            Ok(None)
-        }
+        Some(adaptor_call::CallData::AaveATokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveATokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AaveDebtTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveDebtTokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::CompoundCTokenV2Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::CompoundCTokenV2Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AaveATokenV2Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveATokenV2Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AaveDebtTokenV2Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveDebtTokenV2Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AaveV3ATokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveV3ATokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::OneInchV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::OneInchV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::FeesAndReservesV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::FeesAndReservesV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::ZeroXV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::ZeroXV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::SwapWithUniswapV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::SwapWithUniswapV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::VestingSimpleV2Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::VestingSimpleV2Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::CellarV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::CellarV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::UniswapV3V2Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::UniswapV3V2Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AaveV2EnableAssetAsCollateralV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AaveV2EnableAssetAsCollateralV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::FTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::FTokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::MorphoAaveV2ATokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV2ATokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::MorphoAaveV2DebtTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV2DebtTokenV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::MorphoAaveV3ATokenCollateralV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3ATokenCollateralV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::MorphoAaveV3ATokenP2pV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3ATokenP2pV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::MorphoAaveV3DebtTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoAaveV3DebtTokenV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::BalancerPoolV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::BalancerPoolV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::LegacyCellarV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::LegacyCellarV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::DebtFTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::DebtFTokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::CollateralFTokenV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::CollateralFTokenV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::ConvexCurveV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::ConvexCurveV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::CurveV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::CurveV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::AuraErc4626V1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::AuraErc4626V1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::MorphoBlueCollateralV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueCollateralV1Calls(
+                data.clone(),
+            ),
+        )),
+        Some(adaptor_call::CallData::MorphoBlueDebtV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueDebtV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::MorphoBlueSupplyV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::MorphoBlueSupplyV1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::Erc4626V1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::Erc4626V1Calls(data.clone()),
+        )),
+        Some(adaptor_call::CallData::StakingV1Calls(data)) => Ok(Some(
+            adaptor_call_for_aave_v3_flash_loan::CallData::StakingV1Calls(data.clone()),
+        )),
+        _ => Ok(None),
     }
 }
 
 fn convert_call_data_balancer_pool_flash_loan(
-    call_data: &Option<adaptor_call::CallData>
+    call_data: &Option<adaptor_call::CallData>,
 ) -> Result<Option<adaptor_call_for_balancer_pool_flash_loan::CallData>> {
     match call_data {
         Some(adaptor_call::CallData::AaveATokenV1Calls(data)) => {
@@ -357,4 +382,3 @@ fn convert_call_data_balancer_pool_flash_loan(
         }
     }
 }
-
