@@ -8,7 +8,6 @@ use crate::{
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tracing::{debug, error, trace};
 
 lazy_static::lazy_static! {
     static ref GRPC_CLIENTS: Arc<Mutex<HashMap<String, steward_proto::proto::status_service_client::StatusServiceClient<tonic::transport::Channel>>>> = Arc::new(Mutex::new(HashMap::new()));
