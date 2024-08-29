@@ -19,7 +19,7 @@ use crate::adaptors::{
     Adaptors,
 };
 use crate::{
-    app::{self, get_channel, AppContext},
+    application::{self, get_channel, AppContext},
     cellar_call::{
         construct_call_data, convert_to_aave_v3_flash_loan_adaptor,
         convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
@@ -124,7 +124,7 @@ pub(crate) fn build_flash_loan_request(
 
 /// Handles submitting and tracking the request
 pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandle) -> Result<()> {
-    let app_context = app::get_app_context().await;
+    let app_context = application::get_app_context().await;
     let request_state = RequestState::new();
     let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
     let chain_id = request.chain_id;
