@@ -8,7 +8,7 @@ use tauri::Manager;
 use tracing::info;
 
 use crate::{
-    app::{self, AppConfig},
+    application::{self, AppConfig},
     cellar_call::CellarCall,
     schedule::{self, build_flash_loan_request, build_request},
     sommelier,
@@ -40,18 +40,18 @@ pub(crate) fn configure(
         client_cert_key_path: Some(client_cert_key_path.to_string()),
     };
 
-    match app::initialize_app_context(config) {
+    match application::initialize_app_context(config) {
         Ok(_) => info!("app context initialized"),
         Err(e) => return format!("failed to initialize app config: {e:?}"),
     }
 
     futures::executor::block_on(async move {
-        let app_context = app::get_app_context().await;
-        let subscribers = app::get_subscribers(&app_context.grpc_endpoint).await;
+        let app_context = application::get_app_context().await;
+        let subscribers = application::get_subscribers(&app_context.grpc_endpoint).await;
 
         match subscribers {
             Ok(subscribers) => {
-                let mut app_context = app::APP_CONTEXT.write().await;
+                let mut app_context = application::APP_CONTEXT.write().await;
                 app_context.subscribers = Some(subscribers);
                 info!("subscribers loaded");
             }
