@@ -58,6 +58,7 @@ impl RequestState {
 }
 
 /// Represents the status of the request in its lifecycle
+#[non_exhaustive]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub enum RequestStatus {
     /// The request has been created but not broadcast

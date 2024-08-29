@@ -5,6 +5,34 @@ use crate::{
     state,
 };
 
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+lazy_static::lazy_static! {
+    static ref GRPC_CLIENTS: Arc<Mutex<HashMap<String, steward_proto::proto::status_service_client::StatusServiceClient<tonic::transport::Channel>>>> = Arc::new(Mutex::new(HashMap::new()));
+}
+
+// Get or create a gRPC client for the provided endpoint. Avoids creating a new client for the same endpoint repeatedly.
+async fn get_or_create_client(
+    grpc_endpoint: &str,
+) -> Result<
+    steward_proto::proto::status_service_client::StatusServiceClient<tonic::transport::Channel>,
+    tonic::transport::Error,
+> {
+    let mut clients = GRPC_CLIENTS.lock().await;
+    if let Some(client) = clients.get(grpc_endpoint) {
+        Ok(client.clone())
+    } else {
+        let client = steward_proto::proto::status_service_client::StatusServiceClient::connect(
+            grpc_endpoint.to_string(),
+        )
+        .await?;
+        clients.insert(grpc_endpoint.to_string(), client.clone());
+        Ok(client)
+    }
+}
+
 pub(crate) struct StewardVersion {
     pub(crate) endpoint: String,
     pub(crate) version: Option<String>,
@@ -27,22 +55,17 @@ pub(crate) async fn get_all_steward_versions(app_context: &AppContext) -> Vec<St
 
 /// Queries the provided subscriber endpoint for it's Steward version
 pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion {
-    let mut client =
-        match steward_proto::proto::status_service_client::StatusServiceClient::connect(
-            grpc_endpoint.clone(),
-        )
-        .await
-        {
-            Ok(client) => client,
-            Err(e) => {
-                log::error!(message = e.to_string(), push_url = grpc_endpoint.as_str(); "failed to connect to steward");
+    let mut client = match get_or_create_client(&grpc_endpoint).await {
+        Ok(client) => client,
+        Err(e) => {
+            log::error!(message = e.to_string(), push_url = grpc_endpoint.as_str(); "failed to connect to steward");
+            return StewardVersion {
+                endpoint: grpc_endpoint,
+                version: None,
+            };
+        }
+    };
 
-                return StewardVersion {
-                    endpoint: grpc_endpoint,
-                    version: None,
-                };
-            }
-        };
     let request = tonic::Request::new(steward_proto::proto::VersionRequest {});
 
     log::debug!(push_url = grpc_endpoint.as_str(); "getting steward version");
@@ -93,9 +116,9 @@ pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
 
 /// Thread to refresh steward versions in the background
 pub(crate) async fn refresh_steward_versions_thread(app_handle: tauri::AppHandle) {
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(600));
     loop {
+        interval.tick().await;
         refresh_steward_versions(app_handle.clone()).await;
-
-        tokio::time::sleep(std::time::Duration::from_secs(600)).await;
     }
 }

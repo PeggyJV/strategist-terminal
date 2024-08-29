@@ -28,7 +28,40 @@ use crate::{
     state::{RequestState, RequestStatus},
 };
 
-pub(crate) fn validate_calls(calls: &Vec<CellarCall>) -> Result<()> {
+pub(crate) fn validate(
+    cellar_id: &str,
+    block_height: u64,
+    chain_id: u64,
+    deadline: u64,
+    calls: &Vec<CellarCall>,
+) -> Result<()> {
+    if Address::from_str(cellar_id).is_err() {
+        bail!("invalid cellar address");
+    }
+
+    if block_height == 0 {
+        bail!("block height cannot be zero");
+    }
+
+    if chain_id == 0 {
+        bail!("invalid chain id");
+    }
+
+    if deadline == 0 {
+        bail!("deadline cannot be zero");
+    }
+
+    log::trace!("validating calls");
+
+    if let Err(err) = validate_calls(calls) {
+        log::error!("error validating calls: {:?}", err);
+        return Err(err);
+    }
+
+    Ok(())
+}
+
+pub(crate) fn validate_calls(calls: &[CellarCall]) -> Result<()> {
     if calls.is_empty() {
         bail!("cellar call data is empty");
     };
@@ -40,6 +73,10 @@ pub(crate) fn validate_calls(calls: &Vec<CellarCall>) -> Result<()> {
 
         if Address::from_str(&call.adaptor).is_err() {
             bail!("invalid adaptor address");
+        }
+
+        if call.fields.is_empty() {
+            bail!("cellar call fields are empty");
         }
     }
 

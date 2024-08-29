@@ -1,8 +1,8 @@
-use eyre::{bail, Context, Result};
+use eyre::{Context, Result};
 use somm_proto::cork::{
     query_client::QueryClient as CorkQueryClient, QueryCorkResultRequest, QueryCorkResultResponse,
 };
-use tauri::{async_runtime::Sender, Manager};
+use tauri::Manager;
 use tonic::Response;
 
 use crate::{
