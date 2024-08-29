@@ -16,7 +16,8 @@ mod sommelier;
 mod state;
 mod steward;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     tauri::Builder::default()
         // Initialize state
         .manage(state::Sommelier::new())
