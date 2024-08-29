@@ -6,7 +6,7 @@ use tauri::{async_runtime::Sender, Manager};
 use tonic::Response;
 
 use crate::{
-    app::AppContext,
+    application::AppContext,
     state::{self, RequestStatus},
 };
 
