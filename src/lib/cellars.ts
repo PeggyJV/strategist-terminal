@@ -26,6 +26,10 @@ export const Chains = {
 }
 
 const Cellars = {
+  CUSTOM: {
+    ADDRESS: "",
+    CHAIN: Chains.ETHEREUM
+  },
   AAVE_V2_STABLE_CELLAR: {
     ADDRESS: "0x7bad5df5e11151dc5ee1a648800057c5c934c0d5",
     CHAIN: Chains.ETHEREUM

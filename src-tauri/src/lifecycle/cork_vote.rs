@@ -6,8 +6,8 @@ use tauri::Manager;
 use tonic::Response;
 
 use crate::{
-    app::AppContext,
-    state::{self},
+    application::AppContext,
+    state::{self, RequestStatus},
 };
 
 /// Monitor the x/cork module for the result of the cork vote

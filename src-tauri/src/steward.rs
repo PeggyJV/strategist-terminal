@@ -1,7 +1,7 @@
 use tauri::Manager;
 
 use crate::{
-    app::{self, AppContext},
+    application::{self, AppContext},
     state,
 };
 
@@ -97,7 +97,7 @@ pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion
 pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
     log::trace!("refreshing steward versions");
 
-    let app_context = app::get_app_context().await;
+    let app_context = application::get_app_context().await;
     let versions = get_all_steward_versions(&app_context).await;
     let state = app_handle.state::<state::Stewards>();
     let mut state = state.0.lock().await;

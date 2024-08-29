@@ -6,7 +6,7 @@ use steward::refresh_steward_versions_thread;
 use tauri_plugin_log::LogTarget;
 
 mod adaptors;
-mod app;
+mod application;
 mod cellar_call;
 mod commands;
 mod lifecycle;
