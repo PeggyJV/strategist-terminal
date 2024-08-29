@@ -1,14 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::config::AppConfig;
 use steward::refresh_steward_versions_thread;
-
+use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 
 mod adaptors;
 mod application;
 mod cellar_call;
 mod commands;
+mod config;
 mod lifecycle;
 mod logging;
 mod schedule;
@@ -46,6 +48,10 @@ async fn main() {
 
             // Monitor subscribers' Steward versions
             tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle));
+
+            // Initialize app context with loaded config
+            let config = AppConfig::load();
+            application::initialize_app_context(config).expect("failed to initialize app context");
 
             Ok(())
         })

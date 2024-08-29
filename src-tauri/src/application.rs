@@ -9,35 +9,14 @@ use tokio::sync::RwLock;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig, Identity};
 use tracing::debug;
 
+use crate::config::AppConfig;
+
 const DEFAULT_RPC_ENDPOINT: &str = "https://sommelier-rpc.polkachu.com:443";
 const DEFAULT_GRPC_ENDPOINT: &str = "https://sommelier-grpc.polkachu.com:14190";
 
 lazy_static! {
     pub(crate) static ref APP_CONTEXT: Arc<RwLock<AppContext>> =
         Arc::new(RwLock::new(AppContext::default()));
-}
-
-// TODO: front end needs to ask the user to supply domain and cert data
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub(crate) struct AppConfig {
-    pub rpc_endpoint: Option<String>,
-    pub grpc_endpoint: Option<String>,
-    pub publisher_domain: Option<String>,
-    pub client_cert_path: Option<String>,
-    pub client_cert_key_path: Option<String>,
-}
-
-impl std::fmt::Display for AppConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "AppConfig {{ rpc_endpoint: {:?}, grpc_endpoint: {:?}, publisher_domain: {:?}, client_cert_path: {:?}, client_cert_key_path: {:?} }}",
-               self.rpc_endpoint, self.grpc_endpoint, self.publisher_domain, self.client_cert_path, self.client_cert_key_path)
-    }
-}
-
-impl log::kv::ToValue for AppConfig {
-    fn to_value(&self) -> log::kv::Value {
-        log::kv::Value::from_serde(self)
-    }
 }
 
 #[derive(Default)]

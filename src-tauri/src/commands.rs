@@ -8,8 +8,9 @@ use tauri::Manager;
 use tracing::info;
 
 use crate::{
-    application::{self, AppConfig},
+    application,
     cellar_call::CellarCall,
+    config::AppConfig,
     schedule::{self, build_flash_loan_request, build_request},
     sommelier,
     state::{self, RequestState},
@@ -28,7 +29,7 @@ pub(crate) fn configure(
     // Run the block sync thread. Doing this here because it requires a gRPC endpoint, would be
     // nice if it worked at startup though.
     tokio::task::spawn(sommelier::sync_block_height(
-        app_handle,
+        app_handle.clone(),
         somm_node_rpc.to_string(),
     ));
 
@@ -39,6 +40,14 @@ pub(crate) fn configure(
         client_cert_path: Some(client_cert_path.to_string()),
         client_cert_key_path: Some(client_cert_key_path.to_string()),
     };
+
+    // Save the config to file
+    if let Err(e) = config.save() {
+        return format!("Failed to save config: {}", e);
+    }
+
+    // Update the managed state
+    app_handle.manage(config.clone());
 
     match application::initialize_app_context(config) {
         Ok(_) => info!("app context initialized"),
