@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
+  let somm_node_rpc = "https://sommelier-rpc.polkachu.com:443";
   let somm_node_grpc = "https://sommelier-grpc.polkachu.com:14190";
   let publisher_domain = "https://smart-strategies.xyz";
   let client_cert_path = "/home/strategy/certs/client.pem";
@@ -7,10 +8,11 @@
 
   async function configure() {
     const result = await invoke("configure", {
-      somm_node_grpc,
-      publisher_domain,
-      client_cert_path,
-      client_cert_key_path,
+      sommNodeRpc: somm_node_rpc,
+      sommNodeGrpc: somm_node_grpc,
+      publisherDomain: publisher_domain,
+      clientCertPath: client_cert_path,
+      clientCertKeyPath: client_cert_key_path,
     });
     console.log(result);
   }
@@ -19,6 +21,14 @@
 
   <h1 class="text-2xl font-bold mb-4 ">Configure</h1>
 
+    <label for="somm_node_rpc" class="block mb-1 w-full">Sommelier Node RPC URL:</label>
+    <input
+      type="text"
+      id="somm_node_rpc"
+      class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+      bind:value={somm_node_rpc}
+      placeholder="Enter Sommelier Node RPC URL"
+    />
 
     <label for="somm_node_grpc" class="block mb-1 w-full">Sommelier Node GRPC URL:</label>
     <input
