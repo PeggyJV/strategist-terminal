@@ -41,30 +41,27 @@ pub(crate) fn configure(
         client_cert_key_path: Some(client_cert_key_path.to_string()),
     };
 
-    // Save the config to file
-    if let Err(e) = config.save() {
-        return format!("Failed to save config: {}", e);
-    }
-
-    // Update the managed state
-    app_handle.manage(config.clone());
-
-    match application::initialize_app_context(config) {
-        Ok(_) => info!("app context initialized"),
-        Err(e) => return format!("failed to initialize app config: {e:?}"),
-    }
-
+    // Save the config to file,
     futures::executor::block_on(async move {
-        let app_context = application::get_app_context().await;
-        let subscribers = application::get_subscribers(&app_context.grpc_endpoint).await;
+        match application::apply_config(app_handle.clone(), config.clone()).await {
+            Ok(_) => info!("app context initialized"),
+            Err(e) => return format!("failed to initialize app config: {e:?}"),
+        }
+
+        let subscribers = application::get_subscribers(app_handle.clone()).await;
 
         match subscribers {
             Ok(subscribers) => {
-                let mut app_context = application::APP_CONTEXT.write().await;
-                app_context.subscribers = Some(subscribers);
+                let app_context = app_handle.state::<application::Context>();
+                let mut context = app_context.0.write().await;
+                context.subscribers = Some(subscribers);
                 info!("subscribers loaded");
             }
             Err(e) => return format!("failed to load subscribers: {e:?}"),
+        }
+
+        if let Err(e) = config.save() {
+            return format!("Failed to save config: {}", e);
         }
 
         "app context initialized".to_string()
@@ -166,7 +163,7 @@ pub(crate) fn schedule_request(
 
         println!("request: {:?}", request);
 
-        //schedule::handle(request);
+        // schedule::handle(app_handle.clone(), request);
 
         return Ok(());
     }
@@ -183,7 +180,7 @@ pub(crate) fn schedule_request(
 
     log::trace!(request:?; "spawning request handler");
 
-    tokio::task::spawn(schedule::handle(request, app_handle));
+    tokio::task::spawn(schedule::handle(app_handle.clone(), request));
 
     // TODO: return results to frontend
     Ok(())

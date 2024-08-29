@@ -3,7 +3,6 @@
 
 use crate::config::AppConfig;
 use steward::refresh_steward_versions_thread;
-use tauri::Manager;
 use tauri_plugin_log::LogTarget;
 
 mod adaptors;
@@ -22,6 +21,7 @@ mod steward;
 async fn main() {
     tauri::Builder::default()
         // Initialize state
+        .manage(application::Context::new())
         .manage(state::Sommelier::new())
         .manage(state::Requests::new())
         .manage(state::Stewards::new())
@@ -47,11 +47,11 @@ async fn main() {
             let app_handle = app.handle();
 
             // Monitor subscribers' Steward versions
-            tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle));
+            tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle.clone()));
 
             // Initialize app context with loaded config
             let config = AppConfig::load();
-            application::initialize_app_context(config).expect("failed to initialize app context");
+            tauri::async_runtime::block_on(application::apply_config(app_handle, config))?;
 
             Ok(())
         })

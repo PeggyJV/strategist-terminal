@@ -1,9 +1,6 @@
 use tauri::Manager;
 
-use crate::{
-    application::{self, AppContext},
-    state,
-};
+use crate::{application, state};
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -39,8 +36,9 @@ pub(crate) struct StewardVersion {
 }
 
 /// Queries all subscriber endpoints for their Steward verions
-pub(crate) async fn get_all_steward_versions(app_context: &AppContext) -> Vec<StewardVersion> {
-    let Some(subscribers) = &app_context.subscribers else {
+pub(crate) async fn get_all_steward_versions(app_handle: tauri::AppHandle) -> Vec<StewardVersion> {
+    let app_context = app_handle.state::<application::Context>();
+    let Some(subscribers) = &app_context.0.read().await.subscribers else {
         log::error!("no subscribers found when attempting to query steward versions");
         return vec![];
     };
@@ -97,8 +95,7 @@ pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion
 pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
     log::trace!("refreshing steward versions");
 
-    let app_context = application::get_app_context().await;
-    let versions = get_all_steward_versions(&app_context).await;
+    let versions = get_all_steward_versions(app_handle.clone()).await;
     let state = app_handle.state::<state::Stewards>();
     let mut state = state.0.lock().await;
     state.versions = versions
