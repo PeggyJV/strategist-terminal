@@ -5,7 +5,6 @@ import AaveDebtTokenV1 from "$lib/adaptors/AaveDebtTokenV1"
 import AaveDebtTokenV2 from "$lib/adaptors/AaveDebtTokenV2"
 import AaveV2EnableAssetAsCollateralV1 from "$lib/adaptors/AaveV2EnableAssetAsCollateralV1"
 import AaveV3DebtTokenV1 from "$lib/adaptors/AaveV3DebtTokenV1"
-import AaveATokenAdaptorV1 from "$lib/adaptors/AaveATokenAdaptorV1"
 import AuraErc4626V1 from "$lib/adaptors/AuraErc4626V1"
 import BalancerPoolV1 from "$lib/adaptors/BalancerPoolV1"
 import CollateralFTokenV1 from "$lib/adaptors/CollateralFTokenV1"
@@ -58,7 +57,6 @@ const adaptors: Adaptor[] = [
   AaveDebtTokenV2,
   AaveV2EnableAssetAsCollateralV1,
   AaveV3DebtTokenV1,
-  AaveATokenAdaptorV1,
   AuraErc4626V1,
   BalancerPoolV1,
   CollateralFTokenV1,
