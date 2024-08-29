@@ -598,6 +598,7 @@ dependencies = [
  "lazy_static",
  "log",
  "once_cell",
+ "paste",
  "prost 0.7.0",
  "serde",
  "serde_json",
