@@ -365,36 +365,80 @@ pub(crate) fn get_balancer_pool_flash_loan_adaptor_call(
 #[cfg(test)]
 mod tests {
     use alloy::hex;
-    use balancer_pool_adaptor_v1::ClaimRewards;
-    use steward_proto::proto::aave_a_token_adaptor_v1::DepositToAave;
 
     use super::*;
+    use aave_a_token_adaptor_v1::*;
+    use rstest::rstest;
 
-    #[test]
-    fn test_get_aave_a_token_adaptor_call() {
-        let fields = r#"{"DepositToAave": {"token":"0x0000000000000000000000000000000000000000", "amount": "1000000"}}"#;
-        let adaptor = "0x1111111111111111111111111111111111111111";
+    #[rstest]
+    #[case(
+        aave_a_token_adaptor_v1::Function::Swap(Swap {
+            asset_in: "0x1111111111111111111111111111111111111111".to_string(),
+            asset_out: "0x2222222222222222222222222222222222222222".to_string(),
+            amount_in: "1000000".to_string(),
+            exchange: 0,
+            params: Some(SwapParams {
+                params: Some(swap_params::Params::Univ2Params(UniV2SwapParams {
+                    path: vec![],
+                    amount: "1000000".to_string(),
+                    amount_out_min: "2000000".to_string(),
+                })),
+            }),
+        })
+    )]
+    #[case(
+        aave_a_token_adaptor_v1::Function::OracleSwap(OracleSwap {
+            asset_in: "0x3333333333333333333333333333333333333333".to_string(),
+            asset_out: "0x4444444444444444444444444444444444444444".to_string(),
+            amount_in: "2000000".to_string(),
+            exchange: 1,
+            params: Some(OracleSwapParams {
+                params: Some(oracle_swap_params::Params::Univ3Params(UniV3OracleSwapParams {
+                    pool_fees: vec![],
+                    path: vec![],
+                })),
+            }),
+            slippage: 100,
+        })
+    )]
+    #[case(
+        aave_a_token_adaptor_v1::Function::RevokeApproval(RevokeApproval {
+            asset: "0x5555555555555555555555555555555555555555".to_string(),
+            spender: "0x6666666666666666666666666666666666666666".to_string(),
+        })
+    )]
+    #[case(
+        aave_a_token_adaptor_v1::Function::DepositToAave(DepositToAave {
+            token: "0x7777777777777777777777777777777777777777".to_string(),
+            amount: "3000000".to_string(),
+        })
+    )]
+    #[case(
+        aave_a_token_adaptor_v1::Function::WithdrawFromAave(WithdrawFromAave {
+            token: "0x8888888888888888888888888888888888888888".to_string(),
+            amount: "4000000".to_string(),
+        })
+    )]
+    fn test_get_aave_a_token_adaptor_call(#[case] expected_function: Function) {
+        let adaptor = "0x9999999999999999999999999999999999999999";
+        let fields = serde_json::to_string(&expected_function).unwrap();
         let result =
-            get_aave_a_token_adaptor_call(adaptor, fields).expect("failed to parse fields");
+            get_aave_a_token_adaptor_call(adaptor, &fields).expect("failed to parse fields");
         let expected = AdaptorCall {
             adaptor: adaptor.to_string(),
             call_data: Some(adaptor_call::CallData::AaveATokenV1Calls(
                 AaveATokenAdaptorV1Calls {
                     calls: vec![AaveATokenAdaptorV1 {
-                        function: Some(aave_a_token_adaptor_v1::Function::DepositToAave(
-                            DepositToAave {
-                                token: "0x0000000000000000000000000000000000000000".to_string(),
-                                amount: "1000000".to_string(),
-                            },
-                        )),
+                        function: Some(expected_function),
                     }],
                 },
             )),
         };
 
+        println!("expected: {}", serde_json::to_string(&expected).unwrap());
+
         assert_eq!(expected, result);
     }
-
     #[test]
     fn test_get_aave_debt_token_adaptor_call() {
         let fields = r#"{"BorrowFromAave": {"token":"0x0000000000000000000000000000000000000000", "amount": "1000000"}}"#;
