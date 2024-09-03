@@ -2,6 +2,9 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
+pub(crate) const CONFIG_FILE_ENV_VAR: &str = "ST_CONFIG_FILE";
+pub(crate) const DEFAULT_CONFIG_FILE: &str = "./config.toml";
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AppConfig {
     pub rpc_endpoint: Option<String>,
@@ -13,9 +16,13 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn load() -> Self {
-        let config_path = Path::new("config.toml");
+        let config_path = match std::env::var(CONFIG_FILE_ENV_VAR) {
+            Ok(path) => Path::new(&path).to_path_buf(),
+            Err(_) => Path::new(DEFAULT_CONFIG_FILE).to_path_buf(),
+        };
+
         if config_path.exists() {
-            let config_str = fs::read_to_string(config_path).expect("Failed to read config file");
+            let config_str = fs::read_to_string(&config_path).expect("Failed to read config file");
             toml::from_str(&config_str).expect("Failed to parse config file")
         } else {
             Self::default()
@@ -23,8 +30,13 @@ impl AppConfig {
     }
 
     pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let config_path = match std::env::var(CONFIG_FILE_ENV_VAR) {
+            Ok(path) => Path::new(&path).to_path_buf(),
+            Err(_) => Path::new(DEFAULT_CONFIG_FILE).to_path_buf(),
+        };
+
         let config_str = toml::to_string(self)?;
-        fs::write("config.toml", config_str)?;
+        fs::write(config_path, config_str)?;
         Ok(())
     }
 }
