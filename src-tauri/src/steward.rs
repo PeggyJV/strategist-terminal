@@ -95,7 +95,14 @@ pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion
 pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
     log::trace!("refreshing steward versions");
 
-    let versions = get_all_steward_versions(app_handle.clone()).await;
+    // If the subscribers list has not been initialized yet, no versions will be available.
+    // Since the refresh interval is so long here we can just wait until the list is initialized.
+    let mut versions = Vec::new();
+    while versions.is_empty() {
+        versions = get_all_steward_versions(app_handle.clone()).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+    }
+
     let state = app_handle.state::<state::Stewards>();
     let mut state = state.0.lock().await;
     state.versions = versions

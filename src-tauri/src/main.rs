@@ -51,7 +51,7 @@ async fn main() {
 
             // Initialize app context with loaded config
             let config = AppConfig::load();
-            tauri::async_runtime::block_on(application::apply_config(app_handle, config))?;
+            tauri::async_runtime::spawn(application::apply_config(app_handle, config));
 
             Ok(())
         })

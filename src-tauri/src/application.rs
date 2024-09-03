@@ -34,7 +34,19 @@ pub(crate) struct AppContext {
 pub(crate) async fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> Result<()> {
     let app_context = app_handle.state::<Context>();
     let client_identity = match (config.client_cert_path, config.client_cert_key_path) {
-        (Some(cert_path), Some(key_path)) => Some(get_publisher_identity(cert_path, key_path)?),
+        (Some(cert_path), Some(key_path)) => {
+            match get_publisher_identity(cert_path.clone(), key_path.clone()) {
+                Ok(identity) => Some(identity),
+                Err(e) => {
+                    log::error!(
+                        cert_path,
+                        key_path;
+                        "failed to get publisher identity: {e}"
+                    );
+                    None
+                }
+            }
+        }
         _ => None,
     };
 

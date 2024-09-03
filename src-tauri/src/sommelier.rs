@@ -6,7 +6,7 @@ use tendermint_rpc::{Client, HttpClient};
 
 use crate::state;
 
-const HEIGHT_REFRESH_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_secs(5);
+const HEIGHT_REFRESH_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_secs(7);
 
 static HTTP_CLIENT: OnceCell<HttpClient> = OnceCell::new();
 
