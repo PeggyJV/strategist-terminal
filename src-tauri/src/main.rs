@@ -46,30 +46,33 @@ fn main() {
 
             // Initialize app context with loaded config
             let config = AppConfig::load();
-            application::apply_config(app_handle.clone(), config).expect("failed to apply config");
 
-            // Spawn background threads. We run the refresh_subscriber_cache_thread first,
-            // then spawn the other two threads.
-            tauri::async_runtime::spawn(async move {
-                // Populate subscriber cache
-                application::refresh_subscriber_cache(app_handle.clone())
-                    .await
-                    .expect("Failed to refresh subscriber cache");
+            tauri::async_runtime::block_on(async move {
+                application::apply_config(app_handle.clone(), config).await;
 
-                // Monitor subscribers' Steward versions
-                tauri::async_runtime::spawn(steward::refresh_steward_versions_thread(
-                    app_handle.clone(),
-                ));
+                // Spawn background threads. We run the refresh_subscriber_cache_thread first,
+                // then spawn the other two threads.
+                tauri::async_runtime::spawn(async move {
+                    // Populate subscriber cache
+                    application::refresh_subscriber_cache(app_handle.clone())
+                        .await
+                        .expect("Failed to refresh subscriber cache");
 
-                // Refresh block height
-                tauri::async_runtime::spawn(sommelier::refresh_block_height_thread(
-                    app_handle.clone(),
-                ));
+                    // Monitor subscribers' Steward versions
+                    tauri::async_runtime::spawn(steward::refresh_steward_versions_thread(
+                        app_handle.clone(),
+                    ));
 
-                // Continue running the refresh_subscriber_cache_thread
-                tauri::async_runtime::spawn(application::refresh_subscriber_cache_thread(
-                    app_handle.clone(),
-                ));
+                    // Refresh block height
+                    tauri::async_runtime::spawn(sommelier::refresh_block_height_thread(
+                        app_handle.clone(),
+                    ));
+
+                    // Continue running the refresh_subscriber_cache_thread
+                    tauri::async_runtime::spawn(application::refresh_subscriber_cache_thread(
+                        app_handle.clone(),
+                    ));
+                });
             });
 
             Ok(())

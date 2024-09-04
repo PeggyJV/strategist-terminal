@@ -5,8 +5,6 @@ use std::{collections::HashMap, str::FromStr};
 use alloy_primitives::Address;
 use tauri::Manager;
 
-use tracing::info;
-
 use crate::{
     application,
     cellar_call::CellarCall,
@@ -17,27 +15,24 @@ use crate::{
 
 /// Applies the user's configuration.
 #[tauri::command]
-pub(crate) fn configure(
+pub(crate) async fn configure(
     app_handle: tauri::AppHandle,
-    somm_node_rpc: &str,
-    somm_node_grpc: &str,
-    publisher_domain: &str,
-    client_cert_path: &str,
-    client_cert_key_path: &str,
+    somm_node_rpc: String,
+    somm_node_grpc: String,
+    publisher_domain: String,
+    client_cert_path: String,
+    client_cert_key_path: String,
 ) -> String {
     let config = AppConfig {
-        rpc_endpoint: Some(somm_node_rpc.to_string()),
-        grpc_endpoint: Some(somm_node_grpc.to_string()),
-        publisher_domain: Some(publisher_domain.to_string()),
-        client_cert_path: Some(client_cert_path.to_string()),
-        client_cert_key_path: Some(client_cert_key_path.to_string()),
+        rpc_endpoint: Some(somm_node_rpc),
+        grpc_endpoint: Some(somm_node_grpc),
+        publisher_domain: Some(publisher_domain),
+        client_cert_path: Some(client_cert_path),
+        client_cert_key_path: Some(client_cert_key_path),
     };
 
     // Updates config in state
-    match application::apply_config(app_handle.clone(), config.clone()) {
-        Ok(_) => info!("app config applied"),
-        Err(e) => return format!("failed to apply config: {e:?}"),
-    }
+    application::apply_config(app_handle.clone(), config.clone()).await;
 
     // Updates config on disk
     if let Err(e) = config.save() {

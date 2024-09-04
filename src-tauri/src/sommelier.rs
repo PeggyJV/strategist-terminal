@@ -20,7 +20,6 @@ async fn get_or_init_client(rpc_endpoint: &str) -> Result<&'static HttpClient> {
 pub async fn refresh_block_height_thread(app_handle: tauri::AppHandle) -> Result<()> {
     let app_context = app_handle.state::<application::Context>();
     let rpc_endpoint = app_context.0.read().await.rpc_endpoint.clone();
-
     let mut interval = tokio::time::interval(HEIGHT_REFRESH_INTERVAL);
     loop {
         interval.tick().await;

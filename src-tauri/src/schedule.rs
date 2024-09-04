@@ -220,16 +220,15 @@ async fn broadcast_schedule_request(
     log::trace!(id; "broadcasting schedule request");
 
     let app_context = app_handle.state::<application::Context>();
-    let app_context_guard = app_context.0.read().await;
 
-    let Some(subscribers) = app_context_guard.subscribers.to_owned() else {
+    let Some(subscribers) = app_context.0.read().await.subscribers.to_owned() else {
         log::error!(id; "no subscribers found");
 
         tx.send(RequestStatus::FailedBroadcast).await?;
         return Ok(RequestStatus::FailedBroadcast);
     };
 
-    let Some(identity) = app_context_guard.client_identity.clone() else {
+    let Some(identity) = app_context.0.read().await.client_identity.clone() else {
         log::error!(id; "client identity not found");
         tx.send(RequestStatus::FailedBroadcast).await?;
         bail!("app context does not contain client identity. user must provide their certificate and key.");

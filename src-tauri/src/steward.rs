@@ -38,7 +38,7 @@ pub(crate) struct StewardVersion {
 /// Queries all subscriber endpoints for their Steward verions
 pub(crate) async fn get_all_steward_versions(app_handle: tauri::AppHandle) -> Vec<StewardVersion> {
     let app_context = app_handle.state::<application::Context>();
-    let Some(subscribers) = &app_context.0.read().await.subscribers else {
+    let Some(subscribers) = app_context.0.read().await.subscribers.to_owned() else {
         log::error!("no subscribers found when attempting to query steward versions");
         return vec![];
     };

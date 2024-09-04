@@ -6,7 +6,7 @@ use somm_proto::pubsub::Subscriber;
 use tauri::Manager;
 use tokio::sync::RwLock;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig, Identity};
-use tracing::debug;
+use tracing::{debug, field::debug};
 
 use crate::config::AppConfig;
 
@@ -31,8 +31,7 @@ pub(crate) struct AppContext {
     pub subscribers: Option<Vec<Subscriber>>,
 }
 
-pub(crate) fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> Result<()> {
-    let app_context = app_handle.state::<Context>();
+pub(crate) async fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) {
     let client_identity = match (config.client_cert_path, config.client_cert_key_path) {
         (Some(cert_path), Some(key_path)) => {
             match get_publisher_identity(cert_path.clone(), key_path.clone()) {
@@ -50,19 +49,27 @@ pub(crate) fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> R
         _ => None,
     };
 
-    *app_context.0.blocking_write() = AppContext {
-        rpc_endpoint: config
-            .rpc_endpoint
-            .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string()),
-        grpc_endpoint: config
-            .grpc_endpoint
-            .unwrap_or(DEFAULT_GRPC_ENDPOINT.to_string()),
-        publisher_domain: config.publisher_domain,
-        client_identity,
-        subscribers: None,
-    };
+    log::debug!("writing to app context");
+    let app_context = app_handle.state::<Context>();
+    let mut lock = app_context.0.write().await;
 
-    Ok(())
+    lock.rpc_endpoint = config
+        .rpc_endpoint
+        .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string());
+    lock.grpc_endpoint = config
+        .grpc_endpoint
+        .unwrap_or(DEFAULT_GRPC_ENDPOINT.to_string());
+
+    if config.publisher_domain.is_some() && lock.publisher_domain.ne(&config.publisher_domain) {
+        lock.publisher_domain = config.publisher_domain;
+    }
+
+    if client_identity.is_some() {
+        lock.client_identity = client_identity;
+    }
+
+    drop(lock);
+    log::debug!("wrote to app context");
 }
 
 fn get_publisher_identity(cert_path: String, cert_key_path: String) -> Result<Identity> {
@@ -91,6 +98,7 @@ pub(crate) async fn refresh_subscriber_cache(app_handle: tauri::AppHandle) -> Re
     let app_context = app_handle.state::<Context>();
 
     app_context.0.write().await.subscribers = Some(subscribers);
+    debug!("subscriber cache updated");
 
     Ok(())
 }
