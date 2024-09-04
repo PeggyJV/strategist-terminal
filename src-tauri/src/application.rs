@@ -31,7 +31,7 @@ pub(crate) struct AppContext {
     pub subscribers: Option<Vec<Subscriber>>,
 }
 
-pub(crate) async fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> Result<()> {
+pub(crate) fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> Result<()> {
     let app_context = app_handle.state::<Context>();
     let client_identity = match (config.client_cert_path, config.client_cert_key_path) {
         (Some(cert_path), Some(key_path)) => {
@@ -50,7 +50,7 @@ pub(crate) async fn apply_config(app_handle: tauri::AppHandle, config: AppConfig
         _ => None,
     };
 
-    *app_context.0.write().await = AppContext {
+    *app_context.0.blocking_write() = AppContext {
         rpc_endpoint: config
             .rpc_endpoint
             .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string()),

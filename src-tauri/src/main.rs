@@ -46,13 +46,7 @@ fn main() {
 
             // Initialize app context with loaded config
             let config = AppConfig::load();
-            if let Err(err) = tauri::async_runtime::block_on(application::apply_config(
-                app_handle.clone(),
-                config,
-            )) {
-                log::error!("failed to apply config: {err}");
-                std::process::exit(1);
-            }
+            application::apply_config(app_handle.clone(), config).expect("failed to apply config");
 
             // Spawn background threads. We run the refresh_subscriber_cache_thread first,
             // then spawn the other two threads.

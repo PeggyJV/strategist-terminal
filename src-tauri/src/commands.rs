@@ -33,31 +33,18 @@ pub(crate) fn configure(
         client_cert_key_path: Some(client_cert_key_path.to_string()),
     };
 
-    // Save the config to file,
-    futures::executor::block_on(async move {
-        match application::apply_config(app_handle.clone(), config.clone()).await {
-            Ok(_) => info!("app context initialized"),
-            Err(e) => return format!("failed to initialize app config: {e:?}"),
-        }
+    // Updates config in state
+    match application::apply_config(app_handle.clone(), config.clone()) {
+        Ok(_) => info!("app config applied"),
+        Err(e) => return format!("failed to apply config: {e:?}"),
+    }
 
-        let subscribers = application::get_subscribers(app_handle.clone()).await;
+    // Updates config on disk
+    if let Err(e) = config.save() {
+        return format!("Failed to save config: {}", e);
+    }
 
-        match subscribers {
-            Ok(subscribers) => {
-                let app_context = app_handle.state::<application::Context>();
-                let mut context = app_context.0.write().await;
-                context.subscribers = Some(subscribers);
-                info!("subscribers loaded");
-            }
-            Err(e) => return format!("failed to load subscribers: {e:?}"),
-        }
-
-        if let Err(e) = config.save() {
-            return format!("Failed to save config: {}", e);
-        }
-
-        "app context initialized".to_string()
-    })
+    "app config applied and saved to file".to_string()
 }
 
 /// Gets the current state of all requests.
