@@ -95,6 +95,19 @@ pub(crate) async fn refresh_subscriber_cache(app_handle: tauri::AppHandle) -> Re
     Ok(())
 }
 
+pub(crate) async fn refresh_subscriber_cache_thread(app_handle: tauri::AppHandle) {
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(3000));
+
+    // Consume the first tick since we should have already populated the cache by now.
+    interval.tick().await;
+    loop {
+        interval.tick().await;
+        if let Err(err) = refresh_subscriber_cache(app_handle.clone()).await {
+            log::error!("failed to refresh subscriber cache: {err}");
+        }
+    }
+}
+
 pub(crate) async fn get_channel(
     publisher_identity: Identity,
     subscriber_ca: String,

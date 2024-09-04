@@ -12,7 +12,6 @@ use crate::{
     cellar_call::CellarCall,
     config::AppConfig,
     schedule::{self, build_flash_loan_request, build_request},
-    sommelier,
     state::{self, RequestState},
 };
 
@@ -26,13 +25,6 @@ pub(crate) fn configure(
     client_cert_path: &str,
     client_cert_key_path: &str,
 ) -> String {
-    // Run the block sync thread. Doing this here because it requires a gRPC endpoint, would be
-    // nice if it worked at startup though.
-    tokio::task::spawn(sommelier::sync_block_height(
-        app_handle.clone(),
-        somm_node_rpc.to_string(),
-    ));
-
     let config = AppConfig {
         rpc_endpoint: Some(somm_node_rpc.to_string()),
         grpc_endpoint: Some(somm_node_grpc.to_string()),

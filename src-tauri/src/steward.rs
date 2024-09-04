@@ -51,8 +51,19 @@ pub(crate) async fn get_all_steward_versions(app_handle: tauri::AppHandle) -> Ve
     .await
 }
 
+/// Prepends the provided push URL with the https scheme if it is not already present
+async fn ensure_https_scheme(push_url: &str) -> String {
+    if !push_url.starts_with("https://") {
+        format!("https://{}", push_url)
+    } else {
+        push_url.to_string()
+    }
+}
+
 /// Queries the provided subscriber endpoint for it's Steward version
 pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion {
+    let grpc_endpoint = ensure_https_scheme(&grpc_endpoint).await;
+
     let mut client = match get_or_create_client(&grpc_endpoint).await {
         Ok(client) => client,
         Err(e) => {

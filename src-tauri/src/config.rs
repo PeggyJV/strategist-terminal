@@ -4,6 +4,8 @@ use std::path::Path;
 
 pub(crate) const CONFIG_FILE_ENV_VAR: &str = "ST_CONFIG_FILE";
 pub(crate) const DEFAULT_CONFIG_FILE: &str = "./config.toml";
+pub(crate) const DEFAULT_RPC_ENDPOINT: &str = "https://sommelier-rpc.polkachu.com:443";
+pub(crate) const DEFAULT_GRPC_ENDPOINT: &str = "https://sommelier-grpc.polkachu.com:14190";
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AppConfig {
@@ -44,8 +46,8 @@ impl AppConfig {
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            rpc_endpoint: None,
-            grpc_endpoint: None,
+            rpc_endpoint: Some(DEFAULT_RPC_ENDPOINT.to_string()),
+            grpc_endpoint: Some(DEFAULT_GRPC_ENDPOINT.to_string()),
             publisher_domain: None,
             client_cert_path: None,
             client_cert_key_path: None,

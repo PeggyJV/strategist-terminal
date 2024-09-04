@@ -4,9 +4,9 @@ use once_cell::sync::OnceCell;
 use tauri::Manager;
 use tendermint_rpc::{Client, HttpClient};
 
-use crate::state;
+use crate::{application, state};
 
-const HEIGHT_REFRESH_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_secs(7);
+const HEIGHT_REFRESH_INTERVAL: tokio::time::Duration = tokio::time::Duration::from_secs(6);
 
 static HTTP_CLIENT: OnceCell<HttpClient> = OnceCell::new();
 
@@ -17,13 +17,20 @@ async fn get_or_init_client(rpc_endpoint: &str) -> Result<&'static HttpClient> {
 }
 
 /// Keeps state for the block height in sync with the chain
-pub async fn sync_block_height(app_handle: tauri::AppHandle, rpc_endpoint: String) -> Result<()> {
+pub async fn refresh_block_height_thread(app_handle: tauri::AppHandle) -> Result<()> {
+    let app_context = app_handle.state::<application::Context>();
+    let rpc_endpoint = app_context.0.read().await.rpc_endpoint.clone();
+
+    let mut interval = tokio::time::interval(HEIGHT_REFRESH_INTERVAL);
     loop {
+        interval.tick().await;
+        if rpc_endpoint.is_empty() {
+            log::warn!("no RPC endpoint set, skipping block height refresh");
+            continue;
+        }
         if let Err(err) = refresh_block_height(app_handle.clone(), &rpc_endpoint).await {
             log::error!("failed to refresh block height: {}", err);
         }
-
-        tokio::time::sleep(HEIGHT_REFRESH_INTERVAL).await;
     }
 }
 
