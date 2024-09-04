@@ -1,9 +1,6 @@
 use tauri::Manager;
 
-use crate::{
-    application::{self, AppContext},
-    state,
-};
+use crate::{application, state};
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -39,8 +36,9 @@ pub(crate) struct StewardVersion {
 }
 
 /// Queries all subscriber endpoints for their Steward verions
-pub(crate) async fn get_all_steward_versions(app_context: &AppContext) -> Vec<StewardVersion> {
-    let Some(subscribers) = &app_context.subscribers else {
+pub(crate) async fn get_all_steward_versions(app_handle: tauri::AppHandle) -> Vec<StewardVersion> {
+    let app_context = app_handle.state::<application::Context>();
+    let Some(subscribers) = &app_context.0.read().await.subscribers else {
         log::error!("no subscribers found when attempting to query steward versions");
         return vec![];
     };
@@ -53,8 +51,19 @@ pub(crate) async fn get_all_steward_versions(app_context: &AppContext) -> Vec<St
     .await
 }
 
+/// Prepends the provided push URL with the https scheme if it is not already present
+async fn ensure_https_scheme(push_url: &str) -> String {
+    if !push_url.starts_with("https://") {
+        format!("https://{}", push_url)
+    } else {
+        push_url.to_string()
+    }
+}
+
 /// Queries the provided subscriber endpoint for it's Steward version
 pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion {
+    let grpc_endpoint = ensure_https_scheme(&grpc_endpoint).await;
+
     let mut client = match get_or_create_client(&grpc_endpoint).await {
         Ok(client) => client,
         Err(e) => {
@@ -97,8 +106,14 @@ pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion
 pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
     log::trace!("refreshing steward versions");
 
-    let app_context = application::get_app_context().await;
-    let versions = get_all_steward_versions(&app_context).await;
+    // If the subscribers list has not been initialized yet, no versions will be available.
+    // Since the refresh interval is so long here we can just wait until the list is initialized.
+    let mut versions = Vec::new();
+    while versions.is_empty() {
+        versions = get_all_steward_versions(app_handle.clone()).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+    }
+
     let state = app_handle.state::<state::Stewards>();
     let mut state = state.0.lock().await;
     state.versions = versions

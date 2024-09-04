@@ -1,14 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use steward::refresh_steward_versions_thread;
-
+use crate::config::AppConfig;
 use tauri_plugin_log::LogTarget;
 
 mod adaptors;
 mod application;
 mod cellar_call;
 mod commands;
+mod config;
 mod lifecycle;
 mod logging;
 mod schedule;
@@ -16,10 +16,10 @@ mod sommelier;
 mod state;
 mod steward;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     tauri::Builder::default()
         // Initialize state
+        .manage(application::Context::new())
         .manage(state::Sommelier::new())
         .manage(state::Requests::new())
         .manage(state::Stewards::new())
@@ -44,8 +44,39 @@ async fn main() {
         .setup(|app| {
             let app_handle = app.handle();
 
-            // Monitor subscribers' Steward versions
-            tauri::async_runtime::spawn(refresh_steward_versions_thread(app_handle));
+            // Initialize app context with loaded config
+            let config = AppConfig::load();
+            if let Err(err) = tauri::async_runtime::block_on(application::apply_config(
+                app_handle.clone(),
+                config,
+            )) {
+                log::error!("failed to apply config: {err}");
+                std::process::exit(1);
+            }
+
+            // Spawn background threads. We run the refresh_subscriber_cache_thread first,
+            // then spawn the other two threads.
+            tauri::async_runtime::spawn(async move {
+                // Populate subscriber cache
+                application::refresh_subscriber_cache(app_handle.clone())
+                    .await
+                    .expect("Failed to refresh subscriber cache");
+
+                // Monitor subscribers' Steward versions
+                tauri::async_runtime::spawn(steward::refresh_steward_versions_thread(
+                    app_handle.clone(),
+                ));
+
+                // Refresh block height
+                tauri::async_runtime::spawn(sommelier::refresh_block_height_thread(
+                    app_handle.clone(),
+                ));
+
+                // Continue running the refresh_subscriber_cache_thread
+                tauri::async_runtime::spawn(application::refresh_subscriber_cache_thread(
+                    app_handle.clone(),
+                ));
+            });
 
             Ok(())
         })

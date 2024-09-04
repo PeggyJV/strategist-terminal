@@ -2,41 +2,22 @@
 use std::{fs, sync::Arc};
 
 use eyre::{bail, Result};
-use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
 use somm_proto::pubsub::Subscriber;
+use tauri::Manager;
 use tokio::sync::RwLock;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig, Identity};
 use tracing::debug;
 
+use crate::config::AppConfig;
+
 const DEFAULT_RPC_ENDPOINT: &str = "https://sommelier-rpc.polkachu.com:443";
 const DEFAULT_GRPC_ENDPOINT: &str = "https://sommelier-grpc.polkachu.com:14190";
 
-lazy_static! {
-    pub(crate) static ref APP_CONTEXT: Arc<RwLock<AppContext>> =
-        Arc::new(RwLock::new(AppContext::default()));
-}
+pub(crate) struct Context(pub(crate) Arc<RwLock<AppContext>>);
 
-// TODO: front end needs to ask the user to supply domain and cert data
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub(crate) struct AppConfig {
-    pub rpc_endpoint: Option<String>,
-    pub grpc_endpoint: Option<String>,
-    pub publisher_domain: Option<String>,
-    pub client_cert_path: Option<String>,
-    pub client_cert_key_path: Option<String>,
-}
-
-impl std::fmt::Display for AppConfig {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "AppConfig {{ rpc_endpoint: {:?}, grpc_endpoint: {:?}, publisher_domain: {:?}, client_cert_path: {:?}, client_cert_key_path: {:?} }}",
-               self.rpc_endpoint, self.grpc_endpoint, self.publisher_domain, self.client_cert_path, self.client_cert_key_path)
-    }
-}
-
-impl log::kv::ToValue for AppConfig {
-    fn to_value(&self) -> log::kv::Value {
-        log::kv::Value::from_serde(self)
+impl Context {
+    pub(crate) fn new() -> Self {
+        Self(Arc::new(RwLock::new(AppContext::default())))
     }
 }
 
@@ -50,37 +31,38 @@ pub(crate) struct AppContext {
     pub subscribers: Option<Vec<Subscriber>>,
 }
 
-pub(crate) fn initialize_app_context(config: AppConfig) -> Result<()> {
-    let mut app_context = futures::executor::block_on(APP_CONTEXT.write());
-    let rpc_endpoint = config
-        .rpc_endpoint
-        .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string());
-    let grpc_endpoint = config
-        .grpc_endpoint
-        .unwrap_or(DEFAULT_GRPC_ENDPOINT.to_string());
-    let client_identity =
-        if config.client_cert_path.is_some() && config.client_cert_key_path.is_some() {
-            Some(get_publisher_identity(
-                config.client_cert_path.unwrap(),
-                config.client_cert_key_path.unwrap(),
-            )?)
-        } else {
-            None
-        };
+pub(crate) async fn apply_config(app_handle: tauri::AppHandle, config: AppConfig) -> Result<()> {
+    let app_context = app_handle.state::<Context>();
+    let client_identity = match (config.client_cert_path, config.client_cert_key_path) {
+        (Some(cert_path), Some(key_path)) => {
+            match get_publisher_identity(cert_path.clone(), key_path.clone()) {
+                Ok(identity) => Some(identity),
+                Err(e) => {
+                    log::error!(
+                        cert_path,
+                        key_path;
+                        "failed to get publisher identity: {e}"
+                    );
+                    None
+                }
+            }
+        }
+        _ => None,
+    };
 
-    *app_context = AppContext {
-        rpc_endpoint,
-        grpc_endpoint,
+    *app_context.0.write().await = AppContext {
+        rpc_endpoint: config
+            .rpc_endpoint
+            .unwrap_or(DEFAULT_RPC_ENDPOINT.to_string()),
+        grpc_endpoint: config
+            .grpc_endpoint
+            .unwrap_or(DEFAULT_GRPC_ENDPOINT.to_string()),
         publisher_domain: config.publisher_domain,
         client_identity,
         subscribers: None,
     };
 
     Ok(())
-}
-
-pub(crate) async fn get_app_context() -> tokio::sync::RwLockReadGuard<'static, AppContext> {
-    APP_CONTEXT.read().await
 }
 
 fn get_publisher_identity(cert_path: String, cert_key_path: String) -> Result<Identity> {
@@ -90,7 +72,9 @@ fn get_publisher_identity(cert_path: String, cert_key_path: String) -> Result<Id
     Ok(Identity::from_pem(client_cert, client_key))
 }
 
-pub(crate) async fn get_subscribers(grpc_endpoint: &str) -> Result<Vec<Subscriber>> {
+pub(crate) async fn get_subscribers(app_handle: tauri::AppHandle) -> Result<Vec<Subscriber>> {
+    let app_context = app_handle.state::<Context>();
+    let grpc_endpoint = app_context.0.read().await.grpc_endpoint.clone();
     let mut client =
         somm_proto::pubsub::query_client::QueryClient::connect(grpc_endpoint.to_string()).await?;
     let request = somm_proto::pubsub::QuerySubscribersRequest {};
@@ -101,14 +85,27 @@ pub(crate) async fn get_subscribers(grpc_endpoint: &str) -> Result<Vec<Subscribe
     Ok(response.into_inner().subscribers)
 }
 
-pub(crate) async fn refresh_subscriber_cache(grpc_endpoint: &str) -> Result<()> {
+pub(crate) async fn refresh_subscriber_cache(app_handle: tauri::AppHandle) -> Result<()> {
     debug!("refreshing subscriber cache");
-    let subscribers = get_subscribers(grpc_endpoint).await?;
-    let mut app_context = APP_CONTEXT.write().await;
+    let subscribers = get_subscribers(app_handle.clone()).await?;
+    let app_context = app_handle.state::<Context>();
 
-    app_context.subscribers = Some(subscribers);
+    app_context.0.write().await.subscribers = Some(subscribers);
 
     Ok(())
+}
+
+pub(crate) async fn refresh_subscriber_cache_thread(app_handle: tauri::AppHandle) {
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(3000));
+
+    // Consume the first tick since we should have already populated the cache by now.
+    interval.tick().await;
+    loop {
+        interval.tick().await;
+        if let Err(err) = refresh_subscriber_cache(app_handle.clone()).await {
+            log::error!("failed to refresh subscriber cache: {err}");
+        }
+    }
 }
 
 pub(crate) async fn get_channel(
@@ -135,20 +132,4 @@ pub(crate) async fn get_channel(
         .connect()
         .await
         .map_err(Into::into)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_subscribers_cache() {
-        refresh_subscriber_cache(DEFAULT_GRPC_ENDPOINT)
-            .await
-            .unwrap();
-
-        let subscribers = &get_app_context().await.subscribers;
-        assert!(subscribers.is_some());
-        assert!(subscribers.to_owned().unwrap().len() > 0);
-    }
 }

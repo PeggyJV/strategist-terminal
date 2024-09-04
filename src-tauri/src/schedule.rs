@@ -11,6 +11,7 @@ use steward_proto::proto::{
     ScheduleResponse,
 };
 use tauri::async_runtime::Sender;
+use tauri::Manager;
 use tonic::transport::{Channel, Identity};
 use tracing::{debug, info};
 
@@ -19,7 +20,7 @@ use crate::adaptors::{
     Adaptors,
 };
 use crate::{
-    application::{self, get_channel, AppContext},
+    application::{self, get_channel},
     cellar_call::{
         construct_call_data, convert_to_aave_v3_flash_loan_adaptor,
         convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
@@ -160,8 +161,7 @@ pub(crate) fn build_flash_loan_request(
 }
 
 /// Handles submitting and tracking the request
-pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandle) -> Result<()> {
-    let app_context = application::get_app_context().await;
+pub(crate) async fn handle(app_handle: tauri::AppHandle, request: ScheduleRequest) -> Result<()> {
     let request_state = RequestState::new();
     let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
     let chain_id = request.chain_id;
@@ -181,16 +181,14 @@ pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandl
 
     let _height = request.block_height;
     let request_status =
-        broadcast_schedule_request(trace_id, &app_context, tx.clone(), request).await?;
+        broadcast_schedule_request(trace_id, app_handle.clone(), tx.clone(), request).await?;
     let (_cork_id, _invalidation_scope) = match request_status {
         RequestStatus::FailedBroadcast => {
             log::warn!(id = trace_id; "broadcast failed");
 
             return Ok(());
         }
-        RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => {
-            (cork_id.clone(), invalidation_scope.clone())
-        }
+        RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => (cork_id, invalidation_scope),
         _ => bail!("unexpected request status after broadcast: {request_status:?}"),
     };
 
@@ -215,20 +213,23 @@ pub(crate) async fn handle(request: ScheduleRequest, app_handle: tauri::AppHandl
 /// Broadcasts the [`ScheduleRequest`] to all subscribers
 async fn broadcast_schedule_request(
     id: &str,
-    context: &AppContext,
+    app_handle: tauri::AppHandle,
     tx: Sender<RequestStatus>,
     request: ScheduleRequest,
 ) -> Result<RequestStatus> {
     log::trace!(id; "broadcasting schedule request");
 
-    let Some(subscribers) = context.subscribers.to_owned() else {
+    let app_context = app_handle.state::<application::Context>();
+    let app_context_guard = app_context.0.read().await;
+
+    let Some(subscribers) = app_context_guard.subscribers.to_owned() else {
         log::error!(id; "no subscribers found");
 
         tx.send(RequestStatus::FailedBroadcast).await?;
         return Ok(RequestStatus::FailedBroadcast);
     };
 
-    let Some(identity) = context.client_identity.clone() else {
+    let Some(identity) = app_context_guard.client_identity.clone() else {
         log::error!(id; "client identity not found");
         tx.send(RequestStatus::FailedBroadcast).await?;
         bail!("app context does not contain client identity. user must provide their certificate and key.");
