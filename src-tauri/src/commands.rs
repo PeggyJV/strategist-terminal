@@ -83,7 +83,7 @@ pub(crate) fn clear_requests(app_handle: tauri::AppHandle) -> Result<(), String>
 
 /// Schedules a request to be broadcast to all subscribers and tracked.
 #[tauri::command]
-pub(crate) fn schedule_request(
+pub(crate) async fn schedule_request(
     app_handle: tauri::AppHandle,
     cellar_id: String,
     block_height: String,
@@ -154,10 +154,9 @@ pub(crate) fn schedule_request(
 
     log::trace!(request:?; "spawning request handler");
 
-    tokio::task::spawn(schedule::handle(app_handle.clone(), request));
-
-    // TODO: return results to frontend
-    Ok(())
+    schedule::handle(app_handle.clone(), request)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Command to get all subscribers' current Steward versions.
