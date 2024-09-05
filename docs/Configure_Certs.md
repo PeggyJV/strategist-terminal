@@ -4,6 +4,8 @@
 
 This document provides step-by-step instructions on how to configure the Strategist Terminal to use the appropriate cryptographic materials for signing requests containing Cellar function calls in the Sommelier system.
 
+After following these steps, your settings will be saved. The Strategist Terminal will automatically use these saved configurations in future sessions, so you won't need to re-enter this information each time you launch the application.
+
 ## Overview
 
 In the Sommelier system, the Strategist Terminal is considered the client, and each Validator's Steward instance is considered a server. Additionally, client and server identities are registered on the Sommelier chain, and are referred to as Publishers and Subscribers, respectively. This is because Cellar rebalances are ordinally executed using a Push model, where strategists publish the call data to subscribed Steward instances. Both publishers and subscribers generate their own self-signed certificates, and include their self-generated Certificate Authority with their on-chain identity registration so that each party can authenticate the other.
