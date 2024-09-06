@@ -595,6 +595,7 @@ dependencies = [
  "fern",
  "futures",
  "gravity_proto",
+ "itertools 0.13.0",
  "lazy_static",
  "log",
  "once_cell",

@@ -1,6 +1,7 @@
 use std::{collections::HashMap, fmt::Arguments};
 
 use fern::FormatCallback;
+use itertools::Itertools;
 use log::Record;
 
 /// A visitor that collects key-value pairs from a log record for display.
@@ -13,7 +14,7 @@ pub(crate) struct KVVisitor {
 impl std::fmt::Display for KVVisitor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut lines = Vec::<String>::new();
-        for (key, value) in &self.map {
+        for (key, value) in self.map.iter().sorted() {
             lines.push(format!("    {}: {}", key, value));
         }
 

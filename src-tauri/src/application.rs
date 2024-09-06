@@ -106,8 +106,19 @@ pub(crate) async fn refresh_subscriber_cache(app_handle: tauri::AppHandle) -> Re
 pub(crate) async fn refresh_subscriber_cache_thread(app_handle: tauri::AppHandle) {
     let mut interval = tokio::time::interval(std::time::Duration::from_secs(3000));
 
-    // Consume the first tick since we should have already populated the cache by now.
-    interval.tick().await;
+    // Consume the first tick if the cache is already populated, which it should be
+    // if the app startup is doing its job.
+    if app_handle
+        .state::<Context>()
+        .0
+        .read()
+        .await
+        .subscribers
+        .is_some()
+    {
+        interval.tick().await;
+    }
+
     loop {
         interval.tick().await;
         if let Err(err) = refresh_subscriber_cache(app_handle.clone()).await {

@@ -246,6 +246,8 @@ async fn broadcast_schedule_request(
 
     let result = posts.await;
 
+    log::debug!("broadcast results: {result:?}");
+
     // Extract the cork ID from one of the successful responses.
     // If there were no successful responses this iterator has length zero and nothing happens,
     // resulting in a failed broadcast.
