@@ -37,6 +37,20 @@ pub async fn track_request(
 
                 log::info!(id = trace_id, status = &RequestStatus::AwaitingVote((cork_id.to_owned(), invalidation_scope.to_owned())); "request is awaiting vote");
             }
+            RequestStatus::AwaitingConfirmation => {
+                requests
+                    .entry(id.clone())
+                    .and_modify(|r| r.status = RequestStatus::AwaitingConfirmation);
+
+                log::info!(id = trace_id, status = &RequestStatus::AwaitingConfirmation; "request is awaiting confirmation");
+            }
+            RequestStatus::FailedVote => {
+                requests
+                    .entry(id.clone())
+                    .and_modify(|r| r.status = RequestStatus::FailedVote);
+
+                log::error!(id = trace_id, status = &RequestStatus::FailedVote; "request failed vote");
+            }
             RequestStatus::AwaitingRelay(somm_tx_hash) => {
                 requests
                     .entry(id.clone())

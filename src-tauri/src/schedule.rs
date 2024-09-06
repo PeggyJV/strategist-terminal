@@ -19,6 +19,7 @@ use crate::adaptors::{
     get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call,
     Adaptors,
 };
+use crate::lifecycle::cork_vote::cork_voting_period;
 use crate::{
     application::{self, get_channel},
     cellar_call::{
@@ -179,10 +180,10 @@ pub(crate) async fn handle(app_handle: tauri::AppHandle, request: ScheduleReques
     // Broadcast the request to all subscribers
     tx.send(RequestStatus::Broadcasting).await?;
 
-    let _height = request.block_height;
+    let height = request.block_height;
     let request_status =
         broadcast_schedule_request(trace_id, app_handle.clone(), tx.clone(), request).await?;
-    let (_cork_id, _invalidation_scope) = match request_status {
+    let (cork_id, _invalidation_scope) = match request_status {
         RequestStatus::FailedBroadcast => {
             log::warn!(id = trace_id; "broadcast failed");
 
@@ -193,13 +194,12 @@ pub(crate) async fn handle(app_handle: tauri::AppHandle, request: ScheduleReques
     };
 
     // Wait for the scheduled height
-    // let request_status =
-    //     cork_voting_period(app_handle, &app_context, &cork_id, height, tx.clone()).await?;
-    // let tx = match request_status {
-    //     RequestStatus::AwaitingRelay(tx) => tx,
-    //     RequestStatus::FailedVote => return Ok(()),
-    //     _ => bail!("unexpected request status after voting period: {request_status:?}"),
-    // };
+    let request_status = cork_voting_period(app_handle, &cork_id, height, tx.clone()).await?;
+    let tx = match request_status {
+        RequestStatus::AwaitingConfirmation => tx,
+        RequestStatus::FailedVote => return Ok(()),
+        _ => bail!("unexpected request status after voting period: {request_status:?}"),
+    };
 
     // // Wait for relay
     // if invalidation_scope.is_empty() {
