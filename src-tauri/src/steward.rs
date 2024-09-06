@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+use somm_proto::pubsub::Subscriber;
 use tauri::Manager;
 
 use crate::{application, state};
@@ -12,27 +14,58 @@ lazy_static::lazy_static! {
 
 // Get or create a gRPC client for the provided endpoint. Avoids creating a new client for the same endpoint repeatedly.
 async fn get_or_create_client(
-    grpc_endpoint: &str,
+    app_handle: &tauri::AppHandle,
+    subscriber: &Subscriber,
 ) -> Result<
     steward_proto::proto::status_service_client::StatusServiceClient<tonic::transport::Channel>,
-    tonic::transport::Error,
+    Box<dyn std::error::Error>,
 > {
+    let grpc_endpoint = subscriber.push_url.clone();
     let mut clients = GRPC_CLIENTS.lock().await;
-    if let Some(client) = clients.get(grpc_endpoint) {
+    if let Some(client) = clients.get(&grpc_endpoint) {
         Ok(client.clone())
     } else {
-        let client = steward_proto::proto::status_service_client::StatusServiceClient::connect(
-            grpc_endpoint.to_string(),
-        )
-        .await?;
+        let app_context = app_handle.state::<application::Context>();
+        let context = app_context.0.read().await;
+        let client_identity = context.client_identity.clone();
+
+        let Some(client_identity) = client_identity else {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "client identity not set",
+            )));
+        };
+
+        let publisher_domain = context.publisher_domain.clone();
+        let ca_certificate = subscriber.ca_cert.clone();
+
+        // Release lock
+        drop(context);
+
+        log::debug!("grpc_endpoint: {:?}", grpc_endpoint);
+        log::debug!("publisher domain: {:?}", publisher_domain);
+        log::debug!("ca_certificate: {:?}", ca_certificate);
+
+        let channel =
+            application::get_channel(client_identity, ca_certificate, grpc_endpoint.clone())
+                .await?;
+        let client = steward_proto::proto::status_service_client::StatusServiceClient::new(channel);
         clients.insert(grpc_endpoint.to_string(), client.clone());
+
         Ok(client)
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 pub(crate) struct StewardVersion {
     pub(crate) endpoint: String,
     pub(crate) version: Option<String>,
+}
+
+impl log::kv::ToValue for StewardVersion {
+    fn to_value(&self) -> log::kv::Value {
+        log::kv::Value::from_serde(self)
+    }
 }
 
 /// Queries all subscriber endpoints for their Steward verions
@@ -46,7 +79,7 @@ pub(crate) async fn get_all_steward_versions(app_handle: tauri::AppHandle) -> Ve
     futures::future::join_all(
         subscribers
             .iter()
-            .map(|s| get_steward_version(s.push_url.clone())),
+            .map(|s| get_steward_version(app_handle.clone(), s.clone())),
     )
     .await
 }
@@ -61,10 +94,13 @@ async fn ensure_https_scheme(push_url: &str) -> String {
 }
 
 /// Queries the provided subscriber endpoint for it's Steward version
-pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion {
-    let grpc_endpoint = ensure_https_scheme(&grpc_endpoint).await;
+pub(crate) async fn get_steward_version(
+    app_handle: tauri::AppHandle,
+    subscriber: Subscriber,
+) -> StewardVersion {
+    let grpc_endpoint = ensure_https_scheme(&subscriber.push_url).await;
 
-    let mut client = match get_or_create_client(&grpc_endpoint).await {
+    let mut client = match get_or_create_client(&app_handle, &subscriber).await {
         Ok(client) => client,
         Err(e) => {
             log::error!(message = e.to_string(), push_url = grpc_endpoint.as_str(); "failed to connect to steward");
@@ -92,7 +128,14 @@ pub(crate) async fn get_steward_version(grpc_endpoint: String) -> StewardVersion
             }
         }
         Err(e) => {
-            log::error!(code = e.code() as i32, message = e.message(), push_url = grpc_endpoint.as_str(); "failed to get steward version");
+            log::error!(
+                code = e.code() as i32,
+                message = e.message(),
+                details:? = e.details(),
+                metadata:? = e.metadata(),
+                push_url = grpc_endpoint.as_str();
+                "failed to get steward version"
+            );
 
             StewardVersion {
                 endpoint: grpc_endpoint,
@@ -113,6 +156,8 @@ pub(crate) async fn refresh_steward_versions(app_handle: tauri::AppHandle) {
         versions = get_all_steward_versions(app_handle.clone()).await;
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
     }
+
+    log::debug!(versions:? = versions; "queried versions");
 
     let state = app_handle.state::<state::Stewards>();
     let mut state = state.0.lock().await;

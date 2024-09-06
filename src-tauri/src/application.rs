@@ -6,7 +6,7 @@ use somm_proto::pubsub::Subscriber;
 use tauri::Manager;
 use tokio::sync::RwLock;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig, Identity};
-use tracing::{debug, field::debug};
+use tracing::debug;
 
 use crate::config::AppConfig;
 
