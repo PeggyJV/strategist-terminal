@@ -38,7 +38,7 @@
         <span class="h-6 w-6 text-blue-600 text-5xl mx-auto sm:mx-0 sm:h-10 sm:w-10">&#x1F6C8;</span>
         <div class="sm:flex sm:items-start">
           <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Versions</h3>
+            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Steward Versions</h3>
             <div class="mt-2">
               <!-- Information fields: -->
 
@@ -49,7 +49,7 @@
               {:else}
                 <ul class="list-disc pl-5 text-sm text-gray-500 max-h-[500px] overflow-y-auto">
                 {#each Object.entries(versions) as [key, value]}
-                  <li>{key}: {value}}</li>
+                  <li>{key}: <b>{value}</b></li>
                 {/each}
                 </ul>
               {/if}

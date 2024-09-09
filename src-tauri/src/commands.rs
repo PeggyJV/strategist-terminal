@@ -168,3 +168,9 @@ pub(crate) fn steward_versions(app_handle: tauri::AppHandle) -> HashMap<String, 
 
     state.clone().versions
 }
+
+#[tauri::command]
+pub(crate) fn get_app_config() -> Result<AppConfig, String> {
+    let config = AppConfig::load();
+    Ok(config)
+}
