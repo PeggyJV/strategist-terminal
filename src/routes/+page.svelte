@@ -7,7 +7,7 @@
   import AdaptorsTab from "../components/adaptors/AdaptorsTab.svelte"
   import FlashLoansTab from "../components/flashLoan/FlashLoansTab.svelte"
   import Requests from "../components/requests/Requests.svelte"
-  import ErrorModal from "../components/ErrorModal.svelte"
+  import ErrorModal from "../components/ToastModal.svelte"
 
   let version = "";
 

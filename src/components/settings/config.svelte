@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
   import { onMount } from "svelte"
-  import { errorMessage } from "$stores/ErrorStore"
+  import { toast, ToastType } from "$stores/ToastStore"
 
   let rpc_endpoint = "https://sommelier-rpc.polkachu.com:443";
   let grpc_endpoint = "https://sommelier-grpc.polkachu.com:14190";
@@ -37,9 +37,20 @@
         client_cert_path,
         client_cert_key_path
       } = await invoke<AppConfig>("get_app_config", {}));
+      toast.set(
+        {
+          type: ToastType.Success,
+          description: "Configurations applied and saved to file"
+        }
+      );
     } catch (error) {
       console.error("Error fetching request states", error);
-      errorMessage.set("Error fetching request states: " + error);
+      toast.set(
+        {
+          type: ToastType.Error,
+          description: "Error fetching request states: " + error
+        }
+      );
     }
   }
 

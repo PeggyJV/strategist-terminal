@@ -1,7 +1,7 @@
 <script lang="ts">
 
   import { invoke } from "@tauri-apps/api/tauri"
-  import { errorMessage } from "$stores/ErrorStore"
+  import { toast, ToastType } from "$stores/ToastStore"
   import { onMount } from "svelte"
 
   export let toggleVersionsModal: () => void;
@@ -12,7 +12,12 @@
       versions = await invoke("steward_versions", {});
     } catch (error) {
       console.error("Error fetching steward versions", error);
-      errorMessage.set("Error fetching steward versions: " + error);
+      toast.set(
+        {
+          type: ToastType.Error,
+          description: "Error fetching steward versions: " + error
+        }
+      );
     }
   }
 

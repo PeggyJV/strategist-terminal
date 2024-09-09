@@ -3,7 +3,7 @@
   import { invoke } from "@tauri-apps/api/tauri"
   import type { Request } from "$lib/type"
   import { onMount } from "svelte"
-  import { errorMessage } from "$stores/ErrorStore"
+  import { toast, ToastType } from "$stores/ToastStore"
   import VersionsModal from "./VersionsModal.svelte"
 
   export let requests: Map<string, Request> = new Map();
@@ -17,7 +17,10 @@
       requests = await invoke("request_state", {});
     } catch (error) {
       console.error("Error fetching request states", error);
-      errorMessage.set("Error fetching request states: " + error);
+      toast.set({
+        type: ToastType.Error,
+        description: "Error scheduling a request: " + error
+      });
     }
   }
 
