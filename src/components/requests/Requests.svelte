@@ -3,6 +3,7 @@
   import { invoke } from "@tauri-apps/api/tauri"
   import type { Request } from "$lib/type"
   import { onMount } from "svelte"
+  import { errorMessage } from "$stores/ErrorStore"
 
   export let requests: Map<string, Request> = new Map();
 
@@ -14,6 +15,7 @@
       requests = await invoke("request_state", {});
     } catch (error) {
       console.error("Error fetching request states", error);
+      errorMessage.set("Error fetching request states: " + error);
     }
   }
 

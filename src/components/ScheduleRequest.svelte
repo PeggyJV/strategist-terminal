@@ -3,7 +3,8 @@
     import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "../components/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
-    import type { Request } from "./requests/Requests.svelte"
+    import type { Request } from "$lib/type"
+    import { errorMessage } from "$stores/ErrorStore"
 
     let modalVisible = false;  
     let showTooltip = false;
@@ -70,6 +71,7 @@
             toggleModal();
         }).catch((error) => {
             console.error(error);
+            errorMessage.set("Error scheduling a request: " + error);
             toggleModal();
         });
         queue.set([]);
