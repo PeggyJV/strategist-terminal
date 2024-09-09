@@ -1,9 +1,13 @@
 <script lang="ts">
-  import type { Request } from "./requests/Requests.svelte"
+  import type { Request } from "$lib/type"
   import TrackingTimeline from "./requests/TrackingTimeline.svelte"
 
-  export let toggleModal: (event: MouseEvent) => void;
-  export let request: Request;
+  export let toggleModal: (event?: MouseEvent) => void;
+  export let request: Request | undefined;
+
+  if (!request) {
+    toggleModal();
+  }
 
 </script>
 
@@ -35,7 +39,7 @@
             </div>
           </div>
 
-          <TrackingTimeline state={request?.state}/>
+          <TrackingTimeline state={request?.status}/>
         </div>
       </div>
     </div>

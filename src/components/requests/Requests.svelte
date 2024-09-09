@@ -1,51 +1,38 @@
-<script context="module" lang="ts">
-
-  export interface Request {
-    id: string,
-    state: string,
-    votingPower: string,
-    currentHeight: string,
-    scheduledHeight: string,
-    corkResult: string,
-  }
-
-</script>
 <script lang="ts">
   import StateModal from "../StateModal.svelte"
+  import { invoke } from "@tauri-apps/api/tauri"
+  import type { Request } from "$lib/type"
+  import { onMount } from "svelte"
 
-
-  const requests: Request[] = [
-    {
-      id: "111",
-      state: "Relayed",
-      votingPower: "xxx",
-      currentHeight: "xxx",
-      scheduledHeight: "xxx",
-      corkResult: "xxx",
-    },
-    {
-      id: "222",
-      state: "Scheduled",
-      votingPower: "xxx",
-      currentHeight: "xxx",
-      scheduledHeight: "xxx",
-      corkResult: "xxx",
-    }
-  ]
+  export let requests: Map<string, Request> = new Map();
 
   let modalVisible = false;
-  let activeRequest = requests[0];
+  let activeRequest: string;
 
-  function toggleModal(event: MouseEvent) {
+  async function getRequestStates() {
+    try {
+      requests = await invoke("request_state", {});
+    } catch (error) {
+      console.error("Error fetching request states", error);
+    }
+  }
+
+  function toggleModal(event?: MouseEvent) {
+    if (!event) {
+      modalVisible = !modalVisible;
+      return;
+    }
+
     const target = event.target as HTMLButtonElement;
 
-    activeRequest = requests.find(
-        (a: Request) => a.id ===  target.innerText
-      )
-      ?? requests[0]
+    activeRequest = requests.get(target.innerText) ?? requests.keys().next().value
 
     modalVisible = !modalVisible;
   }
+
+  onMount(() => {
+    getRequestStates();
+  });
 
 </script>
 <div class="prose w-screen">
@@ -53,6 +40,12 @@
   <div class="flex justify-center">
     <h1>Requests</h1>
   </div>
+
+  <button
+    on:click={getRequestStates}
+    value="Settings"
+    class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 border-b-2 border-blue-500 text-blue-500"
+  />
 
   <table class="mx-auto text-center">
     <thead>
@@ -63,26 +56,27 @@
     </tr>
     </thead>
     <tbody>
-    {#each requests as request}
-      <tr>
-        <th>
-          <button on:click={toggleModal}>
-            {request.id}
-          </button>
-        </th>
-        <td>{request.state}</td>
-        <td>{request.currentHeight}</td>
-      </tr>
-    {/each}
-    {#if requests.length === 0}
+    {#if !requests.size || requests.size === 0}
       <tr>
         <td>No requests to show!</td>
       </tr>
+    {:else}
+      {#each requests as [key, value]}
+        <tr>
+          <th>
+            <button on:click={toggleModal}>
+              {key}
+            </button>
+          </th>
+          <td>{value.status}</td>
+          <td>{value.currentHeight}</td>
+        </tr>
+      {/each}
     {/if}
     </tbody>
   </table>
 
   {#if modalVisible}
-    <StateModal {toggleModal} request={activeRequest} />
+    <StateModal {toggleModal} request={requests.get(activeRequest)} />
   {/if}
 </div>
