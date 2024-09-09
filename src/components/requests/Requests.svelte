@@ -1,13 +1,15 @@
 <script lang="ts">
-  import StateModal from "../StateModal.svelte"
+  import StateModal from "./StateModal.svelte"
   import { invoke } from "@tauri-apps/api/tauri"
   import type { Request } from "$lib/type"
   import { onMount } from "svelte"
   import { errorMessage } from "$stores/ErrorStore"
+  import VersionsModal from "./VersionsModal.svelte"
 
   export let requests: Map<string, Request> = new Map();
 
-  let modalVisible = false;
+  let statesVisible = false;
+  let versionsVisible = false;
   let activeRequest: string;
 
   async function getRequestStates() {
@@ -19,22 +21,25 @@
     }
   }
 
-  function toggleModal(event?: MouseEvent) {
-    if (!event) {
-      modalVisible = !modalVisible;
-      return;
-    }
-
-    const target = event.target as HTMLButtonElement;
-
-    activeRequest = requests.get(target.innerText) ?? requests.keys().next().value
-
-    modalVisible = !modalVisible;
-  }
-
   onMount(() => {
     getRequestStates();
   });
+
+  function toggleStatesModal(event?: MouseEvent) {
+    if (!event) {
+      statesVisible = !statesVisible;
+      return;
+    }
+    const target = event.target as HTMLButtonElement;
+
+    activeRequest = requests.get(target.innerText) ?? requests.keys().next().value
+    statesVisible = !statesVisible;
+  }
+
+  function toggleVersionsModal() {
+    versionsVisible = !versionsVisible;
+  }
+
 
 </script>
 <div class="prose w-screen">
@@ -43,11 +48,15 @@
     <h1>Requests</h1>
   </div>
 
-  <button
-    on:click={getRequestStates}
-    value="Settings"
-    class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 border-b-2 border-blue-500 text-blue-500"
-  />
+
+  <div class="flex justify-center">
+    <button
+      on:click={toggleVersionsModal}
+      value="Settings"
+      class=" p-2.5 mx-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+    >Steward Versions</button>
+  </div>
+
 
   <table class="mx-auto text-center">
     <thead>
@@ -66,7 +75,7 @@
       {#each requests as [key, value]}
         <tr>
           <th>
-            <button on:click={toggleModal}>
+            <button on:click={toggleStatesModal}>
               {key}
             </button>
           </th>
@@ -78,7 +87,11 @@
     </tbody>
   </table>
 
-  {#if modalVisible}
-    <StateModal {toggleModal} request={requests.get(activeRequest)} />
+  {#if statesVisible}
+    <StateModal {toggleStatesModal} request={requests.get(activeRequest)} />
+  {/if}
+
+  {#if versionsVisible}
+    <VersionsModal {toggleVersionsModal} />
   {/if}
 </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     import { flashLoanCalls, queue } from "$stores/AdapterQueue"
-    import StateModal from "../components/StateModal.svelte";
+    import StateModal from "./requests/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
     import type { Request } from "$lib/type"
     import { errorMessage } from "$stores/ErrorStore"

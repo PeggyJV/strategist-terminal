@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { Request } from "$lib/type"
-  import TrackingTimeline from "./requests/TrackingTimeline.svelte"
+  import TrackingTimeline from "./TrackingTimeline.svelte"
 
-  export let toggleModal: (event?: MouseEvent) => void;
+  export let toggleStatesModal: (event?: MouseEvent) => void;
   export let request: Request | undefined;
 
   if (!request) {
-    toggleModal();
+    toggleStatesModal();
   }
 
 </script>
@@ -16,12 +16,12 @@
     <div class=" absolute transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8">
       <!-- Close button -->
         <div class="absolute top-0 right-0 pt-4 pr-4">
-        <button type="button" class="text-gray-400 hover:text-gray-500" on:click={toggleModal}>
-          <span class="sr-only">Close</span>
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          <button
+            class="absolute top-2 right-2 text-xl font-bold text-gray-400 hover:text-gray-500"
+            on:click={toggleStatesModal}
+          >
+            &times;
+          </button>
       </div>
       <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
         <span class="h-6 w-6 text-blue-600 text-5xl mx-auto sm:mx-0 sm:h-10 sm:w-10">&#x1F6C8;</span>
