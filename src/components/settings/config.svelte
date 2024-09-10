@@ -18,14 +18,31 @@
   }
 
   async function configure() {
-    const result = await invoke("configure", {
-      sommNodeRpc: rpc_endpoint,
-      sommNodeGrpc: grpc_endpoint,
-      publisherDomain: publisher_domain,
-      clientCertPath: client_cert_path,
-      clientCertKeyPath: client_cert_key_path,
-    });
-    console.log(result);
+
+    try {
+      await invoke("configure", {
+        sommNodeRpc: rpc_endpoint,
+        sommNodeGrpc: grpc_endpoint,
+        publisherDomain: publisher_domain,
+        clientCertPath: client_cert_path,
+        clientCertKeyPath: client_cert_key_path,
+      });
+
+      toast.set(
+        {
+          type: ToastType.Success,
+          description: "Configurations applied and saved to file"
+        }
+      );
+
+    } catch(error) {
+      toast.set(
+        {
+          type: ToastType.Error,
+          description: "Error fetching request states: " + error
+        }
+      );
+    }
   }
 
   async function getAppConf() {
@@ -37,20 +54,9 @@
         client_cert_path,
         client_cert_key_path
       } = await invoke<AppConfig>("get_app_config", {}));
-      toast.set(
-        {
-          type: ToastType.Success,
-          description: "Configurations applied and saved to file"
-        }
-      );
+
     } catch (error) {
       console.error("Error fetching request states", error);
-      toast.set(
-        {
-          type: ToastType.Error,
-          description: "Error fetching request states: " + error
-        }
-      );
     }
   }
 
