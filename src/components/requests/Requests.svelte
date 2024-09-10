@@ -1,12 +1,12 @@
 <script lang="ts">
   import StateModal from "./StateModal.svelte"
   import { invoke } from "@tauri-apps/api/tauri"
-  import type { Request } from "$lib/type"
+  import { ActiveRequestStatus, FailedRequestStatus, type RequestState } from "$lib/type"
   import { onMount } from "svelte"
   import { toast, ToastType } from "$stores/ToastStore"
   import VersionsModal from "./VersionsModal.svelte"
 
-  export let requests: Map<string, Request> = new Map();
+  export let requests: Map<string, RequestState> = new Map();
 
   let statesVisible = false;
   let versionsVisible = false;
@@ -35,7 +35,7 @@
     }
     const target = event.target as HTMLButtonElement;
 
-    activeRequest = requests.get(target.innerText) ?? requests.keys().next().value
+    activeRequest = target.innerText ?? requests.keys().next().value
     statesVisible = !statesVisible;
   }
 
@@ -56,7 +56,7 @@
     <button
       on:click={toggleVersionsModal}
       value="Settings"
-      class=" p-2.5 mx-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+      class="p-2.5 mx-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
     >Steward Versions</button>
   </div>
 
@@ -66,7 +66,6 @@
     <tr>
       <th>ID</th>
       <th>State</th>
-      <th>Current Height</th>
     </tr>
     </thead>
     <tbody>
@@ -82,8 +81,9 @@
               {key}
             </button>
           </th>
-          <td>{value.status}</td>
-          <td>{value.currentHeight}</td>
+          <td>
+              {value.status}
+          </td>
         </tr>
       {/each}
     {/if}

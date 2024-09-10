@@ -3,7 +3,7 @@
     import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "./requests/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
-    import type { Request } from "$lib/type"
+    import type { RequestState } from "$lib/type"
     import { toast, ToastType } from "$stores/ToastStore"
 
     let modalVisible = false;  
@@ -13,7 +13,7 @@
     let blockHeight = "";
     let deadline = "";
 
-    let request: Request;
+    let request: RequestState;
 
     function toggleStatesModal() {
         modalVisible = !modalVisible;
