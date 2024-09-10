@@ -47,6 +47,12 @@
                   <br>
                   <b>{request?.targetTxHash ?? ""}</b>
                 </li>
+
+                <li>ScheduleRequest:
+                  <pre>
+                    {JSON.stringify(request?.request, null, 2)}
+                  </pre>
+                </li>
               </ul>
             </div>
           </div>
