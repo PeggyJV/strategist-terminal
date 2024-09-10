@@ -1,13 +1,9 @@
 <script lang="ts">
-  import type { Request } from "$lib/type"
+  import type { RequestState } from "$lib/type"
   import TrackingTimeline from "./TrackingTimeline.svelte"
 
   export let toggleStatesModal: (event?: MouseEvent) => void;
-  export let request: Request | undefined;
-
-  if (!request) {
-    toggleStatesModal();
-  }
+  export let request: RequestState | undefined;
 
 </script>
 
@@ -27,14 +23,36 @@
         <span class="h-6 w-6 text-blue-600 text-5xl mx-auto sm:mx-0 sm:h-10 sm:w-10">&#x1F6C8;</span>
         <div class="sm:flex sm:items-start">
           <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Track Schedule ID: {request?.id ?? ""}</h3>
+            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Request: {request?.id ?? ""}</h3>
             <div class="mt-2">
               <!-- Information fields: -->
               <ul class="list-disc pl-5 text-sm text-gray-500">
-                <li>Voting power behind a cork: {request?.votingPower ?? ""}</li>
-                <li>Current height: {request?.currentHeight ?? ""}</li>
-                <li>Scheduled height: {request?.scheduledHeight ?? ""}</li>
-                <li>Cork result: {request?.corkResult ?? ""}</li>
+                <li>Cork ID Hash:
+                  <br>
+                  <b>{request?.corkId ?? ""}</b>
+                </li>
+                <li>Gravity invalidation scope:
+                  <br>
+                  <b>{request?.invalidateScope ?? ""}</b>
+                </li>
+                <li>The Sommelier transaction hash for the IBC relay request:
+                  <br>
+                  <b>{request?.relayRequestTxHash ?? ""}</b>
+                </li>
+                <li>Axelar GMP transaction hash:
+                  <br>
+                  <b>{request?.gmpTxHash ?? ""}</b>
+                </li>
+                <li>Transaction hash on the target chain:
+                  <br>
+                  <b>{request?.targetTxHash ?? ""}</b>
+                </li>
+
+                <li>ScheduleRequest:
+                  <pre>
+                    {JSON.stringify(request?.request, null, 2)}
+                  </pre>
+                </li>
               </ul>
             </div>
           </div>
