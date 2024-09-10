@@ -1,20 +1,15 @@
 <script lang="ts">
+  import { RequestStatus } from "$lib/type"
+
   export let state;
 
-  const states = [
-    "Initialized",
-    "Broadcasting",
-    "Awaiting Consensus",
-    "Scheduled",
-    "Awaiting Relay",
-    "Relayed",
-    "Success"
-  ];
-  let indexOfCurrentState = states.indexOf(state);
+  let statesList = Object.keys(RequestStatus)
+
+  let indexOfCurrentState = statesList.indexOf(state);
 </script>
 
 <ol class="list-none">
-  {#each states as state, i}
+  {#each statesList as state, i}
     <li class="relative flex not-prose">
       <div class="flex flex-col items-center">
         <div class="z-10 flex items-center justify-center w-6 h-6 rounded-full ring-2 shrink-0 {i <= indexOfCurrentState ? 'ring-green-400' : 'ring-gray-400'}">
@@ -24,7 +19,7 @@
             </svg>
           {/if}
         </div>
-        {#if i !== states.length - 1}
+        {#if i !== statesList.length - 1}
           <div class="w-0.5 h-6 dark:bg-gray-700 {i < indexOfCurrentState ? 'bg-green-200' : 'bg-gray-200'}"></div>
         {/if}
       </div>

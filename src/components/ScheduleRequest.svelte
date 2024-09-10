@@ -1,9 +1,10 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
     import { flashLoanCalls, queue } from "$stores/AdapterQueue"
-    import StateModal from "../components/StateModal.svelte";
+    import StateModal from "./requests/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
-    import type { Request } from "./requests/Requests.svelte"
+    import type { Request } from "$lib/type"
+    import { toast, ToastType } from "$stores/ToastStore"
 
     let modalVisible = false;  
     let showTooltip = false;
@@ -14,7 +15,7 @@
 
     let request: Request;
 
-    function toggleModal() {
+    function toggleStatesModal() {
         modalVisible = !modalVisible;
     }
 
@@ -42,10 +43,10 @@
             queue: calls,
         }).then(result => {
             console.log('Schedule successful', result);
-            toggleModal();  
+            toggleStatesModal();  
         }).catch((error) => {
             console.error(error);
-            toggleModal();  
+            toggleStatesModal();  
         });
         queue.set([]);
         // TODO: Create a request object from the result
@@ -67,10 +68,16 @@
             queue: params,
         }).then(result => {
             console.log('Schedule successful', result);
-            toggleModal();
+            toggleStatesModal();
         }).catch((error) => {
             console.error(error);
-            toggleModal();
+            toast.set(
+              {
+                  type: ToastType.Error,
+                  description: "Error scheduling a request: " + error
+              }
+            );
+            toggleStatesModal();
         });
         queue.set([]);
         // TODO: Create a request object from the result
@@ -136,12 +143,12 @@
         </div>
     {/if}
     <button
-      on:click={toggleModal}
+      on:click={toggleStatesModal}
       class="px-4 py-2 mt-5 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
     >
         Track Schedule ID: 1234
     </button>
 </div>
 {#if modalVisible}
-    <StateModal {toggleModal} {request}/>
+    <StateModal {toggleStatesModal} {request}/>
 {/if}

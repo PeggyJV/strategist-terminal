@@ -39,6 +39,7 @@ fn main() {
             commands::request_state,
             commands::remove_request,
             commands::clear_requests,
+            commands::get_app_config,
         ])
         // Run background threads
         .setup(|app| {
