@@ -77,6 +77,8 @@ pub enum RequestStatus {
     /// Ethereum only. The scheduled height has been reached, the vote passed. Waiting for a quorum of validators
     /// to sign the outgoing transaction.
     AwaitingConfirmation,
+    /// Non-ethereum chains only. The vote has passed and the cork is waiting for an external RelayCork request to create the IBC transaction for relaying.
+    AwaitingRelayCorkCall,
     /// Non-ethereum chains only. An IBC transaction has been submitted to Sommelier for relaying
     /// to the Axelar network.
     ///
@@ -103,25 +105,28 @@ pub enum RequestStatus {
 
 impl std::fmt::Display for RequestStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use RequestStatus::*;
+
         match self {
-            RequestStatus::Initialized => write!(f, "Initialized"),
-            RequestStatus::Broadcasting => write!(f, "Broadcasting"),
-            RequestStatus::FailedBroadcast => write!(f, "FailedBroadcast"),
-            RequestStatus::AwaitingVote((cid, is)) => write!(
+            Initialized => write!(f, "Initialized"),
+            Broadcasting => write!(f, "Broadcasting"),
+            FailedBroadcast => write!(f, "FailedBroadcast"),
+            AwaitingVote((cid, is)) => write!(
                 f,
                 "AwaitingVote(cork_id: {}, invalidation_scope: {})",
                 cid, is
             ),
-            RequestStatus::FailedVote => write!(f, "FailedVote"),
-            RequestStatus::AwaitingConfirmation => write!(f, "AwaitingConfirmation"),
-            RequestStatus::AwaitingRelay(tx) => write!(f, "AwaitingRelay(tx_hash: {})", tx),
-            RequestStatus::Relayed(tx) => write!(f, "Relayed(gmp_tx_hash: {})", tx),
-            RequestStatus::AwaitingExecution => write!(f, "AwaitingExecution"),
-            RequestStatus::FailedExecution(tx) => {
+            FailedVote => write!(f, "FailedVote"),
+            AwaitingConfirmation => write!(f, "AwaitingConfirmation"),
+            AwaitingRelayCorkCall => write!(f, "AwaitingRelayCorkCall"),
+            AwaitingRelay(tx) => write!(f, "AwaitingRelay(tx_hash: {})", tx),
+            Relayed(tx) => write!(f, "Relayed(gmp_tx_hash: {})", tx),
+            AwaitingExecution => write!(f, "AwaitingExecution"),
+            FailedExecution(tx) => {
                 write!(f, "FailedExecution(target_tx_hash: {})", tx)
             }
-            RequestStatus::Success(tx) => write!(f, "Success(target_tx_hash: {})", tx),
-            RequestStatus::Unknown => write!(f, "Unknown"),
+            Success(tx) => write!(f, "Success(target_tx_hash: {})", tx),
+            Unknown => write!(f, "Unknown"),
         }
     }
 }

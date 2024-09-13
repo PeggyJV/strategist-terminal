@@ -19,7 +19,8 @@ use crate::adaptors::{
     get_aave_v3_debt_token_flash_loan_adaptor_call, get_balancer_pool_flash_loan_adaptor_call,
     Adaptors,
 };
-use crate::lifecycle::cork_vote::cork_voting_period;
+use crate::lifecycle::axelar;
+use crate::lifecycle::gravity;
 use crate::{
     application::{self, get_channel},
     cellar_call::{
@@ -162,7 +163,10 @@ pub(crate) fn build_flash_loan_request(
 }
 
 /// Handles submitting and tracking the request
-pub(crate) async fn handle(app_handle: tauri::AppHandle, request: ScheduleRequest) -> Result<()> {
+pub(crate) async fn handle_schedule_request(
+    app_handle: tauri::AppHandle,
+    request: ScheduleRequest,
+) -> Result<()> {
     let request_state = RequestState::new();
     let (tx, rx) = tokio::sync::mpsc::channel::<RequestStatus>(1);
     let chain_id = request.chain_id;
@@ -180,25 +184,46 @@ pub(crate) async fn handle(app_handle: tauri::AppHandle, request: ScheduleReques
     // Broadcast the request to all subscribers
     tx.send(RequestStatus::Broadcasting).await?;
 
-    let height = request.block_height;
     let request_status =
-        broadcast_schedule_request(trace_id, app_handle.clone(), tx.clone(), request).await?;
-    let (cork_id, _invalidation_scope) = match request_status {
-        RequestStatus::FailedBroadcast => {
-            log::warn!(id = trace_id; "broadcast failed");
+        broadcast_schedule_request(trace_id, app_handle.clone(), tx.clone(), request.clone())
+            .await?;
 
+    let (cork_id, invalidation_scope) = match request_status.clone() {
+        RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => (cork_id, invalidation_scope),
+        // TODO: Make Failed* statuses wrap errors that can be logged
+        RequestStatus::FailedBroadcast => {
+            log::error!(id = trace_id; "failed to broadcast request");
             return Ok(());
         }
-        RequestStatus::AwaitingVote((cork_id, invalidation_scope)) => (cork_id, invalidation_scope),
-        _ => bail!("unexpected request status after broadcast: {request_status:?}"),
+        _ => bail!("unexpected request status: {request_status:?}"),
     };
 
-    // Wait for the scheduled height
-    let request_status = cork_voting_period(app_handle, &cork_id, height, tx.clone()).await?;
-    let tx = match request_status {
-        RequestStatus::AwaitingConfirmation => tx,
-        RequestStatus::FailedVote => return Ok(()),
-        _ => bail!("unexpected request status after voting period: {request_status:?}"),
+    let request_status = if chain_id == 1 {
+        if let Err(e) = gravity::track_gravity_cork(
+            app_handle,
+            trace_id.to_string(),
+            tx,
+            request,
+            request_status,
+        )
+        .await
+        {
+            log::error!(id = trace_id, cork_id, message = e.to_string(); "error tracking gravity cork");
+            return Err(e);
+        }
+    } else {
+        if let Err(e) = axelar::track_axelar_cork(
+            app_handle,
+            trace_id.to_string(),
+            tx,
+            request,
+            request_status,
+        )
+        .await
+        {
+            log::error!(id = trace_id, cork_id, message = e.to_string(); "error tracking axelar cork");
+            return Err(e);
+        }
     };
 
     // // Wait for relay
@@ -257,7 +282,7 @@ async fn broadcast_schedule_request(
         return Ok(RequestStatus::AwaitingVote((cid.clone(), is.clone())));
     }
 
-    log::trace!(id; "broadcasting schedule request failed");
+    log::trace!(id; "sending failed broadcast status");
     tx.send(RequestStatus::FailedBroadcast).await?;
 
     Ok(RequestStatus::FailedBroadcast)
