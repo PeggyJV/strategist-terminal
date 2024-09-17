@@ -18,9 +18,9 @@
             {#each Object.entries(item.fields) as [key, value]}
               <div class="mb-2">
                 <p class="font-bold">{key}:</p>
-                <p class="mt-1 text-gray-700 whitespace-pre-wrap break-words">
-                  {JSON.stringify(value)}
-                </p>
+                <pre class="mt-1 text-gray-700 bg-gray-100">
+                  {JSON.stringify(value, null, 2)}
+                </pre>
               </div>
             {/each}
           </div>

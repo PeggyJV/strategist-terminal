@@ -1,21 +1,68 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/tauri";
-  let somm_node_rpc = "https://sommelier-rpc.polkachu.com:443";
-  let somm_node_grpc = "https://sommelier-grpc.polkachu.com:14190";
+  import { onMount } from "svelte"
+  import { toast, ToastType } from "$stores/ToastStore"
+
+  let rpc_endpoint = "https://sommelier-rpc.polkachu.com:443";
+  let grpc_endpoint = "https://sommelier-grpc.polkachu.com:14190";
   let publisher_domain = "https://smart-strategies.xyz";
   let client_cert_path = "/home/strategy/certs/client.pem";
   let client_cert_key_path = "/home/strategy/certs/client.key";
 
-  async function configure() {
-    const result = await invoke("configure", {
-      sommNodeRpc: somm_node_rpc,
-      sommNodeGrpc: somm_node_grpc,
-      publisherDomain: publisher_domain,
-      clientCertPath: client_cert_path,
-      clientCertKeyPath: client_cert_key_path,
-    });
-    console.log(result);
+  interface AppConfig {
+    rpc_endpoint: string;
+    grpc_endpoint: string;
+    publisher_domain: string;
+    client_cert_path: string;
+    client_cert_key_path: string;
   }
+
+  async function configure() {
+
+    try {
+      await invoke("configure", {
+        sommNodeRpc: rpc_endpoint,
+        sommNodeGrpc: grpc_endpoint,
+        publisherDomain: publisher_domain,
+        clientCertPath: client_cert_path,
+        clientCertKeyPath: client_cert_key_path,
+      });
+
+      toast.set(
+        {
+          type: ToastType.Success,
+          description: "Configurations applied and saved to file"
+        }
+      );
+
+    } catch(error) {
+      toast.set(
+        {
+          type: ToastType.Error,
+          description: "Error fetching request states: " + error
+        }
+      );
+    }
+  }
+
+  async function getAppConf() {
+    try {
+      ({
+        rpc_endpoint,
+        grpc_endpoint,
+        publisher_domain,
+        client_cert_path,
+        client_cert_key_path
+      } = await invoke<AppConfig>("get_app_config", {}));
+
+    } catch (error) {
+      console.error("Error fetching request states", error);
+    }
+  }
+
+  onMount(() => {
+    getAppConf();
+  });
 </script>
 <div class="prose w-screen flex flex-col justify-center items-center">
 
@@ -26,7 +73,7 @@
       type="text"
       id="somm_node_rpc"
       class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-      bind:value={somm_node_rpc}
+      bind:value={rpc_endpoint}
       placeholder="Enter Sommelier Node RPC URL"
     />
 
@@ -35,7 +82,7 @@
       type="text"
       id="somm_node_grpc"
       class="w-full px-2 py-1 mb-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-      bind:value={somm_node_grpc}
+      bind:value={grpc_endpoint}
       placeholder="Enter Sommelier Node GRPC URL"
     />
 

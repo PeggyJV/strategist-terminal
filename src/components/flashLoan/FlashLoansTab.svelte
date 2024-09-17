@@ -139,8 +139,9 @@
             <button
               on:click={() => removeCall(index)}
               type="button"
-              class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:bg-red-600"
-            >Remove</button>
+              class="px-1 text-red-500 text-3xl rounded-md hover:text-red-600 "
+            > &times;</button>
+
           </div>
 
         {/each}
