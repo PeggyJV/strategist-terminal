@@ -4,20 +4,23 @@ export var queue: Writable<Array<CellarCall>> = writable([]);
 export var flashLoanCalls: Writable<Array<CellarCall>> = writable([]);
 
 export class CellarCall {
-  adaptor: string;
-  name: string;
+  adaptorAddress?: string;
+  adaptorName?: string;
   fields: any;
+  functionName: string;
 
-  constructor(adaptor: string, name: string, fields: any) {
-    this.adaptor = adaptor;
-    this.name = name;
+  constructor(functionName: any, fields: any, adaptorAddress?: string, adaptorName?: string) {
+    this.adaptorAddress = adaptorAddress;
+    this.adaptorName = adaptorName;
     this.fields = fields;
+    this.functionName = functionName;
   }
 
   json_fields(): any {
     return  {
-        adaptor: this.adaptor,
-        name: this.name,
+        adaptor: this.adaptorAddress,
+        name: this.adaptorName,
+        function_name: this.functionName,
         fields: JSON.stringify(this.fields)
     };
   }
