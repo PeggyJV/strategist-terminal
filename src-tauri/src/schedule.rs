@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use alloy_primitives::Address;
-use eyre::{bail, ErrReport, Result};
+use eyre::{bail, Result};
 use futures::StreamExt;
 use serde::Deserialize;
 use serde_json::Value;
