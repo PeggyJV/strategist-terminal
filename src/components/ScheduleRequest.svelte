@@ -1,9 +1,9 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/tauri";
-    import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
+    import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "./requests/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
-    import type { RequestState } from "$lib/type"
+    import { type RequestState } from "$lib/type"
     import { toast, ToastType } from "$stores/ToastStore"
 
     let modalVisible = false;  
@@ -20,11 +20,6 @@
     }
 
     function handleSchedule() {
-        // Push mock data for testing
-        const a = new CellarCall("SetSharePriceOracle", '{"registry_id":"0x1","share_price_oracle":"0x1"}', undefined,  undefined)
-        $queue.push(
-          a
-        )
         let firstCall = $queue[0].adaptorName;
         if (firstCall === "AaveV3DebtTokenV1FlashLoan"
           || firstCall === "BalancerPoolV1FlashLoan") {
@@ -33,7 +28,7 @@
             scheduleAdaptorCall();
         }
     }
-    //     The testing version of the function, delete later:
+
     async function scheduleAdaptorCall() {
         let calls = $queue.map((call) => call.json_fields());
 
@@ -56,29 +51,6 @@
         queue.set([]);
         // TODO: Create a request object from the result
     }
-    //     The correct version of the function:
-    // async function scheduleAdaptorCall() {
-    //     let calls = $queue.map((call) => call.json_fields());
-    //
-    //     const deadlineDate = new Date(deadline);
-    //     const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
-    //
-    //     const result = await invoke("schedule_request", {
-    //         cellarId: cellar.ADDRESS,
-    //         blockHeight: blockHeight,
-    //         chainId: cellar.CHAIN.chainId,
-    //         deadline: deadlineUnixTimestamp.toString(),
-    //         queue: calls,
-    //     }).then(result => {
-    //         console.log('Schedule successful', result);
-    //         toggleStatesModal();
-    //     }).catch((error) => {
-    //         console.error(error);
-    //         toggleStatesModal();
-    //     });
-    //     queue.set([]);
-    //     // TODO: Create a request object from the result
-    // }
 
     async function scheduleFlashLoanCall() {
         let calls = $queue.map((call) => call.json_fields());
