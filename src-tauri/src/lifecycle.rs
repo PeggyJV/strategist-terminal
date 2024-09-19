@@ -66,13 +66,6 @@ pub async fn track_request(
 
                 log::info!(id = trace_id, status = &RequestStatus::AwaitingRelay(somm_tx_hash.to_owned()); "request is awaiting relay");
             }
-            RequestStatus::Relayed(gmp_tx_hash) => {
-                requests
-                    .entry(id.clone())
-                    .and_modify(|r| r.gmp_tx_hash = Some(gmp_tx_hash.to_owned()));
-
-                log::info!(id = trace_id, status = &RequestStatus::Relayed(gmp_tx_hash.to_owned()); "request is relayed");
-            }
             RequestStatus::FailedExecution(tx_hash) | RequestStatus::Success(tx_hash) => {
                 requests
                     .entry(id.clone())

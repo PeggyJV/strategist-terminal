@@ -14,9 +14,10 @@ pub(crate) async fn monitor_ibc_relay(
     trace_id: String,
     tx: Sender<RequestStatus>,
     chain_id: u64,
+    cellar_id: String,
     vote_height: u64,
-) -> Result<()> {
-    log::info!(id = trace_id; "monitoring IBC relay");
+) -> Result<RequestStatus> {
+    log::info!(id = trace_id, chain_id, cellar_id; "monitoring IBC relay");
 
     // TODO: This needs to be a long running poll since the relay request can come in at any time
 
@@ -37,8 +38,8 @@ pub(crate) async fn monitor_ibc_relay(
 
     while response.txs.is_empty() {
         if attempts == max_attempts {
-            log::warn!(id = trace_id, chain_id; "No transactions found after {} attempts", max_attempts);
-            return Ok(());
+            log::warn!(id = trace_id, chain_id, cellar_id; "No transactions found after {} attempts", max_attempts);
+            return Ok(RequestStatus::Unknown);
         }
         tokio::time::sleep(delay).await;
         response = client
@@ -46,6 +47,13 @@ pub(crate) async fn monitor_ibc_relay(
             .await?;
         attempts += 1;
     }
+
+    // Temporary
+    // Convert response to JSON and write to file
+    let json_response = serde_json::to_string_pretty(&response)?;
+    let file_name = format!("tx_search_response_{}.json", chrono::Utc::now().timestamp());
+    std::fs::write(&file_name, json_response)?;
+    log::info!(id = trace_id, chain_id, cellar_id, file_name; "Wrote tx_search response to file");
 
     // Find the transaction that is a relay request
     let transaction = response.txs.iter().find(|response| {
@@ -61,17 +69,17 @@ pub(crate) async fn monitor_ibc_relay(
     });
 
     let Some(transaction) = transaction else {
-        log::info!(id = trace_id, chain_id; "no axelar cork relay request found");
-        return Ok(())
+        log::info!(id = trace_id, chain_id, cellar_id; "no axelar cork relay request found");
+        return Ok(RequestStatus::Unknown);
     };
 
     let tx_hash = transaction.hash.clone();
     let events = transaction.tx_result.events.clone();
-    log::debug!(id = trace_id, chain_id, tx_hash = tx_hash.to_string(); "transaction found");
+    log::debug!(id = trace_id, chain_id, cellar_id, tx_hash = tx_hash.to_string(); "transaction found");
 
     // Search for the send_packet event and extract the destination address from the memo
-    let has_target_contract =events.iter().any(|event| {
-        use base64::{Engine as _, engine::general_purpose};
+    let found = events.iter().any(|event| {
+        use base64::{engine::general_purpose, Engine as _};
 
         #[derive(Debug, Clone, Serialize, Deserialize)]
         struct PacketData {
@@ -89,7 +97,7 @@ pub(crate) async fn monitor_ibc_relay(
             payload: String,
             #[serde(rename = "type")]
             memo_type: u32,
-            fee: Fee
+            fee: Fee,
         }
 
         #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -101,9 +109,13 @@ pub(crate) async fn monitor_ibc_relay(
         // TODO: Since the relay request can come at any time, it's probably not sufficient to query based on the sender address and the height. See if there is some info that can be extracted from the events or the memo that would narrow down the result to only the relevant transaction. It may require subscribing to the event instead of querying (push model instead of pull).
         event.kind == "send_packet"
             && event.attributes.iter().any(|attr| {
-                let decoded_key = general_purpose::STANDARD.decode(attr.key_str().unwrap()).unwrap();
+                let decoded_key = general_purpose::STANDARD
+                    .decode(attr.key_str().unwrap())
+                    .unwrap();
                 let decoded_key = String::from_utf8_lossy(&decoded_key);
-                let decoded_value = general_purpose::STANDARD.decode(attr.value_str().unwrap()).unwrap();
+                let decoded_value = general_purpose::STANDARD
+                    .decode(attr.value_str().unwrap())
+                    .unwrap();
                 let decoded_value = String::from_utf8_lossy(&decoded_value);
 
                 let memo = if decoded_key == "packet_data" {
@@ -114,14 +126,17 @@ pub(crate) async fn monitor_ibc_relay(
                     return false;
                 };
 
-                memo.destination_chain == chain_id.to_string() && memo.destination_address == "somm1lrneqhq4rq8nz2nk6vn3sanrxva7zuns8aa45g"
+                memo.destination_chain == chain_id.to_string()
+                    && memo.destination_address == cellar_id
             })
     });
 
-    if has_target_contract {
-        log::info!(id = trace_id, chain_id, tx_hash = tx_hash.to_string(); "MsgRelayAxelarCork request found. Awaiting relay.");
-        tx.send(RequestStatus::AwaitingRelay(tx_hash.to_string())).await?;
+    if found {
+        log::info!(id = trace_id, chain_id, cellar_id, tx_hash = tx_hash.to_string(); "MsgRelayAxelarCork request found. Awaiting relay.");
+        tx.send(RequestStatus::AwaitingRelay(tx_hash.to_string()))
+            .await?;
+        return Ok(RequestStatus::AwaitingRelay(tx_hash.to_string()));
     }
 
-    Ok(())
+    Ok(RequestStatus::Unknown)
 }
