@@ -37,3 +37,7 @@ export interface ScheduleRequest {
     deadline: number,
     call_data: any,
 }
+export enum Functions {
+  CallOnAdaptor = "CallOnAdaptor",
+  SetSharePriceOracle = "SetSharePriceOracle",
+}

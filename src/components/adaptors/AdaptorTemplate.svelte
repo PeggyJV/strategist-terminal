@@ -1,6 +1,7 @@
 <script lang="ts">
   import { CellarCall, queue } from "$stores/AdapterQueue";
   import type { Adaptor, AdaptorCall } from "$lib/adaptorList";
+  import { Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
 
@@ -37,9 +38,12 @@
 
     queue.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptor.address, adaptor.name, {
-          [call.function]: relevantFields,
-        })
+        new CellarCall(
+          Functions.CallOnAdaptor,
+          { [call.function]: relevantFields },
+          adaptor.address,
+          adaptor.name
+        )
       );
       return callQueue;
     });

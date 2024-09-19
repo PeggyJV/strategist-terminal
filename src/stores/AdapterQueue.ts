@@ -1,4 +1,5 @@
 import { writable, type Writable } from "svelte/store";
+import type { Functions } from "$lib/type"
 
 export var queue: Writable<Array<CellarCall>> = writable([]);
 export var flashLoanCalls: Writable<Array<CellarCall>> = writable([]);
@@ -9,7 +10,7 @@ export class CellarCall {
   fields: any;
   functionName: string;
 
-  constructor(functionName: any, fields: any, adaptorAddress?: string, adaptorName?: string) {
+  constructor(functionName: Functions, fields: any, adaptorAddress?: string, adaptorName?: string) {
     this.adaptorAddress = adaptorAddress;
     this.adaptorName = adaptorName;
     this.fields = fields;
