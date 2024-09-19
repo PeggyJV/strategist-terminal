@@ -14,7 +14,7 @@
       <div class="px-4 py-2">
         {#each $queue as item}
           <div class="mb-4">
-            <h2 class="text-xl font-bold not-prose">{item.name}</h2>
+            <h2 class="text-xl font-bold not-prose">{item.adaptorName}</h2>
             {#each Object.entries(item.fields) as [key, value]}
               <div class="mb-2">
                 <p class="font-bold">{key}:</p>

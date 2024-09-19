@@ -118,12 +118,8 @@ pub(crate) async fn schedule_request(
 
     if let Some(mut flash_loan_call) = flash_loan_call {
         if flash_loan_call.adaptor.as_mut().expect("Adaptor address is undefined").is_empty() {
-            return Err(String::from("adaptor id is empty"));
+            return Err(String::from("Adaptor address is is empty"));
         }
-
-        // if Address::from_str(&flash_loan_call.adaptor).is_err() {
-        //     return Err(String::from("invalid adaptor address"));
-        // }
 
         let request = build_flash_loan_request(
             cellar_id,
@@ -154,9 +150,10 @@ pub(crate) async fn schedule_request(
 
     log::trace!(request:?; "spawning request handler");
 
-    schedule::handle(app_handle.clone(), request)
-        .await
-        .map_err(|e| e.to_string())
+    // schedule::handle(app_handle.clone(), request)
+    //     .await
+    //     .map_err(|e| e.to_string())
+    return Ok(());
 }
 
 /// Command to get all subscribers' current Steward versions.

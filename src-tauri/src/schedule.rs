@@ -72,13 +72,15 @@ pub(crate) fn validate_calls(calls: &[CellarCallData]) -> Result<()> {
     };
 
     for call in calls.iter() {
-        // if call.adaptor.is_empty() {
-        //     bail!("adaptor id is empty");
-        // }
-        //
-        // if Address::from_str(&call.adaptor).is_err() {
-        //     bail!("invalid adaptor address");
-        // }
+        if let Some(adaptor) = &call.adaptor {
+            if adaptor.is_empty() {
+                bail!("adaptor id is empty");
+            }
+
+            if Address::from_str(adaptor).is_err() {
+                bail!("invalid adaptor address");
+            }
+        }
 
         if call.fields.is_empty() {
             bail!("cellar call fields are empty");
