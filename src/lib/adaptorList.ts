@@ -30,25 +30,9 @@ import SwapWithUniswapV1 from "$lib/adaptors/SwapWithUniswapV1"
 import UniswapV3V2 from "$lib/adaptors/UniswapV3V2"
 import VestingSimpleV2 from "$lib/adaptors/VestingSimpleV2"
 import ZeroXV1 from "$lib/adaptors/ZeroXV1"
+import type { Adaptor } from "$lib/type"
 
-export interface Adaptor {
-  name: string
-  address: string
-  calls: AdaptorCall[]
-}
 
-export interface AdaptorCall {
-  function: string
-  action: string
-  fields: Field[]
-
-}
-export interface Field {
-  name: string
-  label: string
-  placeholder: string
-
-}
 const adaptors: Adaptor[] = [
   AaveV3ATokenV1,
   AaveATokenV1,

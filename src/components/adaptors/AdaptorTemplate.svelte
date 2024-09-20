@@ -1,7 +1,6 @@
 <script lang="ts">
   import { CellarCall, queue } from "$stores/AdapterQueue";
-  import type { Adaptor, AdaptorCall } from "$lib/adaptorList";
-  import { Functions } from "$lib/type"
+  import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
 
