@@ -117,7 +117,7 @@ pub(crate) async fn schedule_request(
         .map_err(|e| e.to_string())?;
 
     if let Some(mut flash_loan_call) = flash_loan_call {
-        if flash_loan_call.adaptor.as_mut().expect("Adaptor address is undefined").is_empty() {
+        if flash_loan_call.adaptor_address.as_mut().expect("Adaptor address is undefined").is_empty() {
             return Err(String::from("Adaptor address is is empty"));
         }
 

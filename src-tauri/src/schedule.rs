@@ -72,7 +72,7 @@ pub(crate) fn validate_calls(calls: &[CellarCallData]) -> Result<()> {
     };
 
     for call in calls.iter() {
-        if let Some(adaptor) = &call.adaptor {
+        if let Some(adaptor) = &call.adaptor_address {
             if adaptor.is_empty() {
                 bail!("adaptor id is empty");
             }
@@ -121,12 +121,12 @@ pub(crate) fn build_flash_loan_request(
         .map(|call| call.to_adaptor_call())
         .collect::<Result<_>>()?;
 
-    let adaptor_str = match &flash_loan_call.adaptor {
+    let adaptor_str = match &flash_loan_call.adaptor_address {
         Some(adaptor) => adaptor,
         None => bail!("Adaptor is None"),
     };
 
-    let flash_loan_adaptor_call = match flash_loan_call.name {
+    let flash_loan_adaptor_call = match flash_loan_call.adaptor_name {
         Some(Adaptors::AaveV3DebtTokenV1FlashLoan) => {
             let adaptor_calls_for_flash_loan = adaptor_calls
                 .into_iter()

@@ -13,14 +13,12 @@ use steward_proto::proto::{
     CellarV25,
 };
 
-// for now this is more of an "adaptor call" than a "cellar call" as it assumes
-// the function being called is CallOnAdaptor. In the future we'll need to generalize
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub(crate) struct CellarCallData {
-    pub adaptor: Option<String>,
-    pub name: Option<Adaptors>,
     pub fields: String,
     pub function_name: String,
+    pub adaptor_address: Option<String>,
+    pub adaptor_name: Option<Adaptors>,
 }
 
 pub(crate) enum CellarCall {
@@ -40,58 +38,96 @@ impl std::fmt::Display for CellarCallData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "CellarCall{{adaptor: {:?}, name: {:?}, fields: {}}}",
-            self.adaptor,
-            self.name,
-            self.fields
+            "CellarCall{{ function_name: {}, fields: {}, adaptor_address: {:?}, adaptor_name: {:?} }}",
+            self.function_name,
+            self.fields,
+            self.adaptor_address,
+            self.adaptor_name,
         )
     }
 }
 
 impl CellarCallData {
     pub fn to_adaptor_call(&self) -> Result<AdaptorCall> {
-        let adaptor_str = match &self.adaptor {
+        let adaptor_str = match &self.adaptor_address {
             Some(adaptor) => adaptor,
             None => bail!("Adaptor is None"),
         };
-        match self.name {
-            Some(Adaptors::AaveATokenV1) => get_aave_a_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveDebtTokenV1) => get_aave_debt_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::CompoundCTokenV2) => get_compound_c_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveATokenV2) => get_aave_a_token_v2_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveDebtTokenV2) => get_aave_debt_token_v2_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveV3ATokenV1) => get_aave_v3_a_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveV3DebtTokenV1) => get_aave_v3_debt_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::OneInchV1) => get_one_inch_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::FeesAndReservesV1) => get_fees_and_reserves_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::ZeroXV1) => get_zero_x_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::SwapWithUniswapV1) => get_swap_with_uniswap_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::VestingSimpleV2) => get_vesting_simple_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::CellarV1) => get_cellar_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::UniswapV3V2) => get_uniswap_v3_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveV2EnableAssetAsCollateralV1) => get_aave_v2_enable_asset_as_collateral_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::FTokenV1) => get_f_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoAaveV2ATokenV1) => get_morpho_aave_v2_a_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoAaveV2DebtTokenV1) => get_morpho_aave_v2_debt_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoAaveV3ATokenCollateralV1) => get_morpho_aave_v3_a_token_collateral_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoAaveV3ATokenP2pV1) => get_morpho_aave_v3_a_token_p2p_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoAaveV3DebtTokenV1) => get_morpho_aave_v3_debt_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::BalancerPoolV1) => get_balancer_pool_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::LegacyCellarV1) => get_legacy_cellar_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::DebtFTokenV1) => get_debt_f_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::CollateralFTokenV1) => get_collateral_f_token_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AaveV3DebtTokenV1FlashLoan) => get_aave_v3_debt_token_flash_loan_adaptor_call(adaptor_str, &self.fields, Vec::new()),
-            Some(Adaptors::BalancerPoolV1FlashLoan) => get_balancer_pool_flash_loan_adaptor_call(adaptor_str, &self.fields, Vec::new()),
-            Some(Adaptors::ConvexCurveV1) => get_convex_curve_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::CurveV1) => get_curve_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::AuraErc4626V1) => get_aura_erc4626_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoBlueCollateralV1) => get_morpho_blue_collateral_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoBlueDebtV1) => get_morpho_blue_debt_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::MorphoBlueSupplyV1) => get_morpho_blue_supply_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::Erc4626V1) => get_erc4626_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::StakingV1) => get_staking_adaptor_call(adaptor_str, &self.fields),
-            Some(Adaptors::Invalid) => bail!("invalid adaptor name: {:?}", &self.name),
-            None => bail!("Adaptor name is None"),
+        match self.adaptor_name {
+            Some(Adaptors::AaveATokenV1) =>
+                get_aave_a_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveDebtTokenV1) =>
+                get_aave_debt_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::CompoundCTokenV2) =>
+                get_compound_c_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveATokenV2) =>
+                get_aave_a_token_v2_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveDebtTokenV2) =>
+                get_aave_debt_token_v2_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveV3ATokenV1) =>
+                get_aave_v3_a_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveV3DebtTokenV1) =>
+                get_aave_v3_debt_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::OneInchV1) =>
+                get_one_inch_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::FeesAndReservesV1) =>
+                get_fees_and_reserves_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::ZeroXV1) =>
+                get_zero_x_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::SwapWithUniswapV1) =>
+                get_swap_with_uniswap_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::VestingSimpleV2) =>
+                get_vesting_simple_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::CellarV1) =>
+                get_cellar_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::UniswapV3V2) =>
+                get_uniswap_v3_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveV2EnableAssetAsCollateralV1) =>
+                get_aave_v2_enable_asset_as_collateral_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::FTokenV1) =>
+                get_f_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoAaveV2ATokenV1) =>
+                get_morpho_aave_v2_a_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoAaveV2DebtTokenV1) =>
+                get_morpho_aave_v2_debt_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoAaveV3ATokenCollateralV1) =>
+                get_morpho_aave_v3_a_token_collateral_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoAaveV3ATokenP2pV1) =>
+                get_morpho_aave_v3_a_token_p2p_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoAaveV3DebtTokenV1) =>
+                get_morpho_aave_v3_debt_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::BalancerPoolV1) =>
+                get_balancer_pool_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::LegacyCellarV1) =>
+                get_legacy_cellar_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::DebtFTokenV1) =>
+                get_debt_f_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::CollateralFTokenV1) =>
+                get_collateral_f_token_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AaveV3DebtTokenV1FlashLoan) =>
+                get_aave_v3_debt_token_flash_loan_adaptor_call(adaptor_str, &self.fields, Vec::new()),
+            Some(Adaptors::BalancerPoolV1FlashLoan) =>
+                get_balancer_pool_flash_loan_adaptor_call(adaptor_str, &self.fields, Vec::new()),
+            Some(Adaptors::ConvexCurveV1) =>
+                get_convex_curve_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::CurveV1) =>
+                get_curve_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::AuraErc4626V1) =>
+                get_aura_erc4626_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoBlueCollateralV1) =>
+                get_morpho_blue_collateral_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoBlueDebtV1) =>
+                get_morpho_blue_debt_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::MorphoBlueSupplyV1) =>
+                get_morpho_blue_supply_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::Erc4626V1) =>
+                get_erc4626_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::StakingV1) =>
+                get_staking_adaptor_call(adaptor_str, &self.fields),
+            Some(Adaptors::Invalid) =>
+                bail!("invalid adaptor name: {:?}", &self.adaptor_name),
+            None =>
+                bail!("Adaptor name is None"),
         }
     }
 }
@@ -118,48 +154,41 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<CellarCal
     }
 }
 
-pub(crate) fn construct_call_data(function_input: CellarCall) -> CallData {
-    CallData::CellarV25(construct_cellar_v2_5_call(function_input))
+pub(crate) fn construct_call_data(cellar_call: CellarCall) -> CallData {
+    CallData::CellarV25(construct_cellar_v2_5_call(cellar_call))
 }
 
-fn construct_cellar_v2_5_call(function_input: CellarCall) -> CellarV25 {
+fn construct_cellar_v2_5_call(cellar_call: CellarCall) -> CellarV25 {
     CellarV25 {
-        call_type: Some(construct_function_call_type(function_input)),
+        call_type: Some(construct_function_call_type(cellar_call)),
     }
 }
 
-fn construct_function_call_type(function_input: CellarCall) -> cellar_v2_5::CallType {
-    cellar_v2_5::CallType::FunctionCall(construct_function_call(function_input))
+fn construct_function_call_type(cellar_call: CellarCall) -> cellar_v2_5::CallType {
+    cellar_v2_5::CallType::FunctionCall(construct_function_call(cellar_call))
 }
 
-fn construct_function_call(function_input: CellarCall) -> cellar_v2_5::FunctionCall {
+fn construct_function_call(cellar_call: CellarCall) -> cellar_v2_5::FunctionCall {
     cellar_v2_5::FunctionCall {
-        function: Some(construct_function(function_input)),
+        function: Some(construct_function(cellar_call)),
     }
 }
 
-fn construct_function(function_input: CellarCall) -> cellar_v2_5::function_call::Function {
-    match function_input {
-        CellarCall::CallOnAdaptor(adaptor_calls) => {
-            cellar_v2_5::function_call::Function::CallOnAdaptor(construct_call_on_adaptor(adaptor_calls))
-        },
-        CellarCall::SetSharePriceOracle(registry_id, share_price_oracle) => {
-            cellar_v2_5::function_call::Function::SetSharePriceOracle(construct_set_price_oracle(registry_id, share_price_oracle))
-        },
-    }
-}
-
-
-fn construct_call_on_adaptor(adaptor_calls: Vec<AdaptorCall>) -> cellar_v2_5::CallOnAdaptor {
-    cellar_v2_5::CallOnAdaptor {
-        data: adaptor_calls,
-    }
-}
-
-fn construct_set_price_oracle(registry_id: String, share_price_oracle: String) -> cellar_v2_5::SetSharePriceOracle {
-    cellar_v2_5::SetSharePriceOracle {
-        registry_id,
-        share_price_oracle
+fn construct_function(cellar_call: CellarCall) -> cellar_v2_5::function_call::Function {
+    match cellar_call {
+        CellarCall::CallOnAdaptor(adaptor_calls) =>
+            cellar_v2_5::function_call::Function::CallOnAdaptor(
+                cellar_v2_5::CallOnAdaptor {
+                    data: adaptor_calls,
+                }
+            ),
+        CellarCall::SetSharePriceOracle(registry_id, share_price_oracle) =>
+            cellar_v2_5::function_call::Function::SetSharePriceOracle(
+                cellar_v2_5::SetSharePriceOracle {
+                    registry_id,
+                    share_price_oracle
+                }
+            ),
     }
 }
 
