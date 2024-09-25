@@ -19,8 +19,8 @@ export class CellarCall {
 
   json_fields(): any {
     return  {
-        adaptor: this.adaptorAddress,
-        name: this.adaptorName,
+        adaptor_address: this.adaptorAddress,
+        adaptor_name: this.adaptorName,
         function_name: this.functionName,
         fields: JSON.stringify(this.fields)
     };
