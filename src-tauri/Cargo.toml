@@ -22,7 +22,6 @@ somm_proto = { git = "https://github.com/peggyjv/sommelier" }
 steward-proto = { git = "https://github.com/PeggyJV/steward/" }
 tauri = { version = "1.6.0", features = [] }
 eyre = "0.6.12"
-prost = "0.7.0"
 tracing = "0.1.40"
 tonic = "0.4.0"
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
@@ -50,6 +49,8 @@ itertools = "0.13.0"
 reqwest = "0.12.7"
 tendermint = "0.38.1"
 base64 = "0.22.1"
+ocular = { git = "https://github.com/peggyjv/ocular", branch = "collin/dependency-updates" }
+prost-types = "0.12.3"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
