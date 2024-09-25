@@ -1,6 +1,7 @@
 <script lang="ts">
   import AdaptorSelection from "./AdaptorSelection.svelte"
   import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
+  import { Functions } from "$lib/type"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -40,17 +41,26 @@
     let cellarCall: CellarCall;
 
     if (selectedFlashLoan === FlashLoans.AaveV3DebtTokenV1FlashLoan) {
-      cellarCall = new CellarCall(adaptorAddress, "AaveV3DebtTokenV1FlashLoan", {
-        loan_tokens: cTokens,
-        loan_amounts: cAmounts,
-        params: []
-      });
+      cellarCall = new CellarCall(
+        Functions.CallOnAdaptor,
+        {
+          loan_tokens: cTokens,
+          loan_amounts: cAmounts,
+          params: []
+        },
+        adaptorAddress,
+        "AaveV3DebtTokenV1FlashLoan"
+      );
     } else {
-      cellarCall = new CellarCall(adaptorAddress, "BalancerPoolV1FlashLoan", {
-        tokens: cTokens,
-        amounts: cAmounts,
-        data: []
-      });
+      cellarCall = new CellarCall(
+        Functions.CallOnAdaptor,
+        {
+          tokens: cTokens,
+          amounts: cAmounts,
+          data: []
+        },
+        adaptorAddress,
+        "BalancerPoolV1FlashLoan");
     }
 
     queue.update((callQueue) => {
@@ -130,7 +140,7 @@
   {/if}
 
   {#each $flashLoanCalls as call, index (index)}
-        <h4>{call.name}</h4>
+        <h4>{call.adaptorName}</h4>
         {#each Object.entries(call.fields) as [key, value]}
           <div class="flex justify-between mt-2 ml-5">
             <div>

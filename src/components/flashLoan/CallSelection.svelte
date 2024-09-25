@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Adaptor, AdaptorCall } from "$lib/adaptorList";
+  import type { Adaptor, AdaptorCall } from "$lib/adaptorList"
   import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
+  import { Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;
@@ -26,9 +27,12 @@
   function addCall() {
     flashLoanCalls.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptor.address, adaptor.name, {
-          [selectedCall.function]: fieldValues,
-        })
+        new CellarCall(
+          Functions.CallOnAdaptor,
+          { [selectedCall.function]: fieldValues, },
+          adaptor.address,
+          adaptor.name
+        )
       );
       return callQueue;
     });

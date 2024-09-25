@@ -8,6 +8,7 @@
   import FlashLoansTab from "../components/flashLoan/FlashLoansTab.svelte"
   import Requests from "../components/requests/Requests.svelte"
   import ErrorModal from "../components/ToastModal.svelte"
+  import Management from "../components/management/Management.svelte"
 
   let version = "";
 
@@ -19,7 +20,8 @@
     Adaptors,
     FlashLoans,
     Settings,
-    Requests
+    Requests,
+    Management
   }
 
   let activeTab = Tabs.Adaptors
@@ -47,6 +49,12 @@
       value="FlashLoans"
       class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.FlashLoans ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
     >Flash Loans</button>
+
+    <button
+      on:click={selectTab}
+      value="Management"
+      class="p-2.5 mx-5 focus:outline-none transition-colors duration-200 {activeTab === Tabs.Management ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500 hover:text-blue-500'}"
+    >Management</button>
 
     <button
       on:click={selectTab}
@@ -78,9 +86,14 @@
         <FlashLoansTab />
       {/if}
 
+      {#if activeTab === Tabs.Management}
+        <Management />
+      {/if}
+
       {#if activeTab === Tabs.Settings}
         <Config />
       {/if}
+
       {#if activeTab === Tabs.Requests}
         <Requests />
       {/if}

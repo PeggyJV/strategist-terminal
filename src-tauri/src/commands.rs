@@ -7,7 +7,7 @@ use tauri::Manager;
 
 use crate::{
     application,
-    cellar_call::CellarCall,
+    cellar_call::CellarCallData,
     config::AppConfig,
     schedule::{self, build_flash_loan_request, build_request},
     state::{self, RequestState},
@@ -89,8 +89,8 @@ pub(crate) async fn schedule_request(
     block_height: String,
     chain_id: String,
     deadline: String,
-    flash_loan_call: Option<CellarCall>,
-    queue: Vec<CellarCall>,
+    flash_loan_call: Option<CellarCallData>,
+    queue: Vec<CellarCallData>,
 ) -> Result<(), String> {
     let queue_log = queue
         .clone()
@@ -116,13 +116,9 @@ pub(crate) async fn schedule_request(
     schedule::validate(&cellar_id, block_height, chain_id, deadline, &queue)
         .map_err(|e| e.to_string())?;
 
-    if let Some(flash_loan_call) = flash_loan_call {
-        if flash_loan_call.adaptor.is_empty() {
-            return Err(String::from("adaptor id is empty"));
-        }
-
-        if Address::from_str(&flash_loan_call.adaptor).is_err() {
-            return Err(String::from("invalid adaptor address"));
+    if let Some(mut flash_loan_call) = flash_loan_call {
+        if flash_loan_call.adaptor_address.as_mut().expect("Adaptor address is undefined").is_empty() {
+            return Err(String::from("Adaptor address is is empty"));
         }
 
         let request = build_flash_loan_request(

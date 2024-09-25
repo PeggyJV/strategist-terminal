@@ -3,7 +3,7 @@
     import { flashLoanCalls, queue } from "$stores/AdapterQueue"
     import StateModal from "./requests/StateModal.svelte";
     import Cellars, { type Cellar, Chains } from "$lib/cellars"
-    import type { RequestState } from "$lib/type"
+    import { type RequestState } from "$lib/type"
     import { toast, ToastType } from "$stores/ToastStore"
 
     let modalVisible = false;  
@@ -20,7 +20,7 @@
     }
 
     function handleSchedule() {
-        let firstCall = $queue[0].name;
+        let firstCall = $queue[0].adaptorName;
         if (firstCall === "AaveV3DebtTokenV1FlashLoan"
           || firstCall === "BalancerPoolV1FlashLoan") {
             scheduleFlashLoanCall();
@@ -43,10 +43,10 @@
             queue: calls,
         }).then(result => {
             console.log('Schedule successful', result);
-            toggleStatesModal();  
+            toggleStatesModal();
         }).catch((error) => {
             console.error(error);
-            toggleStatesModal();  
+            toggleStatesModal();
         });
         queue.set([]);
         // TODO: Create a request object from the result
