@@ -84,7 +84,7 @@
     }
 
     $: isButtonEnabled = blockHeight.trim().length > 0
-      // && $queue.length > 0
+      && $queue.length > 0
       && !isNaN(parseInt(blockHeight))
 </script>
 
