@@ -39,8 +39,26 @@ export interface ScheduleRequest {
 }
 export enum Functions {
   CallOnAdaptor = "CallOnAdaptor",
+  AddPosition = "AddPosition",
+  RemovePosition = "RemovePosition",
+  SetHoldingPosition = "SetHoldingPosition",
+  SetStrategistPayoutAddress = "SetStrategistPayoutAddress",
+  SwapPositions = "SwapPositions",
+  SetShareLockPeriod = "SetShareLockPeriod",
+  InitiateShutdown = "InitiateShutdown",
+  LiftShutdown = "LiftShutdown",
+  RemoveAdaptorFromCatalogue = "RemoveAdaptorFromCatalogue",
+  RemovePositionFromCatalogue = "RemovePositionFromCatalogue",
+  DecreaseShareSupplyCap = "DecreaseShareSupplyCap",
+  SetAlternativeAssetData = "SetAlternativeAssetData",
+  DropAlternativeAssetData = "DropAlternativeAssetData",
+  AddAdaptorToCatalogue = "AddAdaptorToCatalogue",
+  AddPositionToCatalogue = "AddPositionToCatalogue",
+  SetRebalanceDeviation = "SetRebalanceDeviation",
+  SetStrategistPlatformCut = "SetStrategistPlatformCut",
   SetSharePriceOracle = "SetSharePriceOracle",
-  AddPosition = "AddPosition"
+  IncreaseShareSupplyCap = "IncreaseShareSupplyCap",
+  CachePriceRouter = "CachePriceRouter"
 }
 
 export interface Adaptor {
