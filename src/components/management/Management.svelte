@@ -1,19 +1,27 @@
 <script lang="ts">
-  import { Functions } from "$lib/type";
+  import { Functions } from "$lib/type"
   import { CellarCall } from "$stores/AdapterQueue";
   import ManagementCall from "./ManagementCall.svelte";
   import { administrativeFunctions } from "$lib/administrativeFunctions";
+  import { toast, ToastType } from "$stores/ToastStore"
 
   let callData: {
     function: Functions | null,
-    fields: Record<string, string>
+    fields: Record<string, any>
   } = {
     function: null,
     fields: {}
   };
 
   function handleInput(callFunction: Functions, fieldName: string, event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+    const target = event.target as HTMLInputElement;
+    let value: string | number | boolean | [] | null   = target.value;
+
+    if (target.type === 'number') {
+      value = target.value ? Number(target.value) : null;
+    } else if (target.type === 'checkbox') {
+      value = target.checked;
+    }
 
     if (callFunction === callData.function) {
       callData.fields = {
@@ -31,7 +39,37 @@
   let call: CellarCall;
 
   async function callFunction() {
-    console.log(callData);
+    for (const fieldName of Object.keys(callData.fields)) {
+      const field = administrativeFunctions
+        .find((fn) => fn.function === callData.function)?.fields
+        .find((f) => f.name === fieldName);
+
+      if (field && field.type === 'array') {
+        try {
+          const value = callData.fields[fieldName];
+
+          const parsedValue = JSON.parse(value);
+
+          if (Array.isArray(parsedValue)) {
+            callData.fields[fieldName] = parsedValue;
+          } else {
+            toast.set({
+              type: ToastType.Error,
+              description: `Error with array format on ${fieldName}.`
+            });
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing array field", fieldName, error);
+          toast.set({
+            type: ToastType.Error,
+            description: `Error parsing array on ${fieldName}. ${error}`
+          });
+          callData.fields[fieldName] = [];
+          return;
+        }
+      }
+    }
 
     if (callData.function) {
       call = new CellarCall(callData.function, callData.fields);
@@ -96,6 +134,7 @@
             <div class="flex justify-between mt-2">
               <label for="{`${call.function}-${field.name}`}" class="mr-4">{field.label}:</label>
               <input
+                type={field.type ?? 'text'}
                 value={callData.fields[field.name] || ''}
                 on:input={(event) => handleInput(call.function, field.name, event)}
                 id="{`${call.function}-${field.name}`}"

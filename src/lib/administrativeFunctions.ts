@@ -25,22 +25,26 @@ const AddPosition: CellarCallInputs = {
     {
       name: "index",
       label: "index",
-      placeholder: "index"
+      placeholder: "index",
+      type: "number"
     },
     {
       name: "position_id",
       label: "position_id",
-      placeholder: "position_id"
+      placeholder: "position_id",
+      type: "number"
     },
     {
       name: "configuration_data",
       label: "configuration_data",
-      placeholder: "configuration_data"
+      placeholder: "configuration_data",
+      type: "array"
     },
     {
       name: "in_debt_array",
       label: "in_debt_array",
-      placeholder: "in_debt_array"
+      placeholder: "in_debt_array",
+      type: "checkbox"
     }
   ]
 }
