@@ -22,17 +22,28 @@ pub(crate) struct CellarCallData {
 }
 
 pub(crate) enum CellarCall {
+    AddPosition(u32, u32, Vec<u8>, bool),
     CallOnAdaptor(Vec<AdaptorCall>),
-    SetSharePriceOracle(String, String)
+    RemovePosition(u32, bool),
+    SetHoldingPosition(u32),
+    SetStrategistPayoutAddress(String),
+    SwapPositions(u32, u32, bool),
+    SetShareLockPeriod(String),
+    InitiateShutdown,
+    LiftShutdown,
+    RemoveAdaptorFromCatalogue(String),
+    RemovePositionFromCatalogue(u32),
+    DecreaseShareSupplyCap(String),
+    SetAlternativeAssetData(String, u32, u32),
+    DropAlternativeAssetData(String),
+    AddAdaptorToCatalogue(String),
+    AddPositionToCatalogue(u32),
+    SetRebalanceDeviation(String),
+    SetStrategistPlatformCut(u64),
+    SetSharePriceOracle(String, String),
+    IncreaseShareSupplyCap(String),
+    CachePriceRouter(bool, u32, String),
 }
-
-#[derive(Deserialize, Debug)]
-struct SetSharePriceOracleCall {
-    share_price_oracle: String,
-    registry_id: String,
-}
-
-
 
 impl std::fmt::Display for CellarCallData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -150,6 +161,84 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<CellarCal
 
             Ok(CellarCall::SetSharePriceOracle(parsed_fields.registry_id, parsed_fields.share_price_oracle))
         },
+        "AddPosition" => {
+            let parsed_fields: cellar_v2_5::AddPosition = serde_json::from_str(&first_call.fields).unwrap();
+            // Ok(CellarCall::AddPosition(parsed_fields.index, parsed_fields.position_id, parsed_fields.configuration_data, parsed_fields.in_debt_array))
+            //
+            Ok(
+                cellar_v2_5::function_call::Function::AddPosition(
+                cellar_v2_5::AddPosition {
+                    index: parsed_fields.index,
+                    position_id: parsed_fields.position_id,
+                    configuration_data: parsed_fields.configuration_data,
+                    in_debt_array: parsed_fields.in_debt_array,
+                }
+            ))
+        },
+        "RemovePosition" => {
+            let parsed_fields: cellar_v2_5::RemovePosition = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::RemovePosition(parsed_fields.index, parsed_fields.in_debt_array))
+        },
+        "SetHoldingPosition" => {
+            let parsed_fields: cellar_v2_5::SetHoldingPosition = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetHoldingPosition(parsed_fields.position_id))
+        },
+        "SetStrategistPayoutAddress" => {
+            let parsed_fields: cellar_v2_5::SetStrategistPayoutAddress = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetStrategistPayoutAddress(parsed_fields.payout))
+        },
+        "SwapPositions" => {
+            let parsed_fields: cellar_v2_5::SwapPositions = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SwapPositions(parsed_fields.index_1, parsed_fields.index_2, parsed_fields.in_debt_array))
+        },
+        "SetShareLockPeriod" => {
+            let parsed_fields: cellar_v2_5::SetShareLockPeriod = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetShareLockPeriod(parsed_fields.new_lock))
+        },
+        "RemoveAdaptorFromCatalogue" => {
+            let parsed_fields: cellar_v2_5::RemoveAdaptorFromCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::RemoveAdaptorFromCatalogue(parsed_fields.adaptor))
+        },
+        "RemovePositionFromCatalogue" => {
+            let parsed_fields: cellar_v2_5::RemovePositionFromCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::RemovePositionFromCatalogue(parsed_fields.position_id))
+        },
+        "DecreaseShareSupplyCap" => {
+            let parsed_fields: cellar_v2_5::DecreaseShareSupplyCap = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::DecreaseShareSupplyCap(parsed_fields.new_cap))
+        },
+        "SetAlternativeAssetData" => {
+            let parsed_fields: cellar_v2_5::SetAlternativeAssetData = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetAlternativeAssetData(parsed_fields.alternative_asset, parsed_fields.alternative_holding_position, parsed_fields.alternative_asset_fee))
+        },
+        "DropAlternativeAssetData" => {
+            let parsed_fields: cellar_v2_5::DropAlternativeAssetData = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::DropAlternativeAssetData(parsed_fields.alternative_asset))
+        },
+        "AddAdaptorToCatalogue" => {
+            let parsed_fields: cellar_v2_5::AddAdaptorToCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::AddAdaptorToCatalogue(parsed_fields.adaptor))
+        },
+        "AddPositionToCatalogue" => {
+            let parsed_fields: cellar_v2_5::AddPositionToCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::AddPositionToCatalogue(parsed_fields.position_id))
+        },
+        "SetRebalanceDeviation" => {
+            let parsed_fields: cellar_v2_5::SetRebalanceDeviation = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetRebalanceDeviation(parsed_fields.new_deviation))
+        },
+        "SetStrategistPlatformCut" => {
+            let parsed_fields: cellar_v2_5::SetStrategistPlatformCut = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::SetStrategistPlatformCut(parsed_fields.new_cut))
+        },
+        "IncreaseShareSupplyCap" => {
+            let parsed_fields: cellar_v2_5::IncreaseShareSupplyCap = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::IncreaseShareSupplyCap(parsed_fields.new_cap))
+        },
+        "CachePriceRouter" => {
+            let parsed_fields: cellar_v2_5::CachePriceRouter = serde_json::from_str(&first_call.fields).unwrap();
+            Ok(CellarCall::CachePriceRouter(parsed_fields.check_total_assets, parsed_fields.allowable_range, parsed_fields.expected_price_router))
+        },
         _ => bail!("Unsupported function variant: {:?}", first_call.function_name),
     }
 }
@@ -189,8 +278,131 @@ fn construct_function(cellar_call: CellarCall) -> cellar_v2_5::function_call::Fu
                     share_price_oracle
                 }
             ),
+        CellarCall::AddPosition(index, position_id, configuration_data, in_debt_array) =>
+            cellar_v2_5::function_call::Function::AddPosition(
+                cellar_v2_5::AddPosition {
+                    index,
+                    position_id,
+                    configuration_data,
+                    in_debt_array,
+                }
+            ),
+        CellarCall::RemovePosition(index, in_debt_array) =>
+            cellar_v2_5::function_call::Function::RemovePosition(
+                cellar_v2_5::RemovePosition {
+                    index,
+                    in_debt_array,
+                }
+            ),
+        CellarCall::SetHoldingPosition(position_id) =>
+            cellar_v2_5::function_call::Function::SetHoldingPosition(
+                cellar_v2_5::SetHoldingPosition {
+                    position_id,
+                }
+            ),
+        CellarCall::SetStrategistPayoutAddress(payout) =>
+            cellar_v2_5::function_call::Function::SetStrategistPayoutAddress(
+                cellar_v2_5::SetStrategistPayoutAddress {
+                    payout,
+                }
+            ),
+        CellarCall::SwapPositions(index_1, index_2, in_debt_array) =>
+            cellar_v2_5::function_call::Function::SwapPositions(
+                cellar_v2_5::SwapPositions {
+                    index_1,
+                    index_2,
+                    in_debt_array,
+                }
+            ),
+        CellarCall::SetShareLockPeriod(new_lock) =>
+            cellar_v2_5::function_call::Function::SetShareLockPeriod(
+                cellar_v2_5::SetShareLockPeriod {
+                    new_lock,
+                }
+            ),
+        CellarCall::InitiateShutdown => {
+            cellar_v2_5::function_call::Function::InitiateShutdown(
+                cellar_v2_5::InitiateShutdown {}
+            )
+        }
+        CellarCall::LiftShutdown => {
+            cellar_v2_5::function_call::Function::LiftShutdown(
+                cellar_v2_5::LiftShutdown {}
+            )
+        },
+        CellarCall::RemoveAdaptorFromCatalogue(adaptor) =>
+            cellar_v2_5::function_call::Function::RemoveAdaptorFromCatalogue(
+                cellar_v2_5::RemoveAdaptorFromCatalogue {
+                    adaptor,
+                }
+            ),
+        CellarCall::RemovePositionFromCatalogue(position_id) =>
+            cellar_v2_5::function_call::Function::RemovePositionFromCatalogue(
+                cellar_v2_5::RemovePositionFromCatalogue {
+                    position_id,
+                }
+            ),
+        CellarCall::DecreaseShareSupplyCap(new_cap) =>
+            cellar_v2_5::function_call::Function::DecreaseShareSupplyCap(
+                cellar_v2_5::DecreaseShareSupplyCap {
+                    new_cap,
+                }
+            ),
+        CellarCall::SetAlternativeAssetData(alternative_asset, alternative_holding_position, alternative_asset_fee) =>
+            cellar_v2_5::function_call::Function::SetAlternativeAssetData(
+                cellar_v2_5::SetAlternativeAssetData {
+                    alternative_asset,
+                    alternative_holding_position,
+                    alternative_asset_fee,
+                }
+            ),
+        CellarCall::DropAlternativeAssetData(alternative_asset) =>
+            cellar_v2_5::function_call::Function::DropAlternativeAssetData(
+                cellar_v2_5::DropAlternativeAssetData {
+                    alternative_asset,
+                }
+            ),
+        CellarCall::AddAdaptorToCatalogue(adaptor) =>
+            cellar_v2_5::function_call::Function::AddAdaptorToCatalogue(
+                cellar_v2_5::AddAdaptorToCatalogue {
+                    adaptor,
+                }
+            ),
+        CellarCall::AddPositionToCatalogue(position_id) =>
+            cellar_v2_5::function_call::Function::AddPositionToCatalogue(
+                cellar_v2_5::AddPositionToCatalogue {
+                    position_id,
+                }
+            ),
+        CellarCall::SetRebalanceDeviation(new_deviation) =>
+            cellar_v2_5::function_call::Function::SetRebalanceDeviation(
+                cellar_v2_5::SetRebalanceDeviation {
+                    new_deviation,
+                }
+            ),
+        CellarCall::SetStrategistPlatformCut(new_cut) =>
+            cellar_v2_5::function_call::Function::SetStrategistPlatformCut(
+                cellar_v2_5::SetStrategistPlatformCut {
+                    new_cut,
+                }
+            ),
+        CellarCall::IncreaseShareSupplyCap(new_cap) =>
+            cellar_v2_5::function_call::Function::IncreaseShareSupplyCap(
+                cellar_v2_5::IncreaseShareSupplyCap {
+                    new_cap,
+                }
+            ),
+        CellarCall::CachePriceRouter(check_total_assets, allowable_range, expected_price_router) =>
+            cellar_v2_5::function_call::Function::CachePriceRouter(
+                cellar_v2_5::CachePriceRouter {
+                    check_total_assets,
+                    allowable_range,
+                    expected_price_router,
+                }
+            )
     }
 }
+
 
 pub(crate) fn convert_to_aave_v3_flash_loan_adaptor(
     call: &AdaptorCall,
