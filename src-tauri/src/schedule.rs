@@ -9,8 +9,11 @@ use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
     aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
     balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
-    contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
+    contract_call_service_client::ContractCallServiceClient,
+    AdaptorCall,
+    ScheduleRequest,
     ScheduleResponse,
+    cellar_v2_5
 };
 use tauri::async_runtime::Sender;
 use tauri::Manager;
@@ -158,7 +161,14 @@ pub(crate) fn build_flash_loan_request(
 
     let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
 
-    let call_data = Some(construct_call_data(CellarCall::CallOnAdaptor(flash_loan_adaptor_call)));
+    let function = cellar_v2_5::function_call::Function::CallOnAdaptor(
+        cellar_v2_5::CallOnAdaptor {
+            data: flash_loan_adaptor_call
+
+        }
+    );
+
+    let call_data = Some(construct_call_data(function));
 
     Ok(ScheduleRequest {
         cellar_id,
