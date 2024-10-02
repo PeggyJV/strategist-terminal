@@ -77,12 +77,13 @@ export interface Field {
   name: string
   label: string
   placeholder: string
-  type?: string
+  type?: "number" | "checkbox" | "text" | "array"
 
 }
 
-export interface CellarCallInputs {
+export interface CellarFunction {
   function: Functions
   action: string
+  info?: string
   fields: Field[]
 }

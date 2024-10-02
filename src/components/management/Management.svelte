@@ -119,7 +119,7 @@
       <h2>
         <button
           type="button"
-          class="accordion-header flex justify-between items-center cursor-pointer bg-gray-100 py-3 px-4 font-semibold w-full"
+          class="accordion-header flex justify-between items-center cursor-pointer bg-gray-100 px-4 font-semibold w-full"
           on:click={() => toggleAccordion(index)}
         >
           {call.function}
@@ -131,17 +131,23 @@
       <!-- Accordion Content -->
       {#if openIndex === index}
         <div class="accordion-content p-4 transition-all duration-300">
+          <span>
+            {call.info}
+          </span>
+
           {#each call.fields as field}
-            <div class="flex justify-between mt-2">
+            <div class="flex mt-4 flex-col">
               <label for="{`${call.function}-${field.name}`}" class="mr-4">{field.label}:</label>
-              <input
-                type={field.type ?? 'text'}
-                value={callData.fields[field.name]}
-                on:input={(event) => handleInput(call.function, field.name, event)}
-                id="{`${call.function}-${field.name}`}"
-                placeholder="{field.placeholder}"
-                class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-              />
+              <div class="flex items-center">
+                <input
+                  type={field.type ?? 'text'}
+                  value={callData.fields[field.name]}
+                  on:input={(event) => handleInput(call.function, field.name, event)}
+                  id="{`${call.function}-${field.name}`}"
+                  placeholder="{field.placeholder}"
+                  class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 min-h-[20px]"
+                />
+              </div>
             </div>
           {/each}
 
