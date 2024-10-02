@@ -145,7 +145,8 @@
                   on:input={(event) => handleInput(call.function, field.name, event)}
                   id="{`${call.function}-${field.name}`}"
                   placeholder="{field.placeholder}"
-                  class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 min-h-[20px]"
+                  class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 min-h-[25px]
+                        {field.type === 'checkbox' ? 'w-[25px]' : 'w-full'}"
                 />
               </div>
             </div>
