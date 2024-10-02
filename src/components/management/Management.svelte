@@ -91,8 +91,9 @@
       // Reset callData when a new call is selected
       callData = {
         function: selectedCall.function,
-        fields: selectedCall.fields.reduce((acc: Record<string, string>, field: { name: string }) => {
-          acc[field.name] = '';  // Initialize each field with an empty string
+        fields: selectedCall.fields.reduce((acc: Record<string, any>, field: { name: string, type?: string }) => {
+          // Initialize boolean checkboxes as false by default, others as empty strings
+          acc[field.name] = field.type === 'checkbox' ? false : '';
           return acc;
         }, {})
       };
@@ -135,7 +136,7 @@
               <label for="{`${call.function}-${field.name}`}" class="mr-4">{field.label}:</label>
               <input
                 type={field.type ?? 'text'}
-                value={callData.fields[field.name] || ''}
+                value={callData.fields[field.name]}
                 on:input={(event) => handleInput(call.function, field.name, event)}
                 id="{`${call.function}-${field.name}`}"
                 placeholder="{field.placeholder}"
