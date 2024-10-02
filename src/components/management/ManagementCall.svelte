@@ -7,13 +7,15 @@
   let cellarAddress = "";
   let blockHeight = "";
 
-  let chain = Chains.ETHEREUM
+  let sendingRequest = false;
+
+  let chain = Chains.ETHEREUM;
 
   export let toggleCallModal: () => void;
   export let call: CellarCall;
 
   async function handleCall() {
-
+    sendingRequest = true;
     const deadlineDate = new Date();
     const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
 
@@ -40,6 +42,7 @@
         }
       );
     });
+    sendingRequest = false;
     toggleCallModal();
   }
 
@@ -91,17 +94,20 @@
                 <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
               </div>
 
-              <div class="relative">
-                <button
-                  on:click={handleCall}
-                  disabled={!isButtonEnabled}
-                  class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
-                >
-                  Schedule Request
-                </button>
-
+              <div class="flex flex-row">
+                {#if sendingRequest}
+                  Broadcasting request
+                  <div id="loading-spinner" class="w-8 h-8 border-4 border-gray-200 border-t-blue-500 ml-2 rounded-full animate-spin"></div>
+                {:else}
+                  <button
+                    on:click={handleCall}
+                    disabled={!isButtonEnabled}
+                    class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
+                  >
+                    Schedule Request
+                  </button>
+                {/if}
               </div>
-
             </div>
           </div>
         </div>
