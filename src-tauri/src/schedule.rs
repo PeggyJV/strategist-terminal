@@ -99,9 +99,9 @@ pub(crate) fn build_request(
     chain_id: u64,
     deadline: u64,
     queue: Vec<CellarCallData>,
-) -> Result<ScheduleRequest> {
-    let function_input = create_cellar_call(queue);
-    let call_data = Some(construct_call_data(function_input.unwrap()));
+) -> Result<ScheduleRequest, serde_json::Error> {
+    let function_input = create_cellar_call(queue)?;
+    let call_data = Some(construct_call_data(function_input));
     Ok(ScheduleRequest {
         cellar_id,
         chain_id,

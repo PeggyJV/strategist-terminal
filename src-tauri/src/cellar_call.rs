@@ -1,6 +1,7 @@
 use crate::adaptors::*;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
+use serde::de::Error;
 use steward_proto::proto::{
     aave_v3_debt_token_adaptor_v1_flash_loan::adaptor_call_for_aave_v3_flash_loan,
     aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
@@ -143,7 +144,7 @@ impl CellarCallData {
     }
 }
 
-pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2_5::function_call::Function> {
+pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2_5::function_call::Function, serde_json::Error> {
     // Assuming that the CallOnAdaptor calls cannot be mixed with others and all the others are called one at a time.
     let first_call = &queue[0];
     println!("{}", first_call.function_name.as_str());
@@ -151,8 +152,8 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
         "CallOnAdaptor" => {
             let adaptor_calls = queue
                 .into_iter()
-                .map(|call| call.to_adaptor_call())
-                .collect::<Result<Vec<_>>>()?;
+                .map(|call| call.to_adaptor_call().map_err(|e| serde_json::Error::custom(format!("Error in CallOnAdaptor: {:?}", e))))
+                .collect::<Result<Vec<_>, serde_json::Error>>()?;
             Ok(cellar_v2_5::function_call::Function::CallOnAdaptor(
                 cellar_v2_5::CallOnAdaptor {
                     data: adaptor_calls,
@@ -160,7 +161,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetSharePriceOracle" => {
-            let parsed_fields: cellar_v2_5::SetSharePriceOracle = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetSharePriceOracle = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetSharePriceOracle(
                 cellar_v2_5::SetSharePriceOracle {
                     registry_id: parsed_fields.registry_id,
@@ -169,7 +170,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "AddPosition" => {
-            let parsed_fields: cellar_v2_5::AddPosition = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::AddPosition = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::AddPosition(
                 cellar_v2_5::AddPosition {
                     index: parsed_fields.index,
@@ -180,7 +181,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "RemovePosition" => {
-            let parsed_fields: cellar_v2_5::RemovePosition = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::RemovePosition = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::RemovePosition(
                 cellar_v2_5::RemovePosition {
                     index: parsed_fields.index,
@@ -189,7 +190,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetHoldingPosition" => {
-            let parsed_fields: cellar_v2_5::SetHoldingPosition = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetHoldingPosition = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetHoldingPosition(
                 cellar_v2_5::SetHoldingPosition {
                     position_id: parsed_fields.position_id,
@@ -197,7 +198,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetStrategistPayoutAddress" => {
-            let parsed_fields: cellar_v2_5::SetStrategistPayoutAddress = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetStrategistPayoutAddress = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetStrategistPayoutAddress(
                 cellar_v2_5::SetStrategistPayoutAddress {
                     payout: parsed_fields.payout,
@@ -205,7 +206,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SwapPositions" => {
-            let parsed_fields: cellar_v2_5::SwapPositions = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SwapPositions = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SwapPositions(
                 cellar_v2_5::SwapPositions {
                     index_1: parsed_fields.index_1,
@@ -215,7 +216,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetShareLockPeriod" => {
-            let parsed_fields: cellar_v2_5::SetShareLockPeriod = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetShareLockPeriod = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetShareLockPeriod(
                 cellar_v2_5::SetShareLockPeriod {
                     new_lock: parsed_fields.new_lock,
@@ -223,7 +224,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "RemoveAdaptorFromCatalogue" => {
-            let parsed_fields: cellar_v2_5::RemoveAdaptorFromCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::RemoveAdaptorFromCatalogue = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::RemoveAdaptorFromCatalogue(
                 cellar_v2_5::RemoveAdaptorFromCatalogue {
                     adaptor: parsed_fields.adaptor,
@@ -231,7 +232,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "RemovePositionFromCatalogue" => {
-            let parsed_fields: cellar_v2_5::RemovePositionFromCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::RemovePositionFromCatalogue = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::RemovePositionFromCatalogue(
                 cellar_v2_5::RemovePositionFromCatalogue {
                     position_id: parsed_fields.position_id,
@@ -239,7 +240,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "DecreaseShareSupplyCap" => {
-            let parsed_fields: cellar_v2_5::DecreaseShareSupplyCap = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::DecreaseShareSupplyCap = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::DecreaseShareSupplyCap(
                 cellar_v2_5::DecreaseShareSupplyCap {
                     new_cap: parsed_fields.new_cap,
@@ -247,7 +248,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetAlternativeAssetData" => {
-            let parsed_fields: cellar_v2_5::SetAlternativeAssetData = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetAlternativeAssetData = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetAlternativeAssetData(
                 cellar_v2_5::SetAlternativeAssetData {
                     alternative_asset: parsed_fields.alternative_asset,
@@ -257,7 +258,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "DropAlternativeAssetData" => {
-            let parsed_fields: cellar_v2_5::DropAlternativeAssetData = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::DropAlternativeAssetData = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::DropAlternativeAssetData(
                 cellar_v2_5::DropAlternativeAssetData {
                     alternative_asset: parsed_fields.alternative_asset,
@@ -265,7 +266,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "AddAdaptorToCatalogue" => {
-            let parsed_fields: cellar_v2_5::AddAdaptorToCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::AddAdaptorToCatalogue = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::AddAdaptorToCatalogue(
                 cellar_v2_5::AddAdaptorToCatalogue {
                     adaptor: parsed_fields.adaptor,
@@ -273,7 +274,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "AddPositionToCatalogue" => {
-            let parsed_fields: cellar_v2_5::AddPositionToCatalogue = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::AddPositionToCatalogue = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::AddPositionToCatalogue(
                 cellar_v2_5::AddPositionToCatalogue {
                     position_id: parsed_fields.position_id,
@@ -281,7 +282,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetRebalanceDeviation" => {
-            let parsed_fields: cellar_v2_5::SetRebalanceDeviation = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetRebalanceDeviation = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetRebalanceDeviation(
                 cellar_v2_5::SetRebalanceDeviation {
                     new_deviation: parsed_fields.new_deviation,
@@ -289,7 +290,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "SetStrategistPlatformCut" => {
-            let parsed_fields: cellar_v2_5::SetStrategistPlatformCut = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::SetStrategistPlatformCut = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::SetStrategistPlatformCut(
                 cellar_v2_5::SetStrategistPlatformCut {
                     new_cut: parsed_fields.new_cut,
@@ -297,7 +298,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "IncreaseShareSupplyCap" => {
-            let parsed_fields: cellar_v2_5::IncreaseShareSupplyCap = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::IncreaseShareSupplyCap = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::IncreaseShareSupplyCap(
                 cellar_v2_5::IncreaseShareSupplyCap {
                     new_cap: parsed_fields.new_cap,
@@ -305,7 +306,7 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
             ))
         },
         "CachePriceRouter" => {
-            let parsed_fields: cellar_v2_5::CachePriceRouter = serde_json::from_str(&first_call.fields).unwrap();
+            let parsed_fields: cellar_v2_5::CachePriceRouter = serde_json::from_str(&first_call.fields)?;
             Ok(cellar_v2_5::function_call::Function::CachePriceRouter(
                 cellar_v2_5::CachePriceRouter {
                     check_total_assets: parsed_fields.check_total_assets,
@@ -313,8 +314,8 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
                     expected_price_router: parsed_fields.expected_price_router,
                 },
             ))
-        },
-        _ => bail!("Unsupported function variant: {:?}", first_call.function_name),
+        }
+        _ => Err(serde_json::Error::custom("Unsupported function variant: {:?}", first_call.function_name)),
     }
 }
 
