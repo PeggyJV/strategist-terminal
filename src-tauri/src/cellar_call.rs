@@ -315,7 +315,10 @@ pub(crate) fn create_cellar_call(queue: Vec<CellarCallData>) -> Result<cellar_v2
                 },
             ))
         }
-        _ => Err(serde_json::Error::custom("Unsupported function variant: {:?}", first_call.function_name)),
+        _ => Err(Error::custom(format!(
+            "Unsupported function variant: {:?}",
+            first_call.function_name
+        )))
     }
 }
 
