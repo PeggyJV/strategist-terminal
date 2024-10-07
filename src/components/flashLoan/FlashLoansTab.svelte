@@ -1,7 +1,7 @@
 <script lang="ts">
   import AdaptorSelection from "./AdaptorSelection.svelte"
   import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
-  import { Functions } from "$lib/type"
+  import { Functions, PlaceHolder } from "$lib/type"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -107,7 +107,7 @@
   <input
     bind:value={adaptorAddress}
     id="adaptorAddress"
-    placeholder={adaptorAddress}
+    placeholder={PlaceHolder.Address}
     class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
   />
 
@@ -116,7 +116,7 @@
     <input
       bind:value={tokens}
       id="tokens"
-      placeholder='e.g., ["0x000...", "0x000..."]'
+      placeholder={PlaceHolder.ArrayOfAddress}
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
@@ -126,7 +126,7 @@
     <input
       bind:value={amounts}
       id="amounts"
-      placeholder='e.g., ["50", "100"]'
+      placeholder={PlaceHolder.ArrayOfString}
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
