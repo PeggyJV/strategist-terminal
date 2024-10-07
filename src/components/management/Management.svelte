@@ -1,19 +1,27 @@
 <script lang="ts">
-  import { Functions } from "$lib/type";
+  import { Functions } from "$lib/type"
   import { CellarCall } from "$stores/AdapterQueue";
   import ManagementCall from "./ManagementCall.svelte";
   import { administrativeFunctions } from "$lib/administrativeFunctions";
+  import { toast, ToastType } from "$stores/ToastStore"
 
   let callData: {
     function: Functions | null,
-    fields: Record<string, string>
+    fields: Record<string, any>
   } = {
     function: null,
     fields: {}
   };
 
   function handleInput(callFunction: Functions, fieldName: string, event: Event) {
-    const value = (event.target as HTMLInputElement).value;
+    const target = event.target as HTMLInputElement;
+    let value: string | number | boolean | [] | null   = target.value;
+
+    if (target.type === 'number') {
+      value = target.value ? Number(target.value) : null;
+    } else if (target.type === 'checkbox') {
+      value = target.checked;
+    }
 
     if (callFunction === callData.function) {
       callData.fields = {
@@ -31,7 +39,37 @@
   let call: CellarCall;
 
   async function callFunction() {
-    console.log(callData);
+    for (const fieldName of Object.keys(callData.fields)) {
+      const field = administrativeFunctions
+        .find((fn) => fn.function === callData.function)?.fields
+        .find((f) => f.name === fieldName);
+
+      if (field && field.type === 'array') {
+        try {
+          const value = callData.fields[fieldName];
+
+          const parsedValue = JSON.parse(value);
+
+          if (Array.isArray(parsedValue)) {
+            callData.fields[fieldName] = parsedValue;
+          } else {
+            toast.set({
+              type: ToastType.Error,
+              description: `Error with array format on ${fieldName}.`
+            });
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing array field", fieldName, error);
+          toast.set({
+            type: ToastType.Error,
+            description: `Error parsing array on ${fieldName}. ${error}`
+          });
+          callData.fields[fieldName] = [];
+          return;
+        }
+      }
+    }
 
     if (callData.function) {
       call = new CellarCall(callData.function, callData.fields);
@@ -53,8 +91,9 @@
       // Reset callData when a new call is selected
       callData = {
         function: selectedCall.function,
-        fields: selectedCall.fields.reduce((acc: Record<string, string>, field: { name: string }) => {
-          acc[field.name] = '';  // Initialize each field with an empty string
+        fields: selectedCall.fields.reduce((acc: Record<string, any>, field: { name: string, type?: string }) => {
+          // Initialize boolean checkboxes as false by default, others as empty strings
+          acc[field.name] = field.type === 'checkbox' ? false : '';
           return acc;
         }, {})
       };
@@ -80,7 +119,7 @@
       <h2>
         <button
           type="button"
-          class="accordion-header flex justify-between items-center cursor-pointer bg-gray-100 py-3 px-4 font-semibold w-full"
+          class="accordion-header flex justify-between items-center cursor-pointer bg-gray-100 px-4 font-semibold w-full"
           on:click={() => toggleAccordion(index)}
         >
           {call.function}
@@ -92,16 +131,24 @@
       <!-- Accordion Content -->
       {#if openIndex === index}
         <div class="accordion-content p-4 transition-all duration-300">
+          <span>
+            {call.info}
+          </span>
+
           {#each call.fields as field}
-            <div class="flex justify-between mt-2">
+            <div class="flex mt-4 flex-col">
               <label for="{`${call.function}-${field.name}`}" class="mr-4">{field.label}:</label>
-              <input
-                value={callData.fields[field.name] || ''}
-                on:input={(event) => handleInput(call.function, field.name, event)}
-                id="{`${call.function}-${field.name}`}"
-                placeholder="{field.placeholder}"
-                class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
-              />
+              <div class="flex items-center">
+                <input
+                  type={field.type ?? 'text'}
+                  value={callData.fields[field.name]}
+                  on:input={(event) => handleInput(call.function, field.name, event)}
+                  id="{`${call.function}-${field.name}`}"
+                  placeholder="{field.placeholder}"
+                  class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 min-h-[25px]
+                        {field.type === 'checkbox' ? 'w-[25px]' : 'w-full'}"
+                />
+              </div>
             </div>
           {/each}
 

@@ -7,13 +7,15 @@
   let cellarAddress = "";
   let blockHeight = "";
 
-  let chain = Chains.ETHEREUM
+  let sendingRequest = false;
+
+  let chain = Chains.ETHEREUM;
 
   export let toggleCallModal: () => void;
   export let call: CellarCall;
 
   async function handleCall() {
-
+    sendingRequest = true;
     const deadlineDate = new Date();
     const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
 
@@ -40,6 +42,7 @@
         }
       );
     });
+    sendingRequest = false;
     toggleCallModal();
   }
 
@@ -59,16 +62,16 @@
           &times;
         </button>
       </div>
-      <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-        <div class="sm:flex sm:items-start">
-          <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+      <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 min-w-[500px]">
+        <div class="sm:flex justify-center sm:items-center">
+          <div class="mt-2 text-center sm:text-left min-w-[350px]">
             <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Management</h3>
-            <div class="mt-2">
+            <div class="mt-2 mb-3">
 
               <h1 class="text-2xl font-bold mb-4">{call.functionName} Call</h1>
 
                Input data:
-                <pre class="mt-1 text-gray-700 bg-gray-100">
+                <pre class="mt-1 text-gray-700 bg-gray-100 pl-[70px]">
                   {JSON.stringify(call.fields, null, 2)}
                 </pre>
 
@@ -91,17 +94,20 @@
                 <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
               </div>
 
-              <div class="relative">
-                <button
-                  on:click={handleCall}
-                  disabled={!isButtonEnabled}
-                  class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
-                >
-                  Schedule Request
-                </button>
-
+              <div class="flex flex-row">
+                {#if sendingRequest}
+                  Broadcasting request
+                  <div id="loading-spinner" class="w-8 h-8 border-4 border-gray-200 border-t-blue-500 ml-2 rounded-full animate-spin"></div>
+                {:else}
+                  <button
+                    on:click={handleCall}
+                    disabled={!isButtonEnabled}
+                    class="px-4 py-2 rounded-md focus:outline-none {isButtonEnabled ? 'bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}"
+                  >
+                    Schedule Request
+                  </button>
+                {/if}
               </div>
-
             </div>
           </div>
         </div>
