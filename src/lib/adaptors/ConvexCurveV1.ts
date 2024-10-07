@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const ConvexCurveV1: Adaptor = {
   name: "ConvexCurveV1",
@@ -11,32 +11,38 @@ const ConvexCurveV1: Adaptor = {
         {
           name: "pid",
           label: "PID",
-          placeholder: "Enter PID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "base_reward_pool",
           label: "Base Reward Pool",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "lpt",
           label: "lpt",
-          placeholder: "lpt"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "pool",
           label: "pool",
-          placeholder: "pool"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "selector",
           label: "selector",
-          placeholder: "selector"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_to_deposit",
           label: "Enter amount to deposit",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -47,17 +53,20 @@ const ConvexCurveV1: Adaptor = {
         {
           name: "base_reward_pool",
           label: "Enter Base Reward Pool Address",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_withdraw",
           label: "Enter amount to withdraw",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "claim",
           label: "Enter whether or not to rewards associated to respective ConvexCurve market position, as a bool",
-          placeholder: "Boolean"
+          placeholder: PlaceHolder.Empty,
+          type: "checkbox"
         }
       ]
     },
@@ -68,12 +77,14 @@ const ConvexCurveV1: Adaptor = {
         {
           name: "base_reward_pool",
           label: "Enter Base Reward Pool Address",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "claim_extras",
           label: "Claim Extras",
-          placeholder: "Boolean"
+          placeholder: PlaceHolder.Empty,
+          type: "checkbox"
         }
       ]
     }

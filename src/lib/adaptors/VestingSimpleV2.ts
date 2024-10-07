@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const VestingSimpleV2: Adaptor = {
   name: "VestingSimpleV2",
@@ -11,12 +11,14 @@ const VestingSimpleV2: Adaptor = {
         {
           name: "vesting_contract",
           label: "Vesting Contract Address",
-          placeholder: "Vesting contract address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount to Deposit",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,17 +29,20 @@ const VestingSimpleV2: Adaptor = {
         {
           name: "vesting_contract",
           label: "Vesting Contract Address",
-          placeholder: "Vesting contract address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "deposit_id",
           label: "Deposit ID",
-          placeholder: "Deposit ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount to Withdraw",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -48,12 +53,14 @@ const VestingSimpleV2: Adaptor = {
         {
           name: "vesting_contract",
           label: "Vesting Contract Address",
-          placeholder: "Vesting contract address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount to Withdraw",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -64,7 +71,8 @@ const VestingSimpleV2: Adaptor = {
         {
           name: "vesting_contract",
           label: "Vesting Contract Address",
-          placeholder: "Vesting contract address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const DebtFTokenV1: Adaptor = {
   name: "DebtFTokenV1",
@@ -11,12 +11,14 @@ const DebtFTokenV1: Adaptor = {
         {
           name: "fraxlend_pair",
           label: "The address of the Frax Pair to borrow from",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_borrow",
           label: "The amount of the asset to borrow",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const DebtFTokenV1: Adaptor = {
         {
           name: "fraxlend_pair",
           label: "The address of the Frax Pair to repay debt on",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "debt_token_repay_amount",
           label: "The amount of the debt token to repay",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -43,7 +47,8 @@ const DebtFTokenV1: Adaptor = {
         {
           name: "fraxlend_pair",
           label: "The address of the Frax Pair to call addInterest on",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

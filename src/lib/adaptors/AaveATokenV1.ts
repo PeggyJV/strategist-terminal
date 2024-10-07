@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import type { Adaptor } from "$lib/type"
 
 const AaveATokenV1: Adaptor = {
   name: "AaveATokenV1",
@@ -11,12 +11,14 @@ const AaveATokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: "0xtoken",
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: "Amount",
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const AaveATokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: "0xtoken",
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: "Amount",
+          type: "text"
         }
       ]
     },

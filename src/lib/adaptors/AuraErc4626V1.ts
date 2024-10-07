@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const AuraErc4626V1: Adaptor = {
   name: "AuraErc4626V1",
@@ -11,12 +11,14 @@ const AuraErc4626V1: Adaptor = {
         {
           name: "aura_pool",
           label: "Aura Pool Address",
-          placeholder: "Enter Aura Pool Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "claim_extras",
           label: "Claim Extra Rewards",
-          placeholder: "Boolean"
+          placeholder: PlaceHolder.Empty,
+          type: "checkbox"
         }
       ]
     }

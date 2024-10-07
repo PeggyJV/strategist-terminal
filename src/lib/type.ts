@@ -87,3 +87,12 @@ export interface CellarFunction {
   info?: string
   fields: Field[]
 }
+
+export enum PlaceHolder {
+  Text = "e.g 1",
+  Address = "e.g 0x1111111111111111111111111111111111111111",
+  ArrayOfString = 'e.g ["1","2","3"]',
+  ArrayOfAddress = 'e.g ["0x1111111111111111111111111111111111111111"]',
+  ArrayOfNumber = "e.g [1,2,3]",
+  Empty = ""
+}

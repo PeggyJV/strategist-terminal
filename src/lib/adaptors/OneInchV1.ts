@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const OneInchV1: Adaptor = {
   name: "OneInchV1",
@@ -11,22 +11,26 @@ const OneInchV1: Adaptor = {
         {
           name: "token_in",
           label: "The Address of the Token to Swap From",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_out",
           label: "The Address of the Token to Swap To",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "The Amount to Swap",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "swap_call_data",
           label: "Swap Calldata",
-          placeholder: "Swap Calldata"
+          placeholder: PlaceHolder.ArrayOfNumber,
+          type: "array"
         }
       ]
     }

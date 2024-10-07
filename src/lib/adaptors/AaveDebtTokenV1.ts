@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const AaveDebtTokenV1: Adaptor = {
   name: "AaveDebtTokenV1",
@@ -11,12 +11,14 @@ const AaveDebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: "0xtoken",
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: "Amount",
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const AaveDebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: "0xtoken",
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: "Amount",
+          type: "text"
         }
       ]
     },
@@ -43,22 +47,32 @@ const AaveDebtTokenV1: Adaptor = {
         {
           name: "token_in",
           label: "The address of the token to swap from",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_to_repay",
           label: "The address of the token to swap to and repay with",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
-          name: "amount",
+          name: "amount_in",
           label: "The amount to swap",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "exchange",
           label: "The exchange to make the swap on",
-          placeholder: "Exchange"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
+        },
+        {
+          name: "params",
+          label: "The parameters for the swap",
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
