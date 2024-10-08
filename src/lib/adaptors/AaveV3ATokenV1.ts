@@ -59,7 +59,7 @@ const AaveV3ATokenV1: Adaptor = {
       ]
     },
     {
-      function: "ChangeEMode",
+      function: "ChangeEmode",
       action: "Change",
       fields: [
         {

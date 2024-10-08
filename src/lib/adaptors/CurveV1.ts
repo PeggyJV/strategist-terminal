@@ -47,7 +47,7 @@ const CurveV1: Adaptor = {
       ]
     },
     {
-      function: "AddLiquidityETH",
+      function: "AddLiquidityEth",
       action: "Add Liquidity with ETH",
       fields: [
         {
@@ -137,7 +137,7 @@ const CurveV1: Adaptor = {
       ]
     },
     {
-      function: "RemoveLiquidityETH",
+      function: "RemoveLiquidityEth",
       action: "Remove Liquidity with ETH",
       fields: [
         {

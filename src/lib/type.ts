@@ -76,7 +76,7 @@ export interface AdaptorCall {
 export interface Field {
   name: string
   label: string
-  placeholder: string
+  placeholder: PlaceHolder | string
   type?: "number" | "checkbox" | "text" | "array"
 
 }

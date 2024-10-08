@@ -12,7 +12,7 @@ import CompoundCTokenV2 from "$lib/adaptors/CompoundCTokenV2"
 import ConvexCurveV1 from "$lib/adaptors/ConvexCurveV1"
 import CurveV1 from "$lib/adaptors/CurveV1"
 import DebtFTokenV1 from "$lib/adaptors/DebtFTokenV1"
-import Erc4626V1V1 from "$lib/adaptors/Erc4626V1"
+import Erc4626V1 from "$lib/adaptors/Erc4626V1"
 import FeesAndReservesV1 from "$lib/adaptors/FeesAndReservesV1"
 import FTokenV1 from "$lib/adaptors/FTokenV1"
 import LegacyCellarV1 from "$lib/adaptors/LegacyCellarV1"
@@ -48,7 +48,7 @@ const adaptors: Adaptor[] = [
   ConvexCurveV1,
   CurveV1,
   DebtFTokenV1,
-  Erc4626V1V1,
+  Erc4626V1,
   FeesAndReservesV1,
   FTokenV1,
   LegacyCellarV1,

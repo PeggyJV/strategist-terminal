@@ -1,7 +1,7 @@
 import { type Adaptor, PlaceHolder } from "$lib/type"
 
-const Erc4626V1V1: Adaptor = {
-  name: "Erc4626V1V1",
+const Erc4626V1: Adaptor = {
+  name: "Erc4626V1",
   address: "",
   calls: [
     {
@@ -42,4 +42,4 @@ const Erc4626V1V1: Adaptor = {
     }
   ]
 }
-export default Erc4626V1V1;
+export default Erc4626V1;

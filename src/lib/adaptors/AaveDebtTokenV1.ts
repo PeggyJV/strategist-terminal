@@ -11,13 +11,13 @@ const AaveDebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken",
+          placeholder: PlaceHolder.Address,
           type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount",
+          placeholder: PlaceHolder.Text,
           type: "text"
         }
       ]
@@ -29,13 +29,13 @@ const AaveDebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken",
+          placeholder: PlaceHolder.Address,
           type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount",
+          placeholder: PlaceHolder.Text,
           type: "text"
         }
       ]
