@@ -42,13 +42,16 @@
       if (fieldValues[call.function] && fieldValues[call.function][field.name]) {
         relevantFields[field.name] = fieldValues[call.function][field.name];
       }
+      if(field.type === 'checkbox' && !fieldValues[call.function][field.name]) {
+        relevantFields[field.name] = false;
+      }
     });
 
-    // If the fields type is array, create js array out of string
     for (const fieldName of Object.keys(relevantFields)) {
       const field = call.fields
         .find((f) => f.name === fieldName);
 
+      // If the fields type is array, create js array out of string
       if (field && field.type === 'array') {
         try {
           const value = relevantFields[fieldName];
