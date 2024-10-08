@@ -46,7 +46,10 @@
             toggleStatesModal();
         }).catch((error) => {
             console.error(error);
-            toggleStatesModal();
+            toast.set({
+                type: ToastType.Error,
+                description: `Error scheduling the request. ${error}`
+            })
         });
         queue.set([]);
         // TODO: Create a request object from the result
@@ -77,7 +80,6 @@
                   description: "Error scheduling a request: " + error
               }
             );
-            toggleStatesModal();
         });
         queue.set([]);
         // TODO: Create a request object from the result
