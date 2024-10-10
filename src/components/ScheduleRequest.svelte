@@ -91,16 +91,16 @@
 </script>
 
 <h1 class="text-2xl font-bold mb-4">Schedule Request</h1>
-<div class="mb-4">
-    <label for="cellar_id" class="block mb-1">Cellar:</label>
+<!--<div class="mb-4">-->
+<!--    <label for="cellar_id" class="block mb-1">Cellar:</label>-->
 
-    <select name="cellar_id" id="cellar_id" bind:value={cellar} class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500">
-        {#each Object.entries(Cellars) as [key, value]}
-            <option value={value}>{key}</option>
-        {/each}
-    </select>
- </div>
-{#if cellar === Cellars.CUSTOM}
+<!--    <select name="cellar_id" id="cellar_id" bind:value={cellar} class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500">-->
+<!--        {#each Object.entries(Cellars) as [key, value]}-->
+<!--            <option value={value}>{key}</option>-->
+<!--        {/each}-->
+<!--    </select>-->
+<!-- </div>-->
+<!--{#if cellar === Cellars.CUSTOM}-->
     <div class="mb-4">
         <label for="chain" class="block mb-1">Chain:</label>
         <select name="chain" id="chain" bind:value={cellar.CHAIN} class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500">
@@ -113,7 +113,7 @@
         <label for="address" class="block mb-1">Address:</label>
         <input type="text" id="address" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={cellar.ADDRESS} placeholder="Enter Cellar Address"/>
     </div>
-{/if}
+<!--{/if}-->
 <div class="mb-4">
     <label for="block_height" class="block mb-1">Block Height:</label>
     <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
