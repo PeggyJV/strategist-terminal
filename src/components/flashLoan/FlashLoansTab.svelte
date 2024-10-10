@@ -140,19 +140,22 @@
   {/if}
 
   {#each $flashLoanCalls as call, index (index)}
+    <div class="flex justify-between mt-2 ml-5">
         <h4>{call.adaptorName}</h4>
+        <button
+          on:click={() => removeCall(index)}
+          type="button"
+          class="px-1 text-red-500 text-3xl rounded-md hover:text-red-600 "
+        > &times;</button>
+    </div>
         {#each Object.entries(call.fields) as [key, value]}
-          <div class="flex justify-between mt-2 ml-5">
-            <div>
-              {key}: {JSON.stringify(value)}
-            </div>
-            <button
-              on:click={() => removeCall(index)}
-              type="button"
-              class="px-1 text-red-500 text-3xl rounded-md hover:text-red-600 "
-            > &times;</button>
 
-          </div>
+            <pre class="mt-1 bg-gray-500">
+              {key}: {JSON.stringify(value, null, 2)}
+            </pre>
+
+
+
 
         {/each}
   {/each}
@@ -162,7 +165,7 @@
       on:click={openAdaptorSelection}
       type="button"
       class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 my-5"
-    >Add</button>
+    >Add new call</button>
   {/if}
 
 
@@ -177,4 +180,4 @@
   on:click={requestFlashLoan}
   type="button"
   class="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 m-5 text-xl"
->Add to queue</button>
+>Schedule a flashloan</button>
