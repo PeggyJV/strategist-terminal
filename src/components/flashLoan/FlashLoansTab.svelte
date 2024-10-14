@@ -1,7 +1,7 @@
 <script lang="ts">
   import AdaptorSelection from "./AdaptorSelection.svelte"
   import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
-  import { Functions, PlaceHolder } from "$lib/type"
+  import { FlashLoan, Functions, PlaceHolder } from "$lib/type"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -49,7 +49,7 @@
           params: []
         },
         adaptorAddress,
-        "AaveV3DebtTokenV1FlashLoan"
+        FlashLoan.AaveV3DebtTokenV1FlashLoan
       );
     } else {
       cellarCall = new CellarCall(
@@ -60,7 +60,7 @@
           data: []
         },
         adaptorAddress,
-        "BalancerPoolV1FlashLoan");
+        FlashLoan.BalancerPoolV1FlashLoan);
     }
 
     queue.update((callQueue) => {

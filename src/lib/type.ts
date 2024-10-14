@@ -60,6 +60,10 @@ export enum Functions {
   IncreaseShareSupplyCap = "IncreaseShareSupplyCap",
   CachePriceRouter = "CachePriceRouter"
 }
+export enum FlashLoan {
+  AaveV3DebtTokenV1FlashLoan = "AaveV3DebtTokenV1FlashLoan",
+  BalancerPoolV1FlashLoan = "BalancerPoolV1FlashLoan"
+}
 
 export interface Adaptor {
   name: string
@@ -71,8 +75,8 @@ export interface AdaptorCall {
   function: string
   action: string
   fields: Field[]
-
 }
+
 export interface Field {
   name: string
   label: string

@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { Adaptor, AdaptorCall } from "$lib/adaptorList"
   import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
-  import { Functions } from "$lib/type"
+  import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;

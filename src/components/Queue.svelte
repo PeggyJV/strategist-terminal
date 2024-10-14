@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { CellarCall, queue } from "$stores/AdapterQueue"
+  import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
+  import { FlashLoan } from "$lib/type"
 
   function clearQueue() {
     queue.set([]);
@@ -8,6 +9,10 @@
     queue.update((calls: CellarCall[]) => {
       return calls.filter((_, i) => i !== index);
     });
+  }
+  function isFlashloanParams(adaptorName: string, field: string) {
+    return (adaptorName === FlashLoan.AaveV3DebtTokenV1FlashLoan || adaptorName === FlashLoan.BalancerPoolV1FlashLoan)
+      && field === "params"
   }
 
 </script>
@@ -32,7 +37,11 @@
               <div class="mb-2">
                 <p class="font-bold">{key}:</p>
                 <pre class="mt-1 text-gray-700 bg-gray-100">
-                  {JSON.stringify(value, null, 2)}
+                  {#if isFlashloanParams(item.adaptorName ?? "", key)}
+                    {JSON.stringify($flashLoanCalls, null, 2)}
+                    {:else }
+                    {JSON.stringify(value, null, 2)}
+                  {/if}
                 </pre>
               </div>
             {/each}
