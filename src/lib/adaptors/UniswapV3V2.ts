@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const UniswapV3V2: Adaptor = {
   name: "UniswapV3V2",
@@ -11,47 +11,56 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_0",
           label: "Token 0",
-          placeholder: "Enter Token 0 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_1",
           label: "Token 1",
-          placeholder: "Enter Token 1 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "pool_fee",
           label: "Pool Fee",
-          placeholder: "Enter Pool Fee"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         },
         {
           name: "amount_0",
           label: "Amount 0",
-          placeholder: "Enter Amount 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_1",
           label: "Amount 1",
-          placeholder: "Enter Amount 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_0",
           label: "Min 0",
-          placeholder: "Enter Min 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_1",
           label: "Min 1",
-          placeholder: "Enter Min 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "tick_lower",
           label: "Tick Lower",
-          placeholder: "Enter Tick Lower"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         },
         {
           name: "tick_upper",
           label: "Tick Upper",
-          placeholder: "Enter Tick Upper"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -62,17 +71,20 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_0",
           label: "Min 0",
-          placeholder: "Enter Minimum 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_1",
           label: "Min 1",
-          placeholder: "Enter Minimum 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -83,27 +95,32 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_0",
           label: "Amount 0",
-          placeholder: "Enter Amount 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_1",
           label: "Amount 1",
-          placeholder: "Enter Amount 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_0",
           label: "Min 0",
-          placeholder: "Enter Min 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_1",
           label: "Min 1",
-          placeholder: "Enter Min 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -114,27 +131,32 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "liquidity",
           label: "Liquidity",
-          placeholder: "Enter Liquidity"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_0",
           label: "Min 0",
-          placeholder: "Enter Min 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_1",
           label: "Min 1",
-          placeholder: "Enter Min 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "take_fees",
           label: "Take Fees",
-          placeholder: "Check if you want to take fees"
+          placeholder: PlaceHolder.Empty,
+          type: "checkbox"
         }
       ]
     },
@@ -145,17 +167,20 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_0",
           label: "Amount 0",
-          placeholder: "Enter Amount 0"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_1",
           label: "Amount 1",
-          placeholder: "Enter Amount 1"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -166,12 +191,14 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_0",
           label: "Token 0",
-          placeholder: "Enter Token 0 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_1",
           label: "Token 1",
-          placeholder: "Enter Token 1 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     },
@@ -182,7 +209,8 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -193,17 +221,20 @@ const UniswapV3V2: Adaptor = {
         {
           name: "token_id",
           label: "Token ID",
-          placeholder: "Enter Token ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "token_0",
           label: "Token 0",
-          placeholder: "Enter Token 0 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_1",
           label: "Token 1",
-          placeholder: "Enter Token 1 Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

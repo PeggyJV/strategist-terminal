@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const CollateralFTokenV1: Adaptor = {
   name: "CollateralFTokenV1",
@@ -11,12 +11,14 @@ const CollateralFTokenV1: Adaptor = {
         {
           name: "fraxlend_pair",
           label: "The FraxLend pair to add collateral to",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "collateral_to_deposit",
           label: "The amount of collateral to add to the cellar position",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const CollateralFTokenV1: Adaptor = {
         {
           name: "collateral_amount",
           label: "The amount of collateral to remove from the cellar position",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "fraxlend_pair",
           label: "The FraxLend pair to remove collateral from",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

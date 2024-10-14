@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const ZeroXV1: Adaptor = {
   name: "ZeroXV1",
@@ -11,22 +11,26 @@ const ZeroXV1: Adaptor = {
         {
           name: "token_in",
           label: "Token In (ERC-20 Contract Address)",
-          placeholder: "0xTokenInAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "token_out",
           label: "Token Out (ERC-20 Contract Address)",
-          placeholder: "0xTokenOutAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount to Swap",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "swap_call_data",
           label: "Swap Call Data",
-          placeholder: "Swap Call Data"
+          placeholder: PlaceHolder.ArrayOfNumber,
+          type: "array"
         }
       ]
     }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import AdaptorSelection from "./AdaptorSelection.svelte"
   import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
-  import { Functions } from "$lib/type"
+  import { FlashLoan, Functions, PlaceHolder } from "$lib/type"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -49,7 +49,7 @@
           params: []
         },
         adaptorAddress,
-        "AaveV3DebtTokenV1FlashLoan"
+        FlashLoan.AaveV3DebtTokenV1FlashLoan
       );
     } else {
       cellarCall = new CellarCall(
@@ -60,7 +60,7 @@
           data: []
         },
         adaptorAddress,
-        "BalancerPoolV1FlashLoan");
+        FlashLoan.BalancerPoolV1FlashLoan);
     }
 
     queue.update((callQueue) => {
@@ -107,7 +107,7 @@
   <input
     bind:value={adaptorAddress}
     id="adaptorAddress"
-    placeholder={adaptorAddress}
+    placeholder={PlaceHolder.Address}
     class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
   />
 
@@ -116,7 +116,7 @@
     <input
       bind:value={tokens}
       id="tokens"
-      placeholder='e.g., ["0x000...", "0x000..."]'
+      placeholder={PlaceHolder.ArrayOfAddress}
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
@@ -126,7 +126,7 @@
     <input
       bind:value={amounts}
       id="amounts"
-      placeholder='e.g., ["50", "100"]'
+      placeholder={PlaceHolder.ArrayOfString}
       class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
     />
   </div>
@@ -140,19 +140,22 @@
   {/if}
 
   {#each $flashLoanCalls as call, index (index)}
+    <div class="flex justify-between mt-2 ml-5">
         <h4>{call.adaptorName}</h4>
+        <button
+          on:click={() => removeCall(index)}
+          type="button"
+          class="px-1 text-red-500 text-3xl rounded-md hover:text-red-600 "
+        > &times;</button>
+    </div>
         {#each Object.entries(call.fields) as [key, value]}
-          <div class="flex justify-between mt-2 ml-5">
-            <div>
-              {key}: {JSON.stringify(value)}
-            </div>
-            <button
-              on:click={() => removeCall(index)}
-              type="button"
-              class="px-1 text-red-500 text-3xl rounded-md hover:text-red-600 "
-            > &times;</button>
 
-          </div>
+            <pre class="mt-1 bg-gray-500">
+              {key}: {JSON.stringify(value, null, 2)}
+            </pre>
+
+
+
 
         {/each}
   {/each}
@@ -162,7 +165,7 @@
       on:click={openAdaptorSelection}
       type="button"
       class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 my-5"
-    >Add</button>
+    >Add new call</button>
   {/if}
 
 
@@ -177,4 +180,4 @@
   on:click={requestFlashLoan}
   type="button"
   class="px-5 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 m-5 text-xl"
->Add to queue</button>
+>Schedule a flashloan</button>

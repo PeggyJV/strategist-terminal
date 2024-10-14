@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const MorphoAaveV2DebtTokenV1: Adaptor = {
   name: "MorphoAaveV2DebtTokenV1",
@@ -11,12 +11,14 @@ const MorphoAaveV2DebtTokenV1: Adaptor = {
         {
           name: "a_token",
           label: "Aave V2 aToken Contract Address",
-          placeholder: "0xaTokenAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_borrow",
           label: "Amount of Asset to Borrow",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const MorphoAaveV2DebtTokenV1: Adaptor = {
         {
           name: "a_token",
           label: "Aave V2 aToken Contract Address",
-          placeholder: "0xaTokenAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_repay",
           label: "Amount of Asset to Repay",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

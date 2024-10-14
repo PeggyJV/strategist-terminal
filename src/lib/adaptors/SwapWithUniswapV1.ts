@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const SwapWithUniswapV1: Adaptor = {
   name: "SwapWithUniswapV1",
@@ -11,17 +11,20 @@ const SwapWithUniswapV1: Adaptor = {
         {
           name: "path",
           label: "Address",
-          placeholder: "Address"
+          placeholder: PlaceHolder.ArrayOfAddress,
+          type: "array"
         },
         {
           name: "amount",
           label: "Amount to Swap",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_out_min",
           label: "Amount min",
-          placeholder: "Amount out min"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -32,22 +35,26 @@ const SwapWithUniswapV1: Adaptor = {
         {
           name: "path",
           label: "Address",
-          placeholder: "Address"
+          placeholder: PlaceHolder.ArrayOfAddress,
+          type: "array"
         },
         {
           name: "pool_fees",
           label: "Pool fees",
-          placeholder: "Pool fees"
+          placeholder: PlaceHolder.ArrayOfNumber,
+          type: "array"
         },
         {
           name: "amount",
           label: "Amount to Swap",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount_out_min",
           label: "Amount min",
-          placeholder: "Amount out min"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

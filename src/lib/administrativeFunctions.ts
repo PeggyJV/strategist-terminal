@@ -1,4 +1,4 @@
-import { type CellarFunction, Functions } from "$lib/type"
+import { type CellarFunction, Functions, PlaceHolder } from "$lib/type"
 
 const AddPosition: CellarFunction = {
   function: Functions.AddPosition,
@@ -9,25 +9,25 @@ const AddPosition: CellarFunction = {
     {
       name: "index",
       label: "Index at which to add the position",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "position_id",
       label: "The position's ID in the cellar registry",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "configuration_data",
       label: "Data used to configure how the position behaves",
-      placeholder: "e.g [1,2,3]",
+      placeholder: PlaceHolder.ArrayOfNumber,
       type: "array"
     },
     {
       name: "in_debt_array",
       label: "Whether to add position in the debt array, or the credit array",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "checkbox"
     }
   ]
@@ -42,13 +42,13 @@ const RemovePosition: CellarFunction = {
     {
       name: "index",
       label: "Index at which to remove the position",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "in_debt_array",
       label: "Whether to add position in the debt array, or the credit array",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "checkbox"
     },
   ]
@@ -63,7 +63,7 @@ const SetHoldingPosition: CellarFunction = {
     {
       name: "position_id",
       label: "ID (index) of the new holding position to use",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     }
   ]
@@ -78,7 +78,7 @@ const SetStrategistPayoutAddress: CellarFunction = {
     {
       name: "payout",
       label: "Payout address",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder: PlaceHolder.Address,
       type: "text"
     }
   ]
@@ -93,19 +93,19 @@ const SwapPositions: CellarFunction = {
     {
       name: "index_1",
       label: "Index of the first position",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "index_2",
       label: "Index of the second position",
-      placeholder: "e.g 2",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "in_debt_array",
       label: "Whether to switch positions in the debt array, or the credit array",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "checkbox"
     },
   ]
@@ -120,7 +120,7 @@ const SetShareLockPeriod: CellarFunction = {
     {
       name: "new_lock",
       label: "New lock",
-      placeholder: "",
+      placeholder: PlaceHolder.Text,
       type: "text"
     }
   ]
@@ -145,11 +145,13 @@ const LiftShutdown: CellarFunction = {
 const RemoveAdaptorFromCatalogue: CellarFunction = {
   function: Functions.RemoveAdaptorFromCatalogue,
   action: "Remove",
+  info: "Allows callers to remove adaptors from this cellar's catalogue. " +
+    "Represents function removeAdaptorFromCatalogue(address adaptor)",
   fields: [
     {
       name: "adaptor",
       label: "Adaptor address",
-      placeholder: "adaptor",
+      placeholder: PlaceHolder.Address,
       type: "text"
     }
   ]
@@ -164,7 +166,7 @@ const RemovePositionFromCatalogue: CellarFunction = {
     {
       name: "position_id",
       label: "Position ID",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     }
   ]
@@ -179,7 +181,7 @@ const DecreaseShareSupplyCap: CellarFunction = {
     {
       name: "new_cap",
       label: "New share supply cap",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "text"
     }
   ]
@@ -194,19 +196,19 @@ const SetAlternativeAssetData: CellarFunction = {
     {
       name: "alternative_asset",
       label: "The address of the alternative asset",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder: PlaceHolder.Address,
       type: "text"
     },
     {
       name: "alternative_holding_position",
       label: "The holding position to direct alternative asset deposits to",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "alternative_asset_fee",
       label: "The fee to charge for depositing this alternative asset",
-      placeholder: "",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     },
   ]
@@ -221,7 +223,7 @@ const DropAlternativeAssetData: CellarFunction = {
     {
       name: "alternative_asset",
       label: "The address of the alternative asset",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder: PlaceHolder.Address,
       type: "text"
     }
   ]
@@ -236,7 +238,7 @@ const AddAdaptorToCatalogue: CellarFunction = {
     {
       name: "adaptor",
       label: "Adaptor address",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder: PlaceHolder.Address,
       type: "text"
     }
   ]
@@ -251,7 +253,7 @@ const AddPositionToCatalogue: CellarFunction = {
     {
       name: "position_id",
       label: "Position ID",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Empty,
       type: "number"
     }
   ]
@@ -268,7 +270,7 @@ const SetRebalanceDeviation: CellarFunction = {
     {
       name: "new_deviation",
       label: "New deviation",
-      placeholder: "",
+      placeholder: PlaceHolder.Text,
       type: "text"
     }
   ]
@@ -283,7 +285,7 @@ const SetStrategistPlatformCut: CellarFunction = {
     {
       name: "new_cut",
       label: "The new strategist platform cut",
-      placeholder: "",
+      placeholder:  PlaceHolder.Empty,
       type: "number"
     }
   ]
@@ -298,7 +300,7 @@ const IncreaseShareSupplyCap: CellarFunction = {
     {
       name: "new_cap",
       label: "New cap",
-      placeholder: "",
+      placeholder:  PlaceHolder.Text,
       type: "text"
     }
   ]
@@ -313,13 +315,13 @@ const SetSharePriceOracle: CellarFunction = {
     {
       name: "registry_id",
       label: "Oracles registry ID",
-      placeholder: "e.g 1",
+      placeholder: PlaceHolder.Text,
       type: "text"
     },
     {
       name: "share_price_oracle",
       label: "Oracles contract address",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder:  PlaceHolder.Address,
       type: "text"
     }
   ]
@@ -334,19 +336,19 @@ const CachePriceRouter: CellarFunction = {
     {
       name: "check_total_assets",
       label: "Whether to check the total assets of the cellar",
-      placeholder: "",
+      placeholder:  PlaceHolder.Empty,
       type: "checkbox"
     },
     {
       name: "allowable_range",
       label: "The allowable range of the cellar's total assets to deviate between old and new routers",
-      placeholder: "",
+      placeholder:  PlaceHolder.Empty,
       type: "number"
     },
     {
       name: "expected_price_router",
       label: "The expected price router address",
-      placeholder: "e.g 0x1111111111111111111111111111111111111111",
+      placeholder:  PlaceHolder.Address,
       type: "text"
     }
   ]

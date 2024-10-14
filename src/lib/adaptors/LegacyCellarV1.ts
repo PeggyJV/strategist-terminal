@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const LegacyCellarV1: Adaptor = {
   name: "LegacyCellarV1",
@@ -11,17 +11,20 @@ const LegacyCellarV1: Adaptor = {
         {
           name: "cellar",
           label: "Cellar",
-          placeholder: "Cellar"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "assets",
           label: "Assets to deposit",
-          placeholder: "Assets"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "oracle",
           label: "Oracle",
-          placeholder: "Oracle"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     },
@@ -32,17 +35,20 @@ const LegacyCellarV1: Adaptor = {
         {
           name: "cellar",
           label: "Cellar",
-          placeholder: "Cellar"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "assets",
           label: "Assets to withdraw",
-          placeholder: "Assets"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "oracle",
           label: "Oracle",
-          placeholder: "Oracle"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

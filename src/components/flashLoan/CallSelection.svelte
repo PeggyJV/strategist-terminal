@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { Adaptor, AdaptorCall } from "$lib/adaptorList"
   import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
-  import { Functions } from "$lib/type"
+  import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;
@@ -79,6 +78,6 @@
 
   <button
     on:click={addCall}
-    class="p-2.5 border rounded focus:outline-none bg-gray-100 text-black border-gray-300"
-  >Add call</button>
+    class="p-2.5 border rounded focus:outline-none bg-blue-500 text-white border-gray-300"
+  >Add call to flashloan</button>
 {/if}

@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const MorphoAaveV3ATokenP2pV1: Adaptor = {
   name: "MorphoAaveV3ATokenP2pV1",
@@ -11,17 +11,20 @@ const MorphoAaveV3ATokenP2pV1: Adaptor = {
         {
           name: "token_to_deposit",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xTokenAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_deposit",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "max_iterations",
           label: "Max Iterations",
-          placeholder: "Max Iterations"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -32,17 +35,20 @@ const MorphoAaveV3ATokenP2pV1: Adaptor = {
         {
           name: "token_to_withdraw",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xTokenAddress"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_withdraw",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "max_iterations",
           label: "Max Iterations",
-          placeholder: "Max Iterations"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

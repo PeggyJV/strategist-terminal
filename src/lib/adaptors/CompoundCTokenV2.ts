@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const CompoundCTokenV2: Adaptor = {
   name: "CompoundCTokenV2",
@@ -11,12 +11,14 @@ const CompoundCTokenV2: Adaptor = {
         {
           name: "market",
           label: "Enter the Compound market address",
-          placeholder: "Market"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_deposit",
           label: "Enter amount to deposit",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const CompoundCTokenV2: Adaptor = {
         {
           name: "market",
           label: "Enter the Compound market address",
-          placeholder: "Market"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_withdraw",
           label: "Enter amount to withdraw",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
