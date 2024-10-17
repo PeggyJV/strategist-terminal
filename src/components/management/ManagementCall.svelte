@@ -6,6 +6,7 @@
 
   let cellarAddress = "";
   let blockHeight = "";
+  let deadline = "";
 
   let sendingRequest = false;
 
@@ -16,7 +17,8 @@
 
   async function handleCall() {
     sendingRequest = true;
-    const deadlineDate = new Date();
+
+    const deadlineDate = new Date(deadline);
     const deadlineUnixTimestamp = Math.floor(deadlineDate.getTime() / 1000) || 1;
 
     const result = await invoke("schedule_request", {
@@ -92,6 +94,11 @@
               <div class="mb-4">
                 <label for="block_height" class="block mb-1">Block Height:</label>
                 <input type="text" id="block_height" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={blockHeight} placeholder="Enter Block Height"/>
+              </div>
+
+              <div class="mb-4">
+                <label for="deadline" class="block mb-1">Deadline:</label>
+                <input type="datetime-local" id="deadline" class="w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500" bind:value={deadline} placeholder="Enter Deadline"/>
               </div>
 
               <div class="flex flex-row">
