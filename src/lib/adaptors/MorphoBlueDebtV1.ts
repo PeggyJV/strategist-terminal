@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const MorphoBlueDebtV1: Adaptor = {
   name: "MorphoBlueDebtV1",
@@ -11,12 +11,14 @@ const MorphoBlueDebtV1: Adaptor = {
         {
           name: "market",
           label: "Identifier of a Morpho Blue Market",
-          placeholder: "Market"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_to_borrow",
           label: "Amount of Debt Token to Borrow",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const MorphoBlueDebtV1: Adaptor = {
         {
           name: "market",
           label: "Identifier of a Morpho Blue Market",
-          placeholder: "Market"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "debt_token_repay_amount",
           label: "Amount of Debt Token to Repay",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

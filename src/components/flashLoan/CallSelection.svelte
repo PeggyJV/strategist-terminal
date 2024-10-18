@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Adaptor, AdaptorCall } from "$lib/adaptorList";
   import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
+  import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
 
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;
@@ -26,9 +26,12 @@
   function addCall() {
     flashLoanCalls.update((callQueue) => {
       callQueue.push(
-        new CellarCall(adaptor.address, adaptor.name, {
-          [selectedCall.function]: fieldValues,
-        })
+        new CellarCall(
+          Functions.CallOnAdaptor,
+          { [selectedCall.function]: fieldValues, },
+          adaptor.address,
+          adaptor.name
+        )
       );
       return callQueue;
     });
@@ -75,6 +78,6 @@
 
   <button
     on:click={addCall}
-    class="p-2.5 border rounded focus:outline-none bg-gray-100 text-black border-gray-300"
-  >Add call</button>
+    class="p-2.5 border rounded focus:outline-none bg-blue-500 text-white border-gray-300"
+  >Add call to flashloan</button>
 {/if}

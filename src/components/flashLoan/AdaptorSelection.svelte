@@ -1,7 +1,8 @@
 <script lang="ts">
 
-  import adaptorList, { type Adaptor } from "$lib/adaptorList"
+  import adaptorList from "$lib/adaptorList"
   import CallSelection from "./CallSelection.svelte"
+  import type { Adaptor } from "$lib/type"
 
   export let closeAdaptorSelection: () => void;
 

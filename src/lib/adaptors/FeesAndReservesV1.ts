@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const FeesAndReservesV1: Adaptor = {
   name: "FeesAndReservesV1",
@@ -11,7 +11,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "performance_fee",
           label: "New performance fee",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -22,7 +23,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "management_fee",
           label: "New management fee",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -33,7 +35,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "new_frequency",
           label: "New frequency",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -44,7 +47,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "new_max_gas",
           label: "New max gas",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -55,12 +59,14 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "management_fee",
           label: "Management fee",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         },
         {
           name: "performance_fee",
           label: "Performance fee",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         }
       ]
     },
@@ -71,7 +77,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -82,7 +89,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -93,7 +101,8 @@ const FeesAndReservesV1: Adaptor = {
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

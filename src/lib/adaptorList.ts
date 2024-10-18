@@ -12,7 +12,7 @@ import CompoundCTokenV2 from "$lib/adaptors/CompoundCTokenV2"
 import ConvexCurveV1 from "$lib/adaptors/ConvexCurveV1"
 import CurveV1 from "$lib/adaptors/CurveV1"
 import DebtFTokenV1 from "$lib/adaptors/DebtFTokenV1"
-import Erc4626V1V1 from "$lib/adaptors/Erc4626V1"
+import Erc4626V1 from "$lib/adaptors/Erc4626V1"
 import FeesAndReservesV1 from "$lib/adaptors/FeesAndReservesV1"
 import FTokenV1 from "$lib/adaptors/FTokenV1"
 import LegacyCellarV1 from "$lib/adaptors/LegacyCellarV1"
@@ -30,25 +30,9 @@ import SwapWithUniswapV1 from "$lib/adaptors/SwapWithUniswapV1"
 import UniswapV3V2 from "$lib/adaptors/UniswapV3V2"
 import VestingSimpleV2 from "$lib/adaptors/VestingSimpleV2"
 import ZeroXV1 from "$lib/adaptors/ZeroXV1"
+import type { Adaptor } from "$lib/type"
 
-export interface Adaptor {
-  name: string
-  address: string
-  calls: AdaptorCall[]
-}
 
-export interface AdaptorCall {
-  function: string
-  action: string
-  fields: Field[]
-
-}
-export interface Field {
-  name: string
-  label: string
-  placeholder: string
-
-}
 const adaptors: Adaptor[] = [
   AaveV3ATokenV1,
   AaveATokenV1,
@@ -64,7 +48,7 @@ const adaptors: Adaptor[] = [
   ConvexCurveV1,
   CurveV1,
   DebtFTokenV1,
-  Erc4626V1V1,
+  Erc4626V1,
   FeesAndReservesV1,
   FTokenV1,
   LegacyCellarV1,

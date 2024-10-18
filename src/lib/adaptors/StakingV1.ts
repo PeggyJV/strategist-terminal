@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList";
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const StakingV1: Adaptor = {
   name: "StakingV1",
@@ -11,17 +11,20 @@ const StakingV1: Adaptor = {
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_amount_out",
           label: "Min Amount Out",
-          placeholder: "Min Amount Out"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Wildcard Data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -32,12 +35,14 @@ const StakingV1: Adaptor = {
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Wildcard Data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -48,17 +53,20 @@ const StakingV1: Adaptor = {
         {
           name: "id",
           label: "Burn Request ID",
-          placeholder: "Burn Request ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_amount_out",
           label: "Min Amount Out",
-          placeholder: "Min Amount Out"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Wildcard Data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -69,12 +77,14 @@ const StakingV1: Adaptor = {
         {
           name: "id",
           label: "Burn Request ID",
-          placeholder: "Burn Request ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Wildcard Data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -85,17 +95,20 @@ const StakingV1: Adaptor = {
         {
           name: "amount",
           label: "Amount to Wrap",
-          placeholder: "Enter amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_amount_out",
           label: "Min Amount Out",
-          placeholder: "Enter minimum amount out"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Enter wildcard data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -106,17 +119,20 @@ const StakingV1: Adaptor = {
         {
           name: "amount",
           label: "Amount to Unwrap",
-          placeholder: "Enter amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_amount_out",
           label: "Min Amount Out",
-          placeholder: "Enter minimum amount out"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Enter wildcard data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -127,22 +143,26 @@ const StakingV1: Adaptor = {
         {
           name: "deposit_asset",
           label: "Deposit Asset Address",
-          placeholder: "Enter deposit asset address"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount",
-          placeholder: "Enter amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "min_amount_out",
           label: "Min Amount Out",
-          placeholder: "Enter minimum amount out"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Enter wildcard data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -153,12 +173,14 @@ const StakingV1: Adaptor = {
         {
           name: "id",
           label: "Request ID",
-          placeholder: "Enter request ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "wildcard",
           label: "Wildcard Data",
-          placeholder: "Enter wildcard data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }

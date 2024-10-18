@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const BalancerPoolV1: Adaptor = {
   name: "BalancerPoolV1",
@@ -11,32 +11,38 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "pool_id",
           label: "Pool ID",
-          placeholder: "Enter Pool ID"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "kind",
           label: "Swap Kind",
-          placeholder: "Kind"
+          placeholder: PlaceHolder.Empty,
+          type: "number"
         },
         {
           name: "asset_in",
           label: "The asset in",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "asset_out",
           label: "The asset out",
-          placeholder: "Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "The amount",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "user_data",
           label: "The user data",
-          placeholder: "User data"
+          placeholder: PlaceHolder.ArrayOfNumber,
+          type: "array"
         }
       ]
     },
@@ -47,12 +53,14 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "min_amounts_for_swaps",
           label: "The minimum amounts for swaps",
-          placeholder: "Amounts"
+          placeholder: PlaceHolder.ArrayOfString,
+          type: "array"
         },
         {
           name: "swap_deadlines",
           label: "The swap deadlines",
-          placeholder: "Deadlines"
+          placeholder: PlaceHolder.ArrayOfString,
+          type: "array"
         }
       ]
     },
@@ -63,22 +71,27 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "target_bpt",
           label: "Target BPT",
-          placeholder: "BPT"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "swaps_before_join",
           label: "Swap to execute before joining pool",
-          placeholder: "Swap"
+          placeholder: PlaceHolder.ArrayOfString,
+          type: "array"
         },
         {
           name: "swap_data",
           label: "Data for swaps",
-          placeholder: "Data"
+          placeholder: PlaceHolder.ArrayOfString,
+          // "{min_amounts_for_swaps: ['1'], swap_deadlines: : ['1']}",
+          type: "text"
         },
         {
           name: "minimum_bpt",
           label: "The minimum BPT to mint",
-          placeholder: "BPT"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -89,22 +102,27 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "assets",
           label: "Assets",
-          placeholder: "Asset Addresses, comma-separated"
+          placeholder: PlaceHolder.ArrayOfAddress,
+          type: "array"
         },
         {
           name: "min_amounts_out",
           label: "Minimum Amounts Out",
-          placeholder: "Minimum Amounts, comma-separated"
+          placeholder: PlaceHolder.ArrayOfString,
+          type: "array"
         },
         {
           name: "user_data",
           label: "User Data",
-          placeholder: "User Data in bytes"
+          placeholder: PlaceHolder.ArrayOfNumber,
+          type: "array"
         },
         {
           name: "to_internal_balance",
           label: "To Internal Balance",
-          placeholder: "Boolean"
+          placeholder: PlaceHolder.Empty,
+          type: "checkbox"
+
         }
       ]
     },
@@ -115,22 +133,26 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "exit_target_bpt",
           label: "Swaps to execute after exiting pool",
-          placeholder: "Swaps"
+          placeholder: PlaceHolder.Empty,
+          type: "text"
         },
         {
           name: "swaps_after_exit",
           label: "Target BPT",
-          placeholder: "Enter Target BPT"
+          placeholder: PlaceHolder.ArrayOfString,
+          type: "array"
         },
         {
           name: "swap_data",
           label: "Exit swap data",
-          placeholder: "Swap Data"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "request",
           label: "Request",
-          placeholder: "Request"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -141,17 +163,20 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "bpt",
           label: "BPT",
-          placeholder: "BPT Address"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "liquidity_gauge",
           label: "Liquidity Gauge",
-          placeholder: "Liquidity Gauge Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_in",
           label: "Amount",
-          placeholder: "Amount to Stake"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -162,38 +187,20 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "bpt",
           label: "BPT",
-          placeholder: "BPT Address"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         },
         {
           name: "liquidity_gauge",
           label: "Liquidity Gauge",
-          placeholder: "Liquidity Gauge Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount_in",
           label: "Amount",
-          placeholder: "Amount to Unstake"
-        }
-      ]
-    },
-    {
-      function: "UnstakeBPT",
-      action: "Unstake BPT",
-      fields: [
-        {
-          name: "bpt",
-          label: "BPT",
-          placeholder: "BPT Address"
-        },
-        {
-          name: "liquidity_gauge",
-          label: "Liquidity Gauge",
-          placeholder: "Liquidity Gauge Address"
-        },
-        {
-          name: "amount_in",
-          label: "Amount",
-          placeholder: "Amount to Unstake"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -204,7 +211,8 @@ const BalancerPoolV1: Adaptor = {
         {
           name: "gauge",
           label: "Gauge",
-          placeholder: "Gauge Address"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         }
       ]
     }

@@ -3,12 +3,17 @@ use std::str::FromStr;
 use alloy_primitives::Address;
 use eyre::{bail, Result};
 use futures::StreamExt;
+use serde::Deserialize;
+use serde_json::Value;
 use somm_proto::pubsub::Subscriber;
 use steward_proto::proto::{
     aave_v3_debt_token_adaptor_v1_flash_loan::AdaptorCallForAaveV3FlashLoan,
     balancer_pool_adaptor_v1_flash_loan::AdaptorCallForBalancerPoolFlashLoan,
-    contract_call_service_client::ContractCallServiceClient, AdaptorCall, ScheduleRequest,
+    contract_call_service_client::ContractCallServiceClient,
+    AdaptorCall,
+    ScheduleRequest,
     ScheduleResponse,
+    cellar_v2_5
 };
 use tauri::async_runtime::Sender;
 use tauri::Manager;
@@ -25,18 +30,19 @@ use crate::{
     application::{self, get_channel},
     cellar_call::{
         construct_call_data, convert_to_aave_v3_flash_loan_adaptor,
-        convert_to_balancer_pool_flash_loan_adaptor, CellarCall,
+        convert_to_balancer_pool_flash_loan_adaptor, CellarCallData,
     },
     lifecycle,
     state::{RequestState, RequestStatus},
 };
+use crate::cellar_call::{CellarCall, create_cellar_call};
 
 pub(crate) fn validate(
     cellar_id: &str,
     block_height: u64,
     chain_id: u64,
     deadline: u64,
-    calls: &Vec<CellarCall>,
+    calls: &Vec<CellarCallData>,
 ) -> Result<()> {
     if Address::from_str(cellar_id).is_err() {
         bail!("invalid cellar address");
@@ -64,18 +70,20 @@ pub(crate) fn validate(
     Ok(())
 }
 
-pub(crate) fn validate_calls(calls: &[CellarCall]) -> Result<()> {
+pub(crate) fn validate_calls(calls: &[CellarCallData]) -> Result<()> {
     if calls.is_empty() {
         bail!("cellar call data is empty");
     };
 
     for call in calls.iter() {
-        if call.adaptor.is_empty() {
-            bail!("adaptor id is empty");
-        }
+        if let Some(adaptor) = &call.adaptor_address {
+            if adaptor.is_empty() {
+                bail!("adaptor id is empty");
+            }
 
-        if Address::from_str(&call.adaptor).is_err() {
-            bail!("invalid adaptor address");
+            if Address::from_str(adaptor).is_err() {
+                bail!("invalid adaptor address");
+            }
         }
 
         if call.fields.is_empty() {
@@ -91,14 +99,10 @@ pub(crate) fn build_request(
     block_height: u64,
     chain_id: u64,
     deadline: u64,
-    queue: Vec<CellarCall>,
-) -> Result<ScheduleRequest> {
-    let adaptor_calls = queue
-        .into_iter()
-        .map(|call| call.to_adaptor_call())
-        .collect::<Result<_>>()?;
-    let call_data = Some(construct_call_data(adaptor_calls));
-
+    queue: Vec<CellarCallData>,
+) -> Result<ScheduleRequest, serde_json::Error> {
+    let function_input = create_cellar_call(queue)?;
+    let call_data = Some(construct_call_data(function_input));
     Ok(ScheduleRequest {
         cellar_id,
         chain_id,
@@ -113,45 +117,59 @@ pub(crate) fn build_flash_loan_request(
     block_height: u64,
     chain_id: u64,
     deadline: u64,
-    flash_loan_call: CellarCall,
-    queue: Vec<CellarCall>,
+    flash_loan_call: CellarCallData,
+    queue: Vec<CellarCallData>,
 ) -> Result<ScheduleRequest> {
     let adaptor_calls: Vec<AdaptorCall> = queue
         .into_iter()
         .map(|call| call.to_adaptor_call())
         .collect::<Result<_>>()?;
 
-    let flash_loan_adaptor_call = match flash_loan_call.name {
-        Adaptors::AaveV3DebtTokenV1FlashLoan => {
+    let adaptor_str = match &flash_loan_call.adaptor_address {
+        Some(adaptor) => adaptor,
+        None => bail!("Adaptor is None"),
+    };
+
+    let flash_loan_adaptor_call = match flash_loan_call.adaptor_name {
+        Some(Adaptors::AaveV3DebtTokenV1FlashLoan) => {
             let adaptor_calls_for_flash_loan = adaptor_calls
                 .into_iter()
                 .map(|call| convert_to_aave_v3_flash_loan_adaptor(&call))
                 .collect::<Result<Vec<AdaptorCallForAaveV3FlashLoan>>>()?;
 
             get_aave_v3_debt_token_flash_loan_adaptor_call(
-                &flash_loan_call.adaptor,
+                adaptor_str,
                 &flash_loan_call.fields,
                 adaptor_calls_for_flash_loan,
             )
         }
-        Adaptors::BalancerPoolV1FlashLoan => {
+        Some(Adaptors::BalancerPoolV1FlashLoan) => {
             let adaptor_calls_for_flash_loan = adaptor_calls
                 .into_iter()
                 .map(|call| convert_to_balancer_pool_flash_loan_adaptor(&call))
                 .collect::<Result<Vec<AdaptorCallForBalancerPoolFlashLoan>>>()?;
 
             get_balancer_pool_flash_loan_adaptor_call(
-                &flash_loan_call.adaptor,
+                adaptor_str,
                 &flash_loan_call.fields,
                 adaptor_calls_for_flash_loan,
             )
         }
-        _ => unreachable!("Unsupported flash loan variant encountered"),
+        Some(_) => unreachable!("Unsupported flash loan variant encountered"),
+        None => bail!("No adaptor name provided"),
     }?;
+
 
     let flash_loan_adaptor_call = vec![flash_loan_adaptor_call];
 
-    let call_data = Some(construct_call_data(flash_loan_adaptor_call));
+    let function = cellar_v2_5::function_call::Function::CallOnAdaptor(
+        cellar_v2_5::CallOnAdaptor {
+            data: flash_loan_adaptor_call
+
+        }
+    );
+
+    let call_data = Some(construct_call_data(function));
 
     Ok(ScheduleRequest {
         cellar_id,

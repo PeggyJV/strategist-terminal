@@ -1,4 +1,4 @@
-import type { Adaptor } from "$lib/adaptorList"
+import { type Adaptor, PlaceHolder } from "$lib/type"
 
 const AaveV3DebtTokenV1: Adaptor = {
   name: "AaveV3DebtTokenV1",
@@ -11,12 +11,14 @@ const AaveV3DebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -27,12 +29,14 @@ const AaveV3DebtTokenV1: Adaptor = {
         {
           name: "token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of ERC-20 Asset",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     },
@@ -43,12 +47,14 @@ const AaveV3DebtTokenV1: Adaptor = {
         {
           name: "underlying_token",
           label: "ERC-20 Token Contract Address",
-          placeholder: "0xtoken"
+          placeholder: PlaceHolder.Address,
+          type: "text"
         },
         {
           name: "amount",
           label: "Amount of AToken to Repay",
-          placeholder: "Amount"
+          placeholder: PlaceHolder.Text,
+          type: "text"
         }
       ]
     }
