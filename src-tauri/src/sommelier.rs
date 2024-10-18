@@ -1,6 +1,8 @@
 use eyre::Result;
 use log::debug;
+use ocular::{tx::ModuleMsg};
 use once_cell::sync::OnceCell;
+use somm_proto::axelar_cork::MsgRelayAxelarCorkRequest;
 use tauri::Manager;
 use tendermint_rpc::{Client, HttpClient};
 
@@ -48,4 +50,17 @@ async fn refresh_block_height(app_handle: tauri::AppHandle, rpc_endpoint: &str) 
     debug!("block height: {}", block_height);
 
     Ok(())
+}
+
+async fn relay_cork(app_handle: tauri::AppHandle) -> Result<()> {
+    let grpc_endpoint = app_handle.state::<state::Sommelier>().0.read().await.grpc_endpoint.clone();
+    let msg = MsgRelayAxelarCorkRequest {
+        signer: todo!(),
+        token: todo!(),
+        fee: todo!(),
+        chain_id: todo!(),
+        target_contract_address: todo!()
+    };
+    let msg = prost_types::Any::from_msg(&msg)?;
+
 }
