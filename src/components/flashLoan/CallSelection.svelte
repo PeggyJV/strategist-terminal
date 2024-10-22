@@ -1,6 +1,7 @@
 <script lang="ts">
   import { CellarCall, flashLoanCalls } from "$stores/AdapterQueue"
   import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
+  import { parseArrayField } from "$lib/utils"
 
   export let adaptor: Adaptor;
   export let closeAdaptorSelection: () => void;
@@ -18,12 +19,49 @@
 
   function handleInput(fieldName: string, event: Event) {
 
-    const input = event.target as HTMLInputElement;
+    const target = event.target as HTMLInputElement;
+    let value: string | number | boolean | [] | null   = target.value;
 
-    fieldValues[fieldName] = input.value;
+    if (target.type === 'number') {
+      value = target.value ? Number(target.value) : null;
+    } else if (target.type === 'checkbox') {
+      value = target.checked;
+    }
+
+    if (!fieldValues[fieldName]) {
+      fieldValues[fieldName] = {};
+    }
+    fieldValues[fieldName] = value;
   }
 
-  function addCall() {
+  function addCall(call: AdaptorCall) {
+
+    // Assign false values to empty checkboxes
+    call.fields.forEach((field) => {
+      if (fieldValues[call.function] && fieldValues[field.name]) {
+        fieldValues[field.name] = fieldValues[field.name];
+      }
+      if (field.type === "checkbox" && !fieldValues[field.name]) {
+        fieldValues[field.name] = false;
+      }
+    });
+
+    // Parse array fields
+    for (const fieldName of Object.keys(fieldValues)) {
+
+      const field = call.fields.find((f) => f.name === fieldName);
+
+      if (field && field.type === "array") {
+        const parsedValue = parseArrayField(fieldValues[fieldName], fieldName);
+
+        if (parsedValue !== null) {
+          fieldValues[fieldName] = parsedValue;
+        } else {
+          return;
+        }
+      }
+    }
+
     flashLoanCalls.update((callQueue) => {
       callQueue.push(
         new CellarCall(
@@ -67,17 +105,20 @@
     <div class="flex justify-between mt-2">
       <label for={field.name}>{field.label}:</label>
       <input
+        type={field.type ?? 'text'}
         value={fieldValues[field.name] ?? ''}
         on:input={(event) => handleInput(field.name, event)}
         id={field.name}
         placeholder="{field.placeholder}"
-        class="w-100 px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500"
+        checked={false}
+        class="px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500
+                  {field.type === 'checkbox' ? 'w-[25px]' : 'w-[250px]'}"
       />
     </div>
   {/each}
 
   <button
-    on:click={addCall}
+    on:click={() => addCall(selectedCall)}
     class="p-2.5 border rounded focus:outline-none bg-blue-500 text-white border-gray-300"
   >Add call to flashloan</button>
 {/if}

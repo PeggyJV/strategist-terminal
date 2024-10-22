@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CellarCall, queue } from "$stores/AdapterQueue";
   import { type Adaptor, type AdaptorCall, Functions } from "$lib/type"
-  import { toast, ToastType } from "$stores/ToastStore"
+  import { parseArrayField } from "$lib/utils"
 
   export let adaptor: Adaptor;
 
@@ -38,42 +38,26 @@
   function addCallToQueue(call: AdaptorCall) {
     const relevantFields: Record<string, any> = {};
 
-    call.fields.forEach(field => {
+    // Assign false values to empty checkboxes
+    call.fields.forEach((field) => {
       if (fieldValues[call.function] && fieldValues[call.function][field.name]) {
         relevantFields[field.name] = fieldValues[call.function][field.name];
       }
-      if(field.type === 'checkbox' && !fieldValues[call.function][field.name]) {
+      if (field.type === "checkbox" && !fieldValues[call.function][field.name]) {
         relevantFields[field.name] = false;
       }
     });
 
+    // Parse array fields
     for (const fieldName of Object.keys(relevantFields)) {
-      const field = call.fields
-        .find((f) => f.name === fieldName);
+      const field = call.fields.find((f) => f.name === fieldName);
 
-      // If the fields type is array, create js array out of string
-      if (field && field.type === 'array') {
-        try {
-          const value = relevantFields[fieldName];
+      if (field && field.type === "array") {
+        const parsedValue = parseArrayField(relevantFields[fieldName], fieldName);
 
-          const parsedValue = JSON.parse(value);
-
-          if (Array.isArray(parsedValue)) {
-            relevantFields[fieldName] = parsedValue;
-          } else {
-            toast.set({
-              type: ToastType.Error,
-              description: `Error with array format on ${fieldName}.`
-            });
-            return;
-          }
-        } catch (error) {
-          console.error("Error parsing array field", fieldName, error);
-          toast.set({
-            type: ToastType.Error,
-            description: `Error parsing array on ${fieldName}. ${error}`
-          });
-          relevantFields[fieldName] = [];
+        if (parsedValue !== null) {
+          relevantFields[fieldName] = parsedValue;
+        } else {
           return;
         }
       }
@@ -92,6 +76,7 @@
     });
     fieldValues[call.function] = {};
   }
+
 </script>
 
 <div class="prose mt-10 w-screen">

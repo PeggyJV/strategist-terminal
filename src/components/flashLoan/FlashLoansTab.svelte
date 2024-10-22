@@ -2,6 +2,7 @@
   import AdaptorSelection from "./AdaptorSelection.svelte"
   import { CellarCall, flashLoanCalls, queue } from "$stores/AdapterQueue"
   import { FlashLoan, Functions, PlaceHolder } from "$lib/type"
+  import { parseArrayField } from "$lib/utils"
 
   let adaptorSelectionOpen = false;
   let addCallBtnVisible = true;
@@ -35,8 +36,8 @@
   }
 
   function requestFlashLoan(): void {
-    const cTokens = convertToArray(tokens);
-    const cAmounts = convertToArray(amounts);
+    const cTokens = parseArrayField(tokens, "Loan Tokens");
+    const cAmounts = parseArrayField(amounts, "Loan Amounts");
 
     let cellarCall: CellarCall;
 
