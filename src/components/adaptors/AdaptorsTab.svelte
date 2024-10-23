@@ -1,7 +1,8 @@
 <script lang="ts">
 
 import AdaptorTemplate from "./AdaptorTemplate.svelte"
-import adaptorList, { type Adaptor } from "$lib/adaptorList"
+import adaptorList from "$lib/adaptorList"
+import type { Adaptor } from "$lib/type"
 
 let activeAdaptor = adaptorList[0];
 let searchQuery = "";

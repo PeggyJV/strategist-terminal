@@ -3,7 +3,7 @@
   import { CellarCall } from "$stores/AdapterQueue";
   import ManagementCall from "./ManagementCall.svelte";
   import { administrativeFunctions } from "$lib/administrativeFunctions";
-  import { toast, ToastType } from "$stores/ToastStore"
+  import { parseArrayField } from "$lib/utils"
 
   let callData: {
     function: Functions | null,
@@ -41,31 +41,15 @@
   async function callFunction() {
     for (const fieldName of Object.keys(callData.fields)) {
       const field = administrativeFunctions
-        .find((fn) => fn.function === callData.function)?.fields
-        .find((f) => f.name === fieldName);
+        .find((fn) => fn.function === callData.function)
+        ?.fields.find((f) => f.name === fieldName);
 
-      if (field && field.type === 'array') {
-        try {
-          const value = callData.fields[fieldName];
+      if (field && field.type === "array") {
+        const parsedValue = parseArrayField(callData.fields[fieldName], fieldName);
 
-          const parsedValue = JSON.parse(value);
-
-          if (Array.isArray(parsedValue)) {
-            callData.fields[fieldName] = parsedValue;
-          } else {
-            toast.set({
-              type: ToastType.Error,
-              description: `Error with array format on ${fieldName}.`
-            });
-            return;
-          }
-        } catch (error) {
-          console.error("Error parsing array field", fieldName, error);
-          toast.set({
-            type: ToastType.Error,
-            description: `Error parsing array on ${fieldName}. ${error}`
-          });
-          callData.fields[fieldName] = [];
+        if (parsedValue !== null) {
+          callData.fields[fieldName] = parsedValue;
+        } else {
           return;
         }
       }
@@ -77,6 +61,7 @@
 
     toggleCallModal();
   }
+
 
   let openIndex: number | null = null;
 
