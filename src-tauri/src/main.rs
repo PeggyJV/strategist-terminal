@@ -11,6 +11,7 @@ mod commands;
 mod config;
 mod lifecycle;
 mod logging;
+mod rpc;
 mod schedule;
 mod sommelier;
 mod state;

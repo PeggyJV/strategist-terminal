@@ -6,6 +6,7 @@ use tokio::sync::mpsc::Receiver;
 
 use crate::state::{RequestState, RequestStatus, Requests};
 
+pub(crate) mod axelar;
 pub(crate) mod cork_vote;
 pub(crate) mod gravity;
 pub(crate) mod relay;
@@ -44,6 +45,13 @@ pub async fn track_request(
 
                 log::info!(id = trace_id, status = &RequestStatus::AwaitingConfirmation; "request is awaiting confirmation");
             }
+            RequestStatus::AwaitingRelayCorkCall => {
+                requests
+                    .entry(id.clone())
+                    .and_modify(|r| r.status = RequestStatus::AwaitingRelayCorkCall);
+
+                log::info!(id = trace_id, status = &RequestStatus::AwaitingRelayCorkCall; "request is awaiting RelayCork call");
+            }
             RequestStatus::FailedVote => {
                 requests
                     .entry(id.clone())
@@ -58,19 +66,14 @@ pub async fn track_request(
 
                 log::info!(id = trace_id, status = &RequestStatus::AwaitingRelay(somm_tx_hash.to_owned()); "request is awaiting relay");
             }
-            RequestStatus::Relayed(gmp_tx_hash) => {
-                requests
-                    .entry(id.clone())
-                    .and_modify(|r| r.gmp_tx_hash = Some(gmp_tx_hash.to_owned()));
-
-                log::info!(id = trace_id, status = &RequestStatus::Relayed(gmp_tx_hash.to_owned()); "request is relayed");
-            }
             RequestStatus::FailedExecution(tx_hash) | RequestStatus::Success(tx_hash) => {
                 requests
                     .entry(id.clone())
                     .and_modify(|r| r.target_tx_hash = Some(tx_hash.to_owned()));
 
                 log::info!(id = trace_id, status = &RequestStatus::FailedExecution(tx_hash.to_owned()); "request failed execution");
+
+                break;
             }
             _ => {
                 log::info!(id = trace_id, status = &status; "request has status unhandled by tracker");

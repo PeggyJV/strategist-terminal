@@ -150,7 +150,7 @@ pub(crate) async fn schedule_request(
 
     log::trace!(request:?; "spawning request handler");
 
-    schedule::handle(app_handle.clone(), request)
+    schedule::handle_schedule_request(app_handle.clone(), request)
         .await
         .map_err(|e| e.to_string())
 }
